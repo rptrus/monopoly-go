@@ -1,16 +1,13 @@
 package main
 
 import (
-	"alphastar/setup"
 	"fmt"
+	"github.com/rptrus/monopoly-go/setup"
 )
-
-type player struct {
-	playerNumber  int
-	cashAvailable int
-}
 
 func main() {
 	fmt.Println("Starting Monopoly Go SIM")
 	setup.InitializeBoard()
+	setup.InitializeBank()
+	setup.SetupPropertyCards()
 }

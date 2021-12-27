@@ -1,8 +1,6 @@
-module monopoly-go
+module github.com/rptrus/monopoly-go
 
 go 1.17
 
-
-replace alphastar/setup => ./setup
-
-require alphastar/setup v0.0.0-00010101000000-000000000000
+//replace github.com/rptrus/monopoly-go/setup => ./setup
+//replace github.com/rptrus/monopoly-go/game_objects => ./game_objects
