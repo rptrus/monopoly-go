@@ -1,6 +1,8 @@
 package game_objects
 
-type player struct {
-	playerNumber  int
-	cashAvailable int
+// board position will be zero based. GO space is zero
+type Player struct {
+	PlayerNumber    int
+	CashAvailable   int
+	PositionOnBoard int
 }

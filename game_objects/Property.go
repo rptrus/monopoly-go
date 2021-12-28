@@ -13,5 +13,5 @@ type Property struct {
 }
 
 type PropertyCollection struct {
-	AllProperty [40]Property
+	AllProperty [28]Property // there are 12 non property cards
 }

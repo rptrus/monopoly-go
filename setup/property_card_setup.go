@@ -7,7 +7,7 @@ import (
 	"github.com/rptrus/monopoly-go/game_objects"
 )
 
-func SetupPropertyCards() {
+func InitializePropertyCards() {
 
 	var prop *game_objects.Property
 	prop = new(game_objects.Property) // pointer to instance
@@ -70,7 +70,7 @@ func SetupPropertyCards() {
 	propertyCollection.AllProperty[4] = *prop
 
 	// another way to initiailze
-	another := game_objects.PropertyCollection{AllProperty: [40]game_objects.Property{*prop}}
+	another := game_objects.PropertyCollection{AllProperty: [28]game_objects.Property{*prop}}
 	fmt.Println(another)
 
 }

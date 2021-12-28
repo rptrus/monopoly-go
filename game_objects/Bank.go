@@ -2,8 +2,8 @@ package game_objects
 
 // every one will have a plus or minus side
 type Transaction struct {
-	sender   *player
-	receiver *player
+	sender   *Player
+	receiver *Player
 	amount   int
 }
 

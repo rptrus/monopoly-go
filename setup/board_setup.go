@@ -1,8 +1,12 @@
 package setup
 
+// Key things learned here are range over for loop
+// new provides a pointer and struct literal returns the actual data structure (use & if necessary to get address)
+// slices don't provide a length, but are otherwise defined like arrays
+
 import (
 	"fmt"
-	game_objects "github.com/rptrus/monopoly-go/game_objects"
+	"github.com/rptrus/monopoly-go/game_objects"
 )
 
 func InitializeBoard() {
@@ -57,4 +61,29 @@ func InitializeBoard() {
 func InitializeBank() {
 	bk := new(game_objects.Bank)
 	bk.CashReservesInDollars = 20580
+}
+
+//// functions to work on all players ////
+
+//var allPlayers [6]Player // array
+var allPlayers []game_objects.Player // slice
+
+func InitializePlayers(numberOfPlayers int) {
+	for i := 0; i < numberOfPlayers; i++ {
+		p := game_objects.Player{
+			PlayerNumber:    i + 1,
+			CashAvailable:   1500,
+			PositionOnBoard: 0,
+		}
+		// using new is probably not idiomatic Go, but is still available to use
+		q := new(game_objects.Player)
+		q.PlayerNumber = 1
+		// something to note: p gives pointer, q gives the variable
+		allPlayers = append(allPlayers, p)
+		fmt.Println("Initialized players:\n", p)
+	}
+
+	for a, b := range allPlayers {
+		fmt.Println("Player: \n", a, b)
+	}
 }
