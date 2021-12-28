@@ -8,11 +8,6 @@ type Square struct {
 	SquareType int
 }
 
-type GameState struct {
-	CurrentPlayer   *Player
-	CurrentDiceRoll int
-}
-
 const (
 	buildableProperty int = iota
 	chanceChest

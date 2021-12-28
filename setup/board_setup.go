@@ -65,25 +65,22 @@ func InitializeBank() {
 
 //// functions to work on all players ////
 
-//var allPlayers [6]Player // array
-var allPlayers []game_objects.Player // slice
-
 func InitializePlayers(numberOfPlayers int) {
 	for i := 0; i < numberOfPlayers; i++ {
 		p := game_objects.Player{
-			PlayerNumber:    i + 1,
+			PlayerNumber:    i,
 			CashAvailable:   1500,
 			PositionOnBoard: 0,
 		}
-		// using new is probably not idiomatic Go, but is still available to use
+		// using new is probably not idiomatic Go, but is still available to use. Must deref though.
 		q := new(game_objects.Player)
 		q.PlayerNumber = 1
 		// something to note: p gives pointer, q gives the variable
-		allPlayers = append(allPlayers, p)
+		game_objects.AllPlayers = append(game_objects.AllPlayers, p)
 		fmt.Println("Initialized players:\n", p)
 	}
 
-	for a, b := range allPlayers {
+	for a, b := range game_objects.AllPlayers {
 		fmt.Println("Player: \n", a, b)
 	}
 }

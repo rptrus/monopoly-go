@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/rptrus/monopoly-go/game_objects"
 	"github.com/rptrus/monopoly-go/setup"
 )
 
@@ -19,4 +20,25 @@ func main() {
 	setup.InitializeBank()
 	setup.InitializePropertyCards()
 	setup.InitializePlayers(numberOfPlayers)
+	firstUp := game_objects.RollToSeeWhoGoesFirst()
+	println(firstUp.PlayerNumber, " is going first...")
+	gameState := game_objects.GameState{
+		CurrentPlayer:   firstUp,
+		CurrentDiceRoll: 0,
+		GlobalTurnsMade: 0,
+	}
+	for {
+		gameState.RollDice() // gs updated
+		gameState.CurrentPlayer.AdvancePlayer(gameState.CurrentDiceRoll)
+		// do some monopoly stuff here
+		fmt.Println("Current Player ", gameState.CurrentPlayer.PlayerNumber, " rolled a ", gameState.CurrentDiceRoll)
+		// ...
+		gameState.NextPlayer()
+
+		if gameState.GlobalTurnsMade > 50 {
+			break
+		}
+	}
+
+	fmt.Println("Finish.")
 }
