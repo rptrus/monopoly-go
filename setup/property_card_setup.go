@@ -69,6 +69,25 @@ func InitializePropertyCards() {
 	}
 	propertyCollection.AllProperty[4] = *prop
 
+	//here
+	prop = new(game_objects.Property)
+	prop.Card = make(map[string]*game_objects.PropertyDeed)
+	prop.Card["Pall Mall"] = &game_objects.PropertyDeed{
+		PurchaseCost:   140,
+		Rent:           10,
+		RentWithHouses: []int{50, 140, 450, 625, 750},
+	}
+	propertyCollection.AllProperty[5] = *prop
+
+	prop = new(game_objects.Property)
+	prop.Card = make(map[string]*game_objects.PropertyDeed)
+	prop.Card["Whitehall"] = &game_objects.PropertyDeed{
+		PurchaseCost:   140,
+		Rent:           10,
+		RentWithHouses: []int{50, 150, 450, 625, 750},
+	}
+	propertyCollection.AllProperty[6] = *prop
+
 	// another way to initiailze
 	another := game_objects.PropertyCollection{AllProperty: [28]game_objects.Property{*prop}}
 	fmt.Println(another)
