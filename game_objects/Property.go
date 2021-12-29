@@ -3,9 +3,10 @@ package game_objects
 // using http://www.jdawiseman.com/papers/trivia/monopoly-rents.html
 
 type PropertyDeed struct {
-	PurchaseCost   int
-	Rent           int
-	RentWithHouses []int
+	PositionOnBoard int
+	PurchaseCost    int
+	Rent            int
+	RentWithHouses  []int
 }
 
 type Property struct {
