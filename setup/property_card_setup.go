@@ -6,12 +6,12 @@ import (
 	"github.com/rptrus/monopoly-go/game_objects"
 )
 
-func InitializePropertyCards() {
+func InitializePropertyCards() *game_objects.PropertyCollection {
 
 	var prop *game_objects.Property
 	prop = new(game_objects.Property) // pointer to instance
 
-	propertyCollection := new(game_objects.PropertyCollection)
+	PropertyCollection := new(game_objects.PropertyCollection)
 
 	// out of struct
 	/*
@@ -34,7 +34,7 @@ func InitializePropertyCards() {
 		Rent:            2,
 		RentWithHouses:  []int{2, 10, 30, 90, 160, 250}, // creates another slice literal by first creating the underlying array
 	}
-	propertyCollection.AllProperty[0] = *prop
+	PropertyCollection.AllProperty[0] = *prop
 
 	prop = new(game_objects.Property)                       // new pointer to instance
 	prop.Card = make(map[string]*game_objects.PropertyDeed) // therefore new map needed each time
@@ -43,8 +43,9 @@ func InitializePropertyCards() {
 		PurchaseCost:    60,
 		Rent:            4,
 		RentWithHouses:  []int{4, 20, 60, 180, 320, 450},
+		Owner:           'u',
 	}
-	propertyCollection.AllProperty[1] = *prop
+	PropertyCollection.AllProperty[1] = *prop
 
 	prop = new(game_objects.Property)
 	prop.Card = make(map[string]*game_objects.PropertyDeed)
@@ -53,8 +54,9 @@ func InitializePropertyCards() {
 		PurchaseCost:    200,
 		Rent:            25, // base cost
 		RentWithHouses:  nil,
+		Owner:           'u',
 	}
-	propertyCollection.AllProperty[2] = *prop
+	PropertyCollection.AllProperty[2] = *prop
 
 	prop = new(game_objects.Property)
 	prop.Card = make(map[string]*game_objects.PropertyDeed)
@@ -63,8 +65,9 @@ func InitializePropertyCards() {
 		PurchaseCost:    100,
 		Rent:            6,
 		RentWithHouses:  []int{30, 90, 270, 400, 550},
+		Owner:           'u',
 	}
-	propertyCollection.AllProperty[3] = *prop
+	PropertyCollection.AllProperty[3] = *prop
 
 	prop = new(game_objects.Property)
 	prop.Card = make(map[string]*game_objects.PropertyDeed)
@@ -73,8 +76,9 @@ func InitializePropertyCards() {
 		PurchaseCost:    100,
 		Rent:            6,
 		RentWithHouses:  []int{30, 90, 270, 400, 550},
+		Owner:           'u',
 	}
-	propertyCollection.AllProperty[4] = *prop
+	PropertyCollection.AllProperty[4] = *prop
 
 	prop = new(game_objects.Property)
 	prop.Card = make(map[string]*game_objects.PropertyDeed)
@@ -83,8 +87,9 @@ func InitializePropertyCards() {
 		PurchaseCost:    120,
 		Rent:            8,
 		RentWithHouses:  []int{40, 100, 300, 450, 600},
+		Owner:           'u',
 	}
-	propertyCollection.AllProperty[5] = *prop
+	PropertyCollection.AllProperty[5] = *prop
 
 	// SIDE 2
 
@@ -95,8 +100,9 @@ func InitializePropertyCards() {
 		PurchaseCost:    140,
 		Rent:            10,
 		RentWithHouses:  []int{50, 140, 450, 625, 750},
+		Owner:           'u',
 	}
-	propertyCollection.AllProperty[6] = *prop
+	PropertyCollection.AllProperty[6] = *prop
 
 	prop = new(game_objects.Property)
 	prop.Card = make(map[string]*game_objects.PropertyDeed)
@@ -105,8 +111,9 @@ func InitializePropertyCards() {
 		PurchaseCost:    150,
 		Rent:            -1, // special case
 		RentWithHouses:  nil,
+		Owner:           'u',
 	}
-	propertyCollection.AllProperty[7] = *prop
+	PropertyCollection.AllProperty[7] = *prop
 
 	prop = new(game_objects.Property)
 	prop.Card = make(map[string]*game_objects.PropertyDeed)
@@ -115,8 +122,9 @@ func InitializePropertyCards() {
 		PurchaseCost:    140,
 		Rent:            10,
 		RentWithHouses:  []int{50, 150, 450, 625, 750},
+		Owner:           'u',
 	}
-	propertyCollection.AllProperty[8] = *prop
+	PropertyCollection.AllProperty[8] = *prop
 
 	prop = new(game_objects.Property)
 	prop.Card = make(map[string]*game_objects.PropertyDeed)
@@ -125,8 +133,9 @@ func InitializePropertyCards() {
 		PurchaseCost:    140,
 		Rent:            10,
 		RentWithHouses:  []int{50, 150, 450, 625, 750},
+		Owner:           'u',
 	}
-	propertyCollection.AllProperty[9] = *prop
+	PropertyCollection.AllProperty[9] = *prop
 
 	prop = new(game_objects.Property)
 	prop.Card = make(map[string]*game_objects.PropertyDeed)
@@ -135,8 +144,9 @@ func InitializePropertyCards() {
 		PurchaseCost:    200,
 		Rent:            25,
 		RentWithHouses:  nil,
+		Owner:           'u',
 	}
-	propertyCollection.AllProperty[10] = *prop
+	PropertyCollection.AllProperty[10] = *prop
 
 	prop = new(game_objects.Property)
 	prop.Card = make(map[string]*game_objects.PropertyDeed)
@@ -145,8 +155,9 @@ func InitializePropertyCards() {
 		PurchaseCost:    180,
 		Rent:            14,
 		RentWithHouses:  []int{70, 200, 550, 750, 950},
+		Owner:           'u',
 	}
-	propertyCollection.AllProperty[11] = *prop
+	PropertyCollection.AllProperty[11] = *prop
 
 	prop = new(game_objects.Property)
 	prop.Card = make(map[string]*game_objects.PropertyDeed)
@@ -155,8 +166,9 @@ func InitializePropertyCards() {
 		PurchaseCost:    180,
 		Rent:            14,
 		RentWithHouses:  []int{70, 200, 550, 750, 950},
+		Owner:           'u',
 	}
-	propertyCollection.AllProperty[12] = *prop
+	PropertyCollection.AllProperty[12] = *prop
 
 	prop = new(game_objects.Property)
 	prop.Card = make(map[string]*game_objects.PropertyDeed)
@@ -165,8 +177,9 @@ func InitializePropertyCards() {
 		PurchaseCost:    200,
 		Rent:            16,
 		RentWithHouses:  []int{80, 220, 600, 800, 1000},
+		Owner:           'u',
 	}
-	propertyCollection.AllProperty[13] = *prop
+	PropertyCollection.AllProperty[13] = *prop
 
 	// SIDE 3
 
@@ -177,8 +190,9 @@ func InitializePropertyCards() {
 		PurchaseCost:    220,
 		Rent:            18,
 		RentWithHouses:  []int{90, 250, 700, 875, 1050},
+		Owner:           'u',
 	}
-	propertyCollection.AllProperty[14] = *prop
+	PropertyCollection.AllProperty[14] = *prop
 
 	prop = new(game_objects.Property)
 	prop.Card = make(map[string]*game_objects.PropertyDeed)
@@ -187,8 +201,9 @@ func InitializePropertyCards() {
 		PurchaseCost:    220,
 		Rent:            20,
 		RentWithHouses:  []int{90, 250, 700, 875, 1050},
+		Owner:           'u',
 	}
-	propertyCollection.AllProperty[15] = *prop
+	PropertyCollection.AllProperty[15] = *prop
 
 	prop = new(game_objects.Property)
 	prop.Card = make(map[string]*game_objects.PropertyDeed)
@@ -197,8 +212,9 @@ func InitializePropertyCards() {
 		PurchaseCost:    240,
 		Rent:            20,
 		RentWithHouses:  []int{100, 300, 750, 925, 1100},
+		Owner:           'u',
 	}
-	propertyCollection.AllProperty[16] = *prop
+	PropertyCollection.AllProperty[16] = *prop
 
 	prop = new(game_objects.Property)
 	prop.Card = make(map[string]*game_objects.PropertyDeed)
@@ -207,8 +223,9 @@ func InitializePropertyCards() {
 		PurchaseCost:    200,
 		Rent:            25,
 		RentWithHouses:  nil,
+		Owner:           'u',
 	}
-	propertyCollection.AllProperty[17] = *prop
+	PropertyCollection.AllProperty[17] = *prop
 
 	prop = new(game_objects.Property)
 	prop.Card = make(map[string]*game_objects.PropertyDeed)
@@ -217,8 +234,9 @@ func InitializePropertyCards() {
 		PurchaseCost:    260,
 		Rent:            22,
 		RentWithHouses:  []int{110, 330, 800, 975, 1150},
+		Owner:           'u',
 	}
-	propertyCollection.AllProperty[18] = *prop
+	PropertyCollection.AllProperty[18] = *prop
 
 	prop = new(game_objects.Property)
 	prop.Card = make(map[string]*game_objects.PropertyDeed)
@@ -227,8 +245,9 @@ func InitializePropertyCards() {
 		PurchaseCost:    260,
 		Rent:            22,
 		RentWithHouses:  []int{110, 330, 800, 975, 1150},
+		Owner:           'u',
 	}
-	propertyCollection.AllProperty[19] = *prop
+	PropertyCollection.AllProperty[19] = *prop
 
 	prop = new(game_objects.Property)
 	prop.Card = make(map[string]*game_objects.PropertyDeed)
@@ -237,8 +256,9 @@ func InitializePropertyCards() {
 		PurchaseCost:    150,
 		Rent:            -1,
 		RentWithHouses:  nil,
+		Owner:           'u',
 	}
-	propertyCollection.AllProperty[20] = *prop
+	PropertyCollection.AllProperty[20] = *prop
 
 	prop = new(game_objects.Property)
 	prop.Card = make(map[string]*game_objects.PropertyDeed)
@@ -247,8 +267,9 @@ func InitializePropertyCards() {
 		PurchaseCost:    280,
 		Rent:            22,
 		RentWithHouses:  []int{120, 360, 850, 1025, 1200},
+		Owner:           'u',
 	}
-	propertyCollection.AllProperty[21] = *prop
+	PropertyCollection.AllProperty[21] = *prop
 
 	// SIDE 4
 
@@ -259,8 +280,9 @@ func InitializePropertyCards() {
 		PurchaseCost:    300,
 		Rent:            26,
 		RentWithHouses:  []int{130, 390, 900, 1100, 1275},
+		Owner:           'u',
 	}
-	propertyCollection.AllProperty[22] = *prop
+	PropertyCollection.AllProperty[22] = *prop
 
 	prop = new(game_objects.Property)
 	prop.Card = make(map[string]*game_objects.PropertyDeed)
@@ -269,8 +291,9 @@ func InitializePropertyCards() {
 		PurchaseCost:    300,
 		Rent:            26,
 		RentWithHouses:  []int{130, 390, 900, 1100, 1275},
+		Owner:           'u',
 	}
-	propertyCollection.AllProperty[23] = *prop
+	PropertyCollection.AllProperty[23] = *prop
 
 	prop = new(game_objects.Property)
 	prop.Card = make(map[string]*game_objects.PropertyDeed)
@@ -279,8 +302,9 @@ func InitializePropertyCards() {
 		PurchaseCost:    320,
 		Rent:            28,
 		RentWithHouses:  []int{150, 450, 1000, 1200, 1400},
+		Owner:           'u',
 	}
-	propertyCollection.AllProperty[24] = *prop
+	PropertyCollection.AllProperty[24] = *prop
 
 	prop = new(game_objects.Property)
 	prop.Card = make(map[string]*game_objects.PropertyDeed)
@@ -289,8 +313,9 @@ func InitializePropertyCards() {
 		PurchaseCost:    200,
 		Rent:            25,
 		RentWithHouses:  nil,
+		Owner:           'u',
 	}
-	propertyCollection.AllProperty[25] = *prop
+	PropertyCollection.AllProperty[25] = *prop
 
 	prop = new(game_objects.Property)
 	prop.Card = make(map[string]*game_objects.PropertyDeed)
@@ -299,8 +324,9 @@ func InitializePropertyCards() {
 		PurchaseCost:    350,
 		Rent:            35,
 		RentWithHouses:  []int{175, 500, 1100, 1300, 1500},
+		Owner:           'u',
 	}
-	propertyCollection.AllProperty[26] = *prop
+	PropertyCollection.AllProperty[26] = *prop
 
 	prop = new(game_objects.Property)
 	prop.Card = make(map[string]*game_objects.PropertyDeed)
@@ -309,11 +335,13 @@ func InitializePropertyCards() {
 		PurchaseCost:    400,
 		Rent:            50,
 		RentWithHouses:  []int{200, 600, 1400, 1700, 2000},
+		Owner:           'u',
 	}
-	propertyCollection.AllProperty[27] = *prop
+	PropertyCollection.AllProperty[27] = *prop
 
 	// another potential way to initiailze, would need individual vars though
 	//another := game_objects.PropertyCollection{AllProperty: [28]game_objects.Property{*prop,*prop,*prop}}
 	//fmt.Println(another)
+	return PropertyCollection
 
 }

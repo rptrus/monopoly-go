@@ -7,18 +7,21 @@ import (
 )
 
 const (
-	maxlow  int = 1
-	maxhigh int = 6
+	maxdicelow          int = 1
+	maxdicehigh         int = 6
+	placesonboard       int = 40
+	totalPlayersPlaying     = 6
 )
 
 type GameState struct {
-	CurrentPlayer   *Player
-	CurrentDiceRoll int
-	GlobalTurnsMade int
+	CurrentPlayer         *Player
+	CurrentPropertyOfTurn *Property
+	CurrentDiceRoll       int
+	GlobalTurnsMade       int
 }
 
 // TODO: tie situation. At the moment first player with highest score wins the toss
-func RollToSeeWhoGoesFirst() *Player {
+func RollToSeeWhoGoesFirst(AllPlayers []Player) *Player {
 	// in the same directory / package so no need to qualify it
 	var (
 		highestSoFarPlayer int = 0
@@ -40,8 +43,8 @@ func RollToSeeWhoGoesFirst() *Player {
 func rollDice() int {
 	time.Sleep(1 * time.Millisecond)
 	rand.Seed(time.Now().UnixNano())
-	first := maxlow + rand.Intn(maxhigh-maxlow+1)
-	second := maxlow + rand.Intn(maxhigh-maxlow+1)
+	first := maxdicelow + rand.Intn(maxdicehigh-maxdicelow+1)
+	second := maxdicelow + rand.Intn(maxdicehigh-maxdicelow+1)
 	total := first + second
 	return total
 }
@@ -54,5 +57,5 @@ func (gs *GameState) RollDice() {
 
 // For now we assume that there will be 6 players always
 func (gs *GameState) NextPlayer() {
-	gs.CurrentPlayer.PlayerNumber = (gs.CurrentPlayer.PlayerNumber + 1) % 6
+	gs.CurrentPlayer.PlayerNumber = (gs.CurrentPlayer.PlayerNumber + 1) % totalPlayersPlaying
 }

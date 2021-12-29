@@ -7,6 +7,7 @@ type PropertyDeed struct {
 	PurchaseCost    int
 	Rent            int
 	RentWithHouses  []int
+	Owner           byte // ['1'-'6'] or 'b' for bank. 'u' if unowned
 }
 
 type Property struct {

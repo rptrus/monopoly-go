@@ -9,11 +9,11 @@ type Square struct {
 }
 
 const (
-	buildableProperty int = iota
-	chanceChest
-	tax
-	station
-	noAction
-	utility
-	action
+	BuildableProperty int = iota
+	ChanceChest
+	Tax
+	Station
+	NoAction
+	Utility
+	Action
 )
