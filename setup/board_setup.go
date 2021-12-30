@@ -13,48 +13,48 @@ func InitializeBoard() *game_objects.Board {
 	fmt.Println("Calling initialize")
 	brd := game_objects.Board{}
 	// side 1
-	brd.MonopolySpace[0].SquareType = 4
+	brd.MonopolySpace[0].SquareType = game_objects.NoAction
 	brd.MonopolySpace[1].SquareType = game_objects.BuildableProperty
-	brd.MonopolySpace[2].SquareType = 1
+	brd.MonopolySpace[2].SquareType = game_objects.ChanceChest
 	brd.MonopolySpace[3].SquareType = game_objects.BuildableProperty
-	brd.MonopolySpace[4].SquareType = 2
+	brd.MonopolySpace[4].SquareType = game_objects.Tax
 	brd.MonopolySpace[5].SquareType = game_objects.Station
 	brd.MonopolySpace[6].SquareType = game_objects.BuildableProperty
-	brd.MonopolySpace[7].SquareType = 1
+	brd.MonopolySpace[7].SquareType = game_objects.ChanceChest
 	brd.MonopolySpace[8].SquareType = game_objects.BuildableProperty
 	brd.MonopolySpace[9].SquareType = game_objects.BuildableProperty
 	// side 2
-	brd.MonopolySpace[10].SquareType = 6
+	brd.MonopolySpace[10].SquareType = game_objects.NoAction
 	brd.MonopolySpace[11].SquareType = game_objects.BuildableProperty
-	brd.MonopolySpace[12].SquareType = 5
+	brd.MonopolySpace[12].SquareType = game_objects.Utility
 	brd.MonopolySpace[13].SquareType = game_objects.BuildableProperty
 	brd.MonopolySpace[14].SquareType = game_objects.BuildableProperty
 	brd.MonopolySpace[15].SquareType = game_objects.Station
 	brd.MonopolySpace[16].SquareType = game_objects.BuildableProperty
-	brd.MonopolySpace[17].SquareType = 1
+	brd.MonopolySpace[17].SquareType = game_objects.ChanceChest
 	brd.MonopolySpace[18].SquareType = game_objects.BuildableProperty
 	brd.MonopolySpace[19].SquareType = game_objects.BuildableProperty
 	// side 3
-	brd.MonopolySpace[20].SquareType = 4
+	brd.MonopolySpace[20].SquareType = game_objects.NoAction
 	brd.MonopolySpace[21].SquareType = game_objects.BuildableProperty
-	brd.MonopolySpace[22].SquareType = 1
+	brd.MonopolySpace[22].SquareType = game_objects.ChanceChest
 	brd.MonopolySpace[23].SquareType = game_objects.BuildableProperty
 	brd.MonopolySpace[24].SquareType = game_objects.BuildableProperty
 	brd.MonopolySpace[25].SquareType = game_objects.Station
 	brd.MonopolySpace[26].SquareType = game_objects.BuildableProperty
 	brd.MonopolySpace[27].SquareType = game_objects.BuildableProperty
-	brd.MonopolySpace[28].SquareType = 5
+	brd.MonopolySpace[28].SquareType = game_objects.Utility
 	brd.MonopolySpace[29].SquareType = game_objects.BuildableProperty
 	// side 4
-	brd.MonopolySpace[30].SquareType = 6
+	brd.MonopolySpace[30].SquareType = game_objects.Action
 	brd.MonopolySpace[31].SquareType = game_objects.BuildableProperty
 	brd.MonopolySpace[32].SquareType = game_objects.BuildableProperty
-	brd.MonopolySpace[33].SquareType = 1
+	brd.MonopolySpace[33].SquareType = game_objects.ChanceChest
 	brd.MonopolySpace[34].SquareType = game_objects.BuildableProperty
 	brd.MonopolySpace[35].SquareType = game_objects.Station
-	brd.MonopolySpace[36].SquareType = 1
+	brd.MonopolySpace[36].SquareType = game_objects.ChanceChest
 	brd.MonopolySpace[37].SquareType = game_objects.BuildableProperty
-	brd.MonopolySpace[38].SquareType = 2
+	brd.MonopolySpace[38].SquareType = game_objects.Tax
 	brd.MonopolySpace[39].SquareType = game_objects.BuildableProperty
 	return &brd
 }
@@ -80,10 +80,17 @@ func InitializePlayers(numberOfPlayers int) []game_objects.Player {
 		// using new is probably not idiomatic Go, but is still available to use. Must deref though.
 		q := new(game_objects.Player)
 		q.PlayerNumber = 1
-		// something to note: p gives pointer, q gives the variable
+		// something to note: q gives pointer, p gives the variable
 		AllPlayers = append(AllPlayers, p)
 		fmt.Println("Initialized players:\n", p)
 	}
+	// give some names to the players, make it less boring
+	AllPlayers[0].Name = "Fred"
+	AllPlayers[1].Name = "Mary"
+	AllPlayers[2].Name = "Jason"
+	AllPlayers[3].Name = "Sally"
+	AllPlayers[4].Name = "Bradley"
+	AllPlayers[5].Name = "Kate"
 
 	for a, b := range AllPlayers {
 		fmt.Println("Player: \n", a, b)

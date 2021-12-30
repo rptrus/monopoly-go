@@ -17,3 +17,24 @@ const (
 	Utility
 	Action
 )
+
+func GetPropertyType(number int) string {
+	var propType string
+	switch number {
+	case BuildableProperty:
+		propType = "Property"
+	case ChanceChest:
+		propType = "Community Chest / Chance"
+	case Tax:
+		propType = "Tax collection"
+	case Station:
+		propType = "Station"
+	case NoAction:
+		propType = "Nothing"
+	case Utility:
+		propType = "Utility"
+	case Action:
+		propType = "Action"
+	}
+	return propType
+}

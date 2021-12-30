@@ -23,26 +23,29 @@ func main() {
 		GlobalTurnsMade: 0,
 	}
 	for {
-		gameState.RollDice() // gs updated
+		gameState.RollDice()
 		gameState.CurrentPlayer.AdvancePlayer(gameState.CurrentDiceRoll)
 		// do some monopoly stuff here
-		fmt.Println("Current Player ", gameState.CurrentPlayer.PlayerNumber, " rolled a ", gameState.CurrentDiceRoll)
+		fmt.Println("\nCurrent Player ", gameState.CurrentPlayer.PlayerNumber, " rolled a ", gameState.CurrentDiceRoll)
 		theDeed := getTheCurrentCard(gameState.CurrentPlayer.PositionOnBoard, propertyCardCollection)
 		fmt.Println("Landed on space ", gameState.CurrentPlayer.PositionOnBoard)
 		if theDeed != nil {
 			if theDeed.Owner == 'u' {
-				fmt.Println("Purchase by player ", gameState.CurrentPlayer.PlayerNumber)
+				fmt.Println("Purchase by player ", gameState.CurrentPlayer.Name, " who now has $", gameState.CurrentPlayer.CashAvailable)
 				gameState.CurrentPlayer.BuyProperty(theDeed)
 			} else {
-				fmt.Println("Pay rent")
+				_, err := theDeed.PayRent(&allPlayers[gameState.CurrentPlayer.PlayerNumber], &allPlayers[int(theDeed.Owner)])
+				if err != nil {
+					fmt.Println(allPlayers[gameState.CurrentPlayer.PlayerNumber].Name, gameState.CurrentPlayer.PlayerNumber, " pay $", theDeed.Rent, " rent to Player ", allPlayers[int(theDeed.Owner)].Name, int(theDeed.Owner))
+					fmt.Println(allPlayers[gameState.CurrentPlayer.PlayerNumber].Name, " now has $", allPlayers[gameState.CurrentPlayer.PlayerNumber].CashAvailable, " and ", allPlayers[int(theDeed.Owner)].Name, " has $", allPlayers[int(theDeed.Owner)].CashAvailable)
+				}
 			}
 		} else {
-			// TODO: print out the square type by english name not number
 			sqType := board.MonopolySpace[gameState.CurrentPlayer.PositionOnBoard]
-			fmt.Println("Landed on a non property square! ", sqType.SquareType)
+			fmt.Println("Landed on a non property square! ", game_objects.GetPropertyType(sqType.SquareType))
 		}
 		// ...
-		gameState.NextPlayer()
+		gameState.NextPlayer(allPlayers)
 
 		if gameState.GlobalTurnsMade > 50 {
 			break
@@ -60,11 +63,9 @@ func getTheCurrentCard(board int, MyPropertyCardCollection *game_objects.Propert
 		for _, v := range aSingularCardMap {
 			//fmt.Println(v)
 			if v.PositionOnBoard == board {
-				fmt.Println("found it")
 				return v
 			} // do something with error
 		}
 	}
-	fmt.Println("not found!!")
 	return nil
 }

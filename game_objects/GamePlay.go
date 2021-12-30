@@ -56,6 +56,7 @@ func (gs *GameState) RollDice() {
 }
 
 // For now we assume that there will be 6 players always
-func (gs *GameState) NextPlayer() {
-	gs.CurrentPlayer.PlayerNumber = (gs.CurrentPlayer.PlayerNumber + 1) % totalPlayersPlaying
+func (gs *GameState) NextPlayer(allPlayers []Player) {
+	//gs.CurrentPlayer.PlayerNumber = (gs.CurrentPlayer.PlayerNumber + 1) % totalPlayersPlaying
+	gs.CurrentPlayer = &allPlayers[(gs.CurrentPlayer.PlayerNumber+1)%totalPlayersPlaying]
 }
