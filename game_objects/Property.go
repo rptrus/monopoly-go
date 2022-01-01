@@ -24,16 +24,28 @@ type PropertyCollection struct {
 	AllProperty [28]Property // there are 12 non property cards
 }
 
-func (pd *PropertyDeed) PayRent(from *Player, to *Player) (int, error) {
+func (pd *PropertyDeed) PayRent(from *Player, to *Player, board *Board) (int, error) {
 	if (*from).PlayerNumber == (*to).PlayerNumber {
-		fmt.Println("Don't pay rent to ourselves") // not really an error
-		return 0, nil
+		fmt.Println("Don't pay rent to ourselves")
+		return 0, errors.New("RentToOurself") // *not really* an error, but a way to suppress output
 	}
 	if (*from).CashAvailable-pd.Rent < 0 {
 		str := []string{"Player does not have enough funds to cover rent ", string(pd.Rent)}
 		return 0, errors.New(strings.Join(str, " "))
 	}
-	from.CashAvailable -= pd.Rent
-	to.CashAvailable += pd.Rent
+	switch board.MonopolySpace[from.PositionOnBoard].SquareType {
+	case Utility:
+		// just implementing single utility for now
+		roll := rollDice()
+		fmt.Println("Utility re-roll of", roll)
+		pd.Rent = 4 * roll
+		from.CashAvailable -= pd.Rent
+		to.CashAvailable += pd.Rent
+	case BuildableProperty:
+		fallthrough
+	default:
+		from.CashAvailable -= pd.Rent
+		to.CashAvailable += pd.Rent
+	}
 	return pd.Rent, nil
 }

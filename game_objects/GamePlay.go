@@ -60,3 +60,18 @@ func (gs *GameState) NextPlayer(allPlayers []Player) {
 	//gs.CurrentPlayer.PlayerNumber = (gs.CurrentPlayer.PlayerNumber + 1) % totalPlayersPlaying
 	gs.CurrentPlayer = &allPlayers[(gs.CurrentPlayer.PlayerNumber+1)%totalPlayersPlaying]
 }
+
+// board position to property[28]
+func GetTheCurrentCard(board int, MyPropertyCardCollection *PropertyCollection) (string, *PropertyDeed) {
+	for _, card := range (*MyPropertyCardCollection).AllProperty {
+		// j is single entry map of name:Property
+		aSingularCardMap := card.Card
+		for n, v := range aSingularCardMap {
+			//fmt.Println(v)
+			if v.PositionOnBoard == board {
+				return n, v
+			}
+		}
+	}
+	return "", nil
+}
