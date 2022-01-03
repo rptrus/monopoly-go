@@ -24,6 +24,21 @@ type PropertyCollection struct {
 	AllProperty [28]Property // there are 12 non property cards
 }
 
+// encapsulates things like tax, go to jail and eventually community chest/chance
+type OtherPropertyDetail struct {
+	PositionOnBoard int
+	PlayerTax       int // if applicable (e.g. tax, supertax)
+	moveToSquare    int // if defined, it will move a player to paricluar square (e.g. go to jail) -1 if undefined
+}
+
+type OtherProperty struct {
+	Card map[string]*OtherPropertyDetail
+}
+
+type OtherPropertyCollection struct {
+	AllProperty [12]OtherProperty
+}
+
 func (pd *PropertyDeed) PayRent(from *Player, to *Player, board *Board, props *PropertyCollection) (int, error) {
 	if (*from).PlayerNumber == (*to).PlayerNumber {
 		fmt.Println("Don't pay rent to ourselves")
@@ -36,7 +51,7 @@ func (pd *PropertyDeed) PayRent(from *Player, to *Player, board *Board, props *P
 	switch board.MonopolySpace[from.PositionOnBoard].SquareType {
 	case Utility:
 		// just implementing single utility for now
-		var ownsBoth = len(findSameType(board, pd, props)) == 2
+		ownsBoth := len(findSameType(board, pd, props)) == 2
 		roll := rollDice()
 		fmt.Println("Utility re-roll of", roll)
 		if ownsBoth {
@@ -46,6 +61,9 @@ func (pd *PropertyDeed) PayRent(from *Player, to *Player, board *Board, props *P
 		}
 		from.CashAvailable -= pd.Rent
 		to.CashAvailable += pd.Rent
+	case Station:
+		stationsOwnedByPlayer := len(findSameType(board, pd, props))
+		pd.Rent = stationsOwnedByPlayer * 25
 	case BuildableProperty:
 		fallthrough
 	default:

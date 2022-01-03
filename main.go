@@ -28,22 +28,22 @@ func main() {
 	}
 	for {
 		gameState.RollDice()
-		prePosition := gameState.CurrentPlayer.PositionOnBoard // before we roll to our next place
-		bankToPay := gameState.CurrentPlayer.AdvancePlayer(gameState.CurrentDiceRoll)
+		prePosition := gameState.CurrentPlayer.PositionOnBoard // place before we advance to our roll
+		passGoPayment := gameState.CurrentPlayer.AdvancePlayer(gameState.CurrentDiceRoll)
 		// do some monopoly stuff here
 		fmt.Println("\nTurn:", gameState.GlobalTurnsMade, "Current Player", gameState.CurrentPlayer.PlayerNumber, "rolled a", gameState.CurrentDiceRoll)
-		if bankToPay > 0 {
-			fmt.Println("BANK PAYS PLAYER $", bankToPay)
+		if passGoPayment > 0 {
+			fmt.Println("BANK PAYS PLAYER $", passGoPayment)
 		}
 		thePropertyName, theDeed := game_objects.GetTheCurrentCard(gameState.CurrentPlayer.PositionOnBoard, propertyCardCollection)
 		if theDeed != nil {
 			// currently a bug (or design shortfall) that it will only display property cards and not other non-property cards. Will create another array for non-property cards
 			preName, _ := game_objects.GetTheCurrentCard(prePosition, propertyCardCollection)
-			str := "Moved from " + strconv.Itoa(prePosition) + " " + preName + " and Landed on space " + strconv.Itoa(gameState.CurrentPlayer.PositionOnBoard) + " " + string(thePropertyName) + " Owned by "
+			str := "Moved from" + strconv.Itoa(prePosition) + " " + preName + " and Landed on space " + strconv.Itoa(gameState.CurrentPlayer.PositionOnBoard) + " " + string(thePropertyName) + " Owned by "
 			if theDeed.Owner != 'u' {
 				fmt.Println(str+"Player", int(theDeed.Owner))
 			} else {
-				fmt.Println(str + "Bank")
+				fmt.Println(str+"Bank", theDeed.Owner)
 			}
 			if theDeed.Owner == 'u' {
 				gameState.CurrentPlayer.BuyProperty(theDeed)

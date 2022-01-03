@@ -75,3 +75,19 @@ func GetTheCurrentCard(board int, MyPropertyCardCollection *PropertyCollection) 
 	}
 	return "", nil
 }
+
+// input: player number
+// output: properties owned
+func (gs *GameState) showPropertiesOfPlayer(MyPropertyCardCollection *PropertyCollection) []int {
+	fmt.Println(gs.CurrentPlayer.PlayerNumber)
+	propsOwned := []int{}
+	for _, card := range MyPropertyCardCollection.AllProperty {
+		aSingularCardMap := card.Card
+		for _, v := range aSingularCardMap {
+			if int(v.Owner) == gs.CurrentPlayer.PlayerNumber {
+				propsOwned = append(propsOwned, v.PositionOnBoard)
+			}
+		}
+	}
+	return propsOwned
+}

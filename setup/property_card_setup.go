@@ -308,7 +308,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 
 	prop = new(game_objects.Property)
 	prop.Card = make(map[string]*game_objects.PropertyDeed)
-	prop.Card["Liverpool Street"] = &game_objects.PropertyDeed{
+	prop.Card["Liverpool Street Station"] = &game_objects.PropertyDeed{
 		PositionOnBoard: 35,
 		PurchaseCost:    200,
 		Rent:            25,
@@ -330,7 +330,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 
 	prop = new(game_objects.Property)
 	prop.Card = make(map[string]*game_objects.PropertyDeed)
-	prop.Card["Park Lane"] = &game_objects.PropertyDeed{
+	prop.Card["Mayfair"] = &game_objects.PropertyDeed{
 		PositionOnBoard: 39,
 		PurchaseCost:    400,
 		Rent:            50,
@@ -344,4 +344,109 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 	//fmt.Println(another)
 	return PropertyCollection
 
+}
+
+// These are cards that typically cannot be owned, built upon and don't pay rent
+func InitializeNonPropertyCards() *game_objects.OtherPropertyCollection {
+
+	var nonprop *game_objects.OtherProperty
+	OtherPropertyCollection := new(game_objects.OtherPropertyCollection)
+
+	nonprop = new(game_objects.OtherProperty) // pointer to instance
+	nonprop.Card = make(map[string]*game_objects.OtherPropertyDetail)
+	(*nonprop).Card["GO"] = &game_objects.OtherPropertyDetail{
+		PositionOnBoard: 0,
+		PlayerTax:       0,
+	}
+	OtherPropertyCollection.AllProperty[0] = *nonprop
+
+	nonprop = new(game_objects.OtherProperty) // pointer to instance
+	nonprop.Card = make(map[string]*game_objects.OtherPropertyDetail)
+	(*nonprop).Card["Community Chest"] = &game_objects.OtherPropertyDetail{
+		PositionOnBoard: 2,
+		PlayerTax:       0,
+	}
+	OtherPropertyCollection.AllProperty[1] = *nonprop
+
+	nonprop = new(game_objects.OtherProperty) // pointer to instance
+	nonprop.Card = make(map[string]*game_objects.OtherPropertyDetail)
+	(*nonprop).Card["Income Tax"] = &game_objects.OtherPropertyDetail{
+		PositionOnBoard: 4,
+		PlayerTax:       200,
+	}
+	OtherPropertyCollection.AllProperty[2] = *nonprop
+
+	nonprop = new(game_objects.OtherProperty) // pointer to instance
+	nonprop.Card = make(map[string]*game_objects.OtherPropertyDetail)
+	(*nonprop).Card["Chance"] = &game_objects.OtherPropertyDetail{
+		PositionOnBoard: 7,
+		PlayerTax:       0,
+	}
+	OtherPropertyCollection.AllProperty[3] = *nonprop
+
+	nonprop = new(game_objects.OtherProperty) // pointer to instance
+	nonprop.Card = make(map[string]*game_objects.OtherPropertyDetail)
+	(*nonprop).Card["Just Visiting"] = &game_objects.OtherPropertyDetail{
+		PositionOnBoard: 10,
+		PlayerTax:       0,
+	}
+	OtherPropertyCollection.AllProperty[4] = *nonprop
+
+	nonprop = new(game_objects.OtherProperty) // pointer to instance
+	nonprop.Card = make(map[string]*game_objects.OtherPropertyDetail)
+	(*nonprop).Card["Community Chest"] = &game_objects.OtherPropertyDetail{
+		PositionOnBoard: 17,
+		PlayerTax:       0,
+	}
+	OtherPropertyCollection.AllProperty[5] = *nonprop
+
+	nonprop = new(game_objects.OtherProperty) // pointer to instance
+	nonprop.Card = make(map[string]*game_objects.OtherPropertyDetail)
+	(*nonprop).Card["Free Parking"] = &game_objects.OtherPropertyDetail{
+		PositionOnBoard: 20,
+		PlayerTax:       0,
+	}
+	OtherPropertyCollection.AllProperty[6] = *nonprop
+
+	nonprop = new(game_objects.OtherProperty) // pointer to instance
+	nonprop.Card = make(map[string]*game_objects.OtherPropertyDetail)
+	(*nonprop).Card["Chance"] = &game_objects.OtherPropertyDetail{
+		PositionOnBoard: 22,
+		PlayerTax:       0,
+	}
+	OtherPropertyCollection.AllProperty[7] = *nonprop
+
+	nonprop = new(game_objects.OtherProperty) // pointer to instance
+	nonprop.Card = make(map[string]*game_objects.OtherPropertyDetail)
+	(*nonprop).Card["Go To Jail"] = &game_objects.OtherPropertyDetail{
+		PositionOnBoard: 30,
+		PlayerTax:       0,
+	}
+	OtherPropertyCollection.AllProperty[8] = *nonprop
+
+	nonprop = new(game_objects.OtherProperty) // pointer to instance
+	nonprop.Card = make(map[string]*game_objects.OtherPropertyDetail)
+	(*nonprop).Card["Community Chest"] = &game_objects.OtherPropertyDetail{
+		PositionOnBoard: 33,
+		PlayerTax:       0,
+	}
+	OtherPropertyCollection.AllProperty[9] = *nonprop
+
+	nonprop = new(game_objects.OtherProperty) // pointer to instance
+	nonprop.Card = make(map[string]*game_objects.OtherPropertyDetail)
+	(*nonprop).Card["Chance"] = &game_objects.OtherPropertyDetail{
+		PositionOnBoard: 36,
+		PlayerTax:       0,
+	}
+	OtherPropertyCollection.AllProperty[10] = *nonprop
+
+	nonprop = new(game_objects.OtherProperty) // pointer to instance
+	nonprop.Card = make(map[string]*game_objects.OtherPropertyDetail)
+	(*nonprop).Card["Chance"] = &game_objects.OtherPropertyDetail{
+		PositionOnBoard: 38,
+		PlayerTax:       100,
+	}
+	OtherPropertyCollection.AllProperty[11] = *nonprop
+
+	return OtherPropertyCollection
 }
