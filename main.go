@@ -29,9 +29,12 @@ func main() {
 	for {
 		gameState.RollDice()
 		prePosition := gameState.CurrentPlayer.PositionOnBoard // before we roll to our next place
-		gameState.CurrentPlayer.AdvancePlayer(gameState.CurrentDiceRoll)
+		bankToPay := gameState.CurrentPlayer.AdvancePlayer(gameState.CurrentDiceRoll)
 		// do some monopoly stuff here
 		fmt.Println("\nTurn:", gameState.GlobalTurnsMade, "Current Player", gameState.CurrentPlayer.PlayerNumber, "rolled a", gameState.CurrentDiceRoll)
+		if bankToPay > 0 {
+			fmt.Println("BANK PAYS PLAYER $", bankToPay)
+		}
 		thePropertyName, theDeed := game_objects.GetTheCurrentCard(gameState.CurrentPlayer.PositionOnBoard, propertyCardCollection)
 		if theDeed != nil {
 			// currently a bug (or design shortfall) that it will only display property cards and not other non-property cards. Will create another array for non-property cards
@@ -46,7 +49,7 @@ func main() {
 				gameState.CurrentPlayer.BuyProperty(theDeed)
 				fmt.Println("Purchase $", theDeed.PurchaseCost, "by player", gameState.CurrentPlayer.Name, "who now has $", gameState.CurrentPlayer.CashAvailable)
 			} else {
-				_, err := theDeed.PayRent(&allPlayers[gameState.CurrentPlayer.PlayerNumber], &allPlayers[int(theDeed.Owner)], board)
+				_, err := theDeed.PayRent(&allPlayers[gameState.CurrentPlayer.PlayerNumber], &allPlayers[int(theDeed.Owner)], board, propertyCardCollection)
 				if err == nil {
 					fmt.Println(allPlayers[gameState.CurrentPlayer.PlayerNumber].Name, gameState.CurrentPlayer.PlayerNumber, "paid $", theDeed.Rent, "rent to Player", allPlayers[int(theDeed.Owner)].Name, int(theDeed.Owner))
 					fmt.Println(allPlayers[gameState.CurrentPlayer.PlayerNumber].Name, "now has $", allPlayers[gameState.CurrentPlayer.PlayerNumber].CashAvailable, "and", allPlayers[int(theDeed.Owner)].Name, "has $", allPlayers[int(theDeed.Owner)].CashAvailable)
