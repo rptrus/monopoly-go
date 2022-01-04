@@ -13,6 +13,8 @@ const (
 	totalPlayersPlaying     = 6
 )
 
+var TheBank *Bank
+
 type GameState struct {
 	CurrentPlayer         *Player
 	CurrentPropertyOfTurn *Property
@@ -78,14 +80,14 @@ func GetTheCurrentCard(board int, MyPropertyCardCollection *PropertyCollection) 
 
 // input: player number
 // output: properties owned
-func (gs *GameState) showPropertiesOfPlayer(MyPropertyCardCollection *PropertyCollection) []int {
-	fmt.Println(gs.CurrentPlayer.PlayerNumber)
-	propsOwned := []int{}
+func (gs *GameState) ShowPropertiesOfPlayer(MyPropertyCardCollection *PropertyCollection) []string {
+	propsOwned := []string{}
 	for _, card := range MyPropertyCardCollection.AllProperty {
 		aSingularCardMap := card.Card
 		for _, v := range aSingularCardMap {
 			if int(v.Owner) == gs.CurrentPlayer.PlayerNumber {
-				propsOwned = append(propsOwned, v.PositionOnBoard)
+				n, _ := GetTheCurrentCard(v.PositionOnBoard, MyPropertyCardCollection)
+				propsOwned = append(propsOwned, n)
 			}
 		}
 	}

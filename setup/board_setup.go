@@ -62,6 +62,7 @@ func InitializeBoard() *game_objects.Board {
 func InitializeBank() *game_objects.Bank {
 	bk := new(game_objects.Bank)
 	bk.CashReservesInDollars = 20580
+	game_objects.TheBank = bk
 	return bk
 }
 
@@ -82,7 +83,6 @@ func InitializePlayers(numberOfPlayers int) []game_objects.Player {
 		q.PlayerNumber = 1
 		// something to note: q gives pointer, p gives the variable
 		AllPlayers = append(AllPlayers, p)
-		fmt.Println("Initialized players:\n", p)
 	}
 	// give some names to the players, make it less boring
 	AllPlayers[0].Name = "Fred"

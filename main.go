@@ -5,11 +5,13 @@ import (
 	"github.com/rptrus/monopoly-go/game_objects"
 	"github.com/rptrus/monopoly-go/setup"
 	"strconv"
+	"strings"
 )
 
 const (
 	numberOfPlayers int = 6
 	numberOfTurns       = 800
+	tax                 = 100
 )
 
 func main() {
@@ -39,7 +41,7 @@ func main() {
 		if theDeed != nil {
 			// currently a bug (or design shortfall) that it will only display property cards and not other non-property cards. Will create another array for non-property cards
 			preName, _ := game_objects.GetTheCurrentCard(prePosition, propertyCardCollection)
-			str := "Moved from" + strconv.Itoa(prePosition) + " " + preName + " and Landed on space " + strconv.Itoa(gameState.CurrentPlayer.PositionOnBoard) + " " + string(thePropertyName) + " Owned by "
+			str := "Moved from " + strconv.Itoa(prePosition) + " " + preName + " and Landed on space " + strconv.Itoa(gameState.CurrentPlayer.PositionOnBoard) + " " + string(thePropertyName) + " Owned by "
 			if theDeed.Owner != 'u' {
 				fmt.Println(str+"Player", int(theDeed.Owner))
 			} else {
@@ -50,14 +52,32 @@ func main() {
 				fmt.Println("Purchase $", theDeed.PurchaseCost, "by player", gameState.CurrentPlayer.Name, "who now has $", gameState.CurrentPlayer.CashAvailable)
 			} else {
 				_, err := theDeed.PayRent(&allPlayers[gameState.CurrentPlayer.PlayerNumber], &allPlayers[int(theDeed.Owner)], board, propertyCardCollection)
-				if err == nil {
+				if err == nil { // no errors
 					fmt.Println(allPlayers[gameState.CurrentPlayer.PlayerNumber].Name, gameState.CurrentPlayer.PlayerNumber, "paid $", theDeed.Rent, "rent to Player", allPlayers[int(theDeed.Owner)].Name, int(theDeed.Owner))
 					fmt.Println(allPlayers[gameState.CurrentPlayer.PlayerNumber].Name, "now has $", allPlayers[gameState.CurrentPlayer.PlayerNumber].CashAvailable, "and", allPlayers[int(theDeed.Owner)].Name, "has $", allPlayers[int(theDeed.Owner)].CashAvailable)
+					fmt.Println(allPlayers[gameState.CurrentPlayer.PlayerNumber].Name, "owns the following properties:", "[ \""+strings.Join(gameState.ShowPropertiesOfPlayer(propertyCardCollection), "\",\"")+"\" ]")
 				}
 			}
 		} else {
-			sqType := board.MonopolySpace[gameState.CurrentPlayer.PositionOnBoard]
-			fmt.Println("Landed on a non property square!", gameState.CurrentPlayer.PositionOnBoard, game_objects.GetPropertyType(sqType.SquareType))
+			sqType := board.MonopolySpace[gameState.CurrentPlayer.PositionOnBoard].SquareType
+			fmt.Println("Landed on a non property square!", gameState.CurrentPlayer.PositionOnBoard, game_objects.GetPropertyType(sqType))
+			taxCollection := 0
+			switch sqType {
+			case game_objects.Tax:
+				{
+					taxCollection += tax
+					game_objects.TheBank.CashReservesInDollars += taxCollection
+					gameState.CurrentPlayer.CashAvailable -= taxCollection
+					// general tax need 200
+					if gameState.CurrentPlayer.PositionOnBoard == 4 {
+						taxCollection += tax
+						game_objects.TheBank.CashReservesInDollars += taxCollection
+						gameState.CurrentPlayer.CashAvailable -= taxCollection
+					}
+					fmt.Println("Collected Tax: $", taxCollection)
+				}
+			default:
+			}
 		}
 		gameState.NextPlayer(allPlayers)
 
