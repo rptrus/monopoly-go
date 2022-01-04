@@ -9,6 +9,7 @@ import (
 // using http://www.jdawiseman.com/papers/trivia/monopoly-rents.html
 
 type PropertyDeed struct {
+	Set             string
 	PositionOnBoard int
 	PurchaseCost    int
 	Rent            int
@@ -50,7 +51,6 @@ func (pd *PropertyDeed) PayRent(from *Player, to *Player, board *Board, props *P
 	}
 	switch board.MonopolySpace[from.PositionOnBoard].SquareType {
 	case Utility:
-		// just implementing single utility for now
 		ownsBoth := len(findSameType(board, pd, props)) == 2
 		roll := rollDice()
 		fmt.Println("Utility re-roll of", roll)
@@ -64,11 +64,19 @@ func (pd *PropertyDeed) PayRent(from *Player, to *Player, board *Board, props *P
 	case Station:
 		stationsOwnedByPlayer := len(findSameType(board, pd, props))
 		pd.Rent = stationsOwnedByPlayer * 25
-	case BuildableProperty:
-		fallthrough
-	default:
 		from.CashAvailable -= pd.Rent
 		to.CashAvailable += pd.Rent
+	case BuildableProperty:
+		// check if the property landed on is a complete set
+		multiplyFactor := 1
+		hasAllSet := checkCompleteSet(board, pd, props)
+		if hasAllSet {
+			multiplyFactor = 2
+		}
+		from.CashAvailable -= pd.Rent * multiplyFactor
+		to.CashAvailable += pd.Rent * multiplyFactor
+	default:
+		fmt.Println("Unknown or not implemented", board.MonopolySpace[from.PositionOnBoard].SquareType)
 	}
 	return pd.Rent, nil
 }
@@ -94,4 +102,21 @@ func findSameType(board *Board, pd *PropertyDeed, pc *PropertyCollection) []byte
 		}
 	}
 	return singleOwnerCount
+}
+
+// true if all properties are owned by one and only one owner
+// At most we would expect 2 false, since the owner owns at least one!
+// easier to handle the case by exception. Assume owns all, until a counterexample emerges
+func checkCompleteSet(board *Board, pd *PropertyDeed, pc *PropertyCollection) bool {
+	var ownsAll = true
+	for _, property := range pc.AllProperty {
+		for _, v := range property.Card {
+			if v.Set == pd.Set { // same colour as our input property deed
+				if v.Owner != pd.Owner {
+					ownsAll = false
+				}
+			}
+		}
+	}
+	return ownsAll
 }
