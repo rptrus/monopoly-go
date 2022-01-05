@@ -80,52 +80,27 @@ func GetTheCurrentCard(board int, MyPropertyCardCollection *PropertyCollection) 
 	return "", nil
 }
 
-// input: player number
-// output: properties owned
-func (gs *GameState) ShowPropertiesOfPlayer(playerNumber int, myPropertyCardCollection *PropertyCollection) []string {
-	propsOwned := []string{}
-	for _, card := range myPropertyCardCollection.AllProperty {
-		aSingularCardMap := card.Card
-		for _, v := range aSingularCardMap {
-			if int(v.Owner) == /*gs.CurrentPlayer.PlayerNumber*/ playerNumber {
-				n, _ := GetTheCurrentCard(v.PositionOnBoard, myPropertyCardCollection)
-				propsOwned = append(propsOwned, n)
-			}
-		}
-	}
-	return propsOwned
-}
-
 func (gs *GameState) DoDeals(allPlayers []Player, myPropertyCardCollection *PropertyCollection) {
 	// TODO
+	// Show some helpful logging so we know the state of play
 	var propsOwned []string
 	fmt.Println("These other players own the following properties:")
 	for _, j := range allPlayers {
 		if j.PlayerNumber != gs.CurrentPlayer.PlayerNumber {
-			propsOwned = gs.ShowPropertiesOfPlayer(j.PlayerNumber, myPropertyCardCollection)
+			propsOwned, _ = gs.ShowPropertiesOfPlayer(j.PlayerNumber, myPropertyCardCollection)
 			fmt.Print("[", j.Name, "-> \"", strings.Join(propsOwned, "\",\""), "\"]\n")
 		}
 	}
 	gs.UnownedProperties(myPropertyCardCollection)
-}
+	// work out if we have anything that we (the current player) have anything viable to trade
+	_, propertyDeeds := gs.ShowPropertiesOfPlayer(gs.CurrentPlayer.PlayerNumber, myPropertyCardCollection)
+	for _, pd := range propertyDeeds {
+		myCount, totalCount := propsOwnedByPlayerInASet(pd, myPropertyCardCollection)
+		if (len(myCount) == 1 && totalCount == 2) || (len(myCount) == 2 && totalCount == 3) {
+			// majority ownership in a 3 card set or half in a 2 card set
+			name, _ := GetTheCurrentCard(pd.PositionOnBoard, myPropertyCardCollection)
+			fmt.Println("Have a candidate here: ", pd.Set, ":", name)
+		}
 
-func (gs *GameState) UnownedProperties(myPropertyCardCollection *PropertyCollection) {
-	var propsSpare []string
-	for _, props := range myPropertyCardCollection.AllProperty {
-		for _, k := range props.Card { // 1 element map
-			if k.Owner == 'u' {
-				name, _ := GetTheCurrentCard(k.PositionOnBoard, myPropertyCardCollection)
-				propsSpare = append(propsSpare, name)
-			}
-		}
-	}
-	if (len(propsSpare)) > 0 {
-		fmt.Println("Outstanding properties to be purchased:")
-		fmt.Print(len(propsSpare), ") -> \"", strings.Join(propsSpare, "\",\""), "\" \n")
-	} else {
-		if gs.allPropsSold == false {
-			fmt.Println("* ALL PROPERTIES HAVE NOW SOLD! *")
-			gs.allPropsSold = true
-		}
 	}
 }

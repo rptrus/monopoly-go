@@ -58,7 +58,8 @@ func main() {
 				if err == nil { // no errors
 					fmt.Println(allPlayers[gameState.CurrentPlayer.PlayerNumber].Name, gameState.CurrentPlayer.PlayerNumber, "paid $", theDeed.Rent, "rent to Player", allPlayers[int(theDeed.Owner)].Name, int(theDeed.Owner))
 					fmt.Println(allPlayers[gameState.CurrentPlayer.PlayerNumber].Name, "now has $", allPlayers[gameState.CurrentPlayer.PlayerNumber].CashAvailable, "and", allPlayers[int(theDeed.Owner)].Name, "has $", allPlayers[int(theDeed.Owner)].CashAvailable)
-					fmt.Println(allPlayers[gameState.CurrentPlayer.PlayerNumber].Name, "owns the following properties:", "[ \""+strings.Join(gameState.ShowPropertiesOfPlayer(gameState.CurrentPlayer.PlayerNumber, propertyCardCollection), "\",\"")+"\" ]")
+					names, _ := gameState.ShowPropertiesOfPlayer(gameState.CurrentPlayer.PlayerNumber, propertyCardCollection)
+					fmt.Println(allPlayers[gameState.CurrentPlayer.PlayerNumber].Name, "owns the following properties:", "[ \""+strings.Join(names, "\",\"")+"\" ]")
 				}
 			}
 			gameState.DoDeals(allPlayers, propertyCardCollection)

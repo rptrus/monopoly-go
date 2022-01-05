@@ -69,7 +69,7 @@ func (pd *PropertyDeed) PayRent(from *Player, to *Player, board *Board, props *P
 	case BuildableProperty:
 		// check if the property landed on is a complete set
 		multiplyFactor := 1
-		hasAllSet := checkCompleteSet(board, pd, props)
+		hasAllSet := checkCompleteSet(pd, props)
 		if hasAllSet {
 			multiplyFactor = 2
 		}
@@ -107,7 +107,7 @@ func findSameType(board *Board, pd *PropertyDeed, pc *PropertyCollection) []byte
 // true if all properties are owned by one and only one owner
 // At most we would expect 2 false, since the owner owns at least one!
 // easier to handle the case by exception. Assume owns all, until a counterexample emerges
-func checkCompleteSet(board *Board, pd *PropertyDeed, pc *PropertyCollection) bool {
+func checkCompleteSet(pd *PropertyDeed, pc *PropertyCollection) bool {
 	var ownsAll = true
 	for _, property := range pc.AllProperty {
 		for _, v := range property.Card {
@@ -119,4 +119,61 @@ func checkCompleteSet(board *Board, pd *PropertyDeed, pc *PropertyCollection) bo
 		}
 	}
 	return ownsAll
+}
+
+// Given a property deed card of a particular set, find the positions (i.e. ownership) of other cards in a set
+// TODO: Merge similar functionality above into one function
+func propsOwnedByPlayerInASet(pd *PropertyDeed, pc *PropertyCollection) ([]int, int) {
+	var propsInSet []int
+	var setCounter int
+	for _, property := range pc.AllProperty {
+		for _, v := range property.Card {
+			if v.Set == pd.Set { // same colour as our input property deed
+				if v.Owner == pd.Owner {
+					propsInSet = append(propsInSet, v.PositionOnBoard)
+				}
+				setCounter++
+			}
+		}
+	}
+	return propsInSet, setCounter
+}
+
+// input: player number
+// output: properties owned
+func (gs *GameState) ShowPropertiesOfPlayer(playerNumber int, myPropertyCardCollection *PropertyCollection) ([]string, []*PropertyDeed) {
+	propsOwnedNameOnly := []string{}
+	propDeeds := []*PropertyDeed{}
+	for _, card := range myPropertyCardCollection.AllProperty {
+		aSingularCardMap := card.Card
+		for _, v := range aSingularCardMap {
+			if int(v.Owner) == playerNumber {
+				n, pd := GetTheCurrentCard(v.PositionOnBoard, myPropertyCardCollection)
+				propsOwnedNameOnly = append(propsOwnedNameOnly, n)
+				propDeeds = append(propDeeds, pd)
+			}
+		}
+	}
+	return propsOwnedNameOnly, propDeeds
+}
+
+func (gs *GameState) UnownedProperties(myPropertyCardCollection *PropertyCollection) {
+	var propsSpare []string
+	for _, props := range myPropertyCardCollection.AllProperty {
+		for _, k := range props.Card { // 1 element map
+			if k.Owner == 'u' {
+				name, _ := GetTheCurrentCard(k.PositionOnBoard, myPropertyCardCollection)
+				propsSpare = append(propsSpare, name)
+			}
+		}
+	}
+	if (len(propsSpare)) > 0 {
+		fmt.Println("Outstanding properties to be purchased:")
+		fmt.Print(len(propsSpare), ") -> \"", strings.Join(propsSpare, "\",\""), "\" \n")
+	} else {
+		if gs.allPropsSold == false {
+			fmt.Println("* ALL PROPERTIES HAVE NOW SOLD! *")
+			gs.allPropsSold = true
+		}
+	}
 }
