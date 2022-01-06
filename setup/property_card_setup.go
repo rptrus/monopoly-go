@@ -39,6 +39,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 	prop = new(game_objects.Property)
 	prop.Card = make(map[string]*game_objects.PropertyDeed)
 	prop.Card["Kings Cross Station"] = &game_objects.PropertyDeed{
+		Set:             "Train",
 		PositionOnBoard: 5,
 		PurchaseCost:    200,
 		Rent:            25, // base cost
@@ -100,6 +101,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 	prop = new(game_objects.Property)
 	prop.Card = make(map[string]*game_objects.PropertyDeed)
 	prop.Card["Electric Company"] = &game_objects.PropertyDeed{
+		Set:             "Utility",
 		PositionOnBoard: 12,
 		PurchaseCost:    150,
 		Rent:            -1, // special case
@@ -135,6 +137,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 	prop = new(game_objects.Property)
 	prop.Card = make(map[string]*game_objects.PropertyDeed)
 	prop.Card["Marlyebone Station"] = &game_objects.PropertyDeed{
+		Set:             "Train",
 		PositionOnBoard: 15,
 		PurchaseCost:    200,
 		Rent:            25,
@@ -220,6 +223,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 	prop = new(game_objects.Property)
 	prop.Card = make(map[string]*game_objects.PropertyDeed)
 	prop.Card["Fenchurch Street Station"] = &game_objects.PropertyDeed{
+		Set:             "Train",
 		PositionOnBoard: 25,
 		PurchaseCost:    200,
 		Rent:            25,
@@ -255,6 +259,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 	prop = new(game_objects.Property)
 	prop.Card = make(map[string]*game_objects.PropertyDeed)
 	prop.Card["Water Works"] = &game_objects.PropertyDeed{
+		Set:             "Utility",
 		PositionOnBoard: 28,
 		PurchaseCost:    150,
 		Rent:            -1,
@@ -316,6 +321,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 	prop = new(game_objects.Property)
 	prop.Card = make(map[string]*game_objects.PropertyDeed)
 	prop.Card["Liverpool Street Station"] = &game_objects.PropertyDeed{
+		Set:             "Train",
 		PositionOnBoard: 35,
 		PurchaseCost:    200,
 		Rent:            25,

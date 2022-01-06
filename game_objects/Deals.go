@@ -2,7 +2,9 @@ package game_objects
 
 import (
 	"fmt"
+	"math/rand"
 	"strings"
+	"time"
 )
 
 func (gs *GameState) DoDeals(allPlayers []Player, myPropertyCardCollection *PropertyCollection) {
@@ -59,16 +61,52 @@ func (gs *GameState) DoDeals(allPlayers []Player, myPropertyCardCollection *Prop
 									swapPropertyBetweenPlayers(gs.CurrentPlayer, &allPlayers[otherOwner], pd2, myPropertyCardCollection)
 									dealDone = true
 									break out
-									// then we can swap this
 								}
 							}
 
 						}
 					}
 				}
+				// We can't give them the property they need. Will need to contend with giving them 2 of ours. One should be high value property.
 				if !dealDone {
 					fmt.Println("Will do another deal. TBD.")
 					// we can swap 2 random properties
+					_, propertiesToGiveOut := ShowPropertiesOfPlayer(gs.CurrentPlayer.PlayerNumber, myPropertyCardCollection) // can we cache this? we use it a lot
+					// take out any full sets, we don't give those away
+					fullSetsToTakeOut := ownsFullSet(propertiesToGiveOut, myPropertyCardCollection)
+					for _, colour := range fullSetsToTakeOut {
+						propertiesToGiveOut = removeProperties(colour, propertiesToGiveOut)
+					}
+					// do the removal from
+					fmt.Println(fullSetsToTakeOut)
+					// FUTURE TODO: sort them and give out the highest property
+					leng := len(propertiesToGiveOut)
+					fmt.Println(leng, propertiesToGiveOut) // useless
+					time.Sleep(1 * time.Millisecond)
+					rand.Seed(time.Now().UnixNano())
+					//if (leng >= 2) {
+					//	choice := rand.Intn(leng)
+					//	choice2 := rand.Intn(leng)
+					//	if choice2 == choice {
+					//		choice2 = choice + 1%leng
+					//	}
+					//	property1 := propertiesToGiveOut[choice]
+					//	property2 := propertiesToGiveOut[choice2]
+					//	swapPropertyBetweenPlayers(gs.CurrentPlayer, &allPlayers[otherOwner], property1, myPropertyCardCollection)
+					//	swapPropertyBetweenPlayers(gs.CurrentPlayer, &allPlayers[otherOwner], property2, myPropertyCardCollection)
+					//}
+					var usedup int = -1
+					for i := 0; i < 2; i++ { // 2 choices of properties. There could be, say, 5 or 6 to choose from
+						choice := rand.Intn(leng)
+						if choice == usedup {
+							choice = choice + 1%leng
+						}
+						usedup = choice
+						property := propertiesToGiveOut[choice]
+						swapPropertyBetweenPlayers(gs.CurrentPlayer, &allPlayers[otherOwner], property, myPropertyCardCollection)
+					}
+					//first := maxdicelow + rand.Intn(maxdicehigh-maxdicelow+1)
+					//second := maxdicelow + rand.Intn(maxdicehigh-maxdicelow+1)
 					// if we don't have 2 properties, then swap 1 + $300
 					// if we don't have any properties, then swap $700
 					// if we don't have the money for this, we are out

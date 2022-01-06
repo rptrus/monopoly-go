@@ -231,3 +231,50 @@ func highestPartiallyCompleteSet(otherPlayer byte, AllPlayers []Player, myProper
 	}
 	return setsWithMostPropertiesOwned
 }
+
+// needs work for things like utility / train station. works ok for coloured property sets
+func ownsFullSet(propertiesToGiveOut []*PropertyDeed, myPropertyCardCollection *PropertyCollection) []string {
+	var setsOwned []string
+	// for this, we just want one representative property for each set to iterate over
+	var currentSetColour string
+	var oneOfEach []*PropertyDeed = nil
+	for _, pd := range propertiesToGiveOut {
+		if (*pd).Set != currentSetColour {
+			currentSetColour = pd.Set
+			oneOfEach = append(oneOfEach, pd)
+		} else {
+			continue
+		} // check utility. it's not contiguous like the colours.
+	}
+	//
+	for _, pd := range oneOfEach {
+		fullyOwned := true
+		// we only need to do one of each colour
+		owners, _ := ownersOfASet(pd.Set, myPropertyCardCollection)
+		// check we own all of them
+		for _, owner := range owners {
+			if owner != propertiesToGiveOut[0].Owner { // we just need any card to establish our player number
+				fullyOwned = false
+			}
+		}
+		if fullyOwned {
+
+			setsOwned = append(setsOwned, pd.Set)
+		}
+	}
+	return setsOwned
+}
+
+func removeProperties(setColor string, propertiesToGiveOut []*PropertyDeed) []*PropertyDeed {
+	//var start int = 0
+	//var end int = 0
+	var noFullSets []*PropertyDeed
+	for _, deed := range propertiesToGiveOut {
+		if deed.Set == setColor {
+			// don't add
+		} else {
+			noFullSets = append(noFullSets, deed)
+		}
+	}
+	return noFullSets
+}
