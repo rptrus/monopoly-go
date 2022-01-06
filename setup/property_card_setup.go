@@ -20,6 +20,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 		PurchaseCost:    60,
 		Rent:            2,
 		RentWithHouses:  []int{2, 10, 30, 90, 160, 250}, // creates another slice literal by first creating the underlying array
+		Owner:           'u',
 	}
 	PropertyCollection.AllProperty[0] = *prop
 

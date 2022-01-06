@@ -85,22 +85,32 @@ func (gs *GameState) DoDeals(allPlayers []Player, myPropertyCardCollection *Prop
 	// Show some helpful logging so we know the state of play
 	var propsOwned []string
 	fmt.Println("These other players own the following properties:")
-	for _, j := range allPlayers {
+	for i, j := range allPlayers {
 		if j.PlayerNumber != gs.CurrentPlayer.PlayerNumber {
-			propsOwned, _ = gs.ShowPropertiesOfPlayer(j.PlayerNumber, myPropertyCardCollection)
-			fmt.Print("[", j.Name, "-> \"", strings.Join(propsOwned, "\",\""), "\"]\n")
+			propsOwned, _ = ShowPropertiesOfPlayer(j.PlayerNumber, myPropertyCardCollection)
+			fmt.Print("[", j.Name, " (", i, ")-> \"", strings.Join(propsOwned, "\",\""), "\"]\n")
 		}
 	}
 	gs.UnownedProperties(myPropertyCardCollection)
 	// work out if we have anything that we (the current player) have anything viable to trade
-	_, propertyDeeds := gs.ShowPropertiesOfPlayer(gs.CurrentPlayer.PlayerNumber, myPropertyCardCollection)
+	_, propertyDeeds := ShowPropertiesOfPlayer(gs.CurrentPlayer.PlayerNumber, myPropertyCardCollection)
 	for _, pd := range propertyDeeds {
 		myCount, totalCount := propsOwnedByPlayerInASet(pd, myPropertyCardCollection)
 		if (len(myCount) == 1 && totalCount == 2) || (len(myCount) == 2 && totalCount == 3) {
 			// majority ownership in a 3 card set or half in a 2 card set
 			name, _ := GetTheCurrentCard(pd.PositionOnBoard, myPropertyCardCollection)
-			fmt.Println("Have a candidate here: ", pd.Set, ":", name)
+			// find other player who owns the card so we can complete it, and make sure the bank owns none of them (all bought by players)
+			owners, bank := ownersOfASet(pd.Set, myPropertyCardCollection)
+			if bank == false {
+				fmt.Println("Have a candidate here:", pd.Set, ":", name)
+				fmt.Println("Owners (with no bank as owner): ", owners)
+				otherOwner := OtherOwnerOfSet(gs.CurrentPlayer.PlayerNumber, owners)
+				// obtain what we need to fill this missing piece
+				swapPropertyBetweenPlayers(&allPlayers[otherOwner], gs.CurrentPlayer, myPropertyCardCollection)
+				// no we have to give back to the swapper, preferably something they need
+				// check which set the player has 2 or more of. If they are lucky enough, send them that card
+				highestPartiallyCompleteSet(otherOwner, allPlayers, myPropertyCardCollection)
+			}
 		}
-
 	}
 }

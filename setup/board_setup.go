@@ -62,7 +62,6 @@ func InitializeBoard() *game_objects.Board {
 func InitializeBank() *game_objects.Bank {
 	bk := new(game_objects.Bank)
 	bk.CashReservesInDollars = 20580
-	game_objects.TheBank = bk
 	return bk
 }
 

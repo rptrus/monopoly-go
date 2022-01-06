@@ -81,6 +81,10 @@ func (pd *PropertyDeed) PayRent(from *Player, to *Player, board *Board, props *P
 	return pd.Rent, nil
 }
 
+func swapPropertyBetweenPlayers(from *Player, to *Player, props *PropertyCollection) {
+	// TODO
+}
+
 // Given a square of a particular type, find all the others of that type
 // This is useful for rent calculations for utilities and stations
 func findSameType(board *Board, pd *PropertyDeed, pc *PropertyCollection) []byte {
@@ -109,20 +113,25 @@ func findSameType(board *Board, pd *PropertyDeed, pc *PropertyCollection) []byte
 // easier to handle the case by exception. Assume owns all, until a counterexample emerges
 func checkCompleteSet(pd *PropertyDeed, pc *PropertyCollection) bool {
 	var ownsAll = true
-	for _, property := range pc.AllProperty {
-		for _, v := range property.Card {
-			if v.Set == pd.Set { // same colour as our input property deed
-				if v.Owner != pd.Owner {
-					ownsAll = false
+	/*
+		for _, property := range pc.AllProperty {
+			for _, v := range property.Card {
+				if v.Set == pd.Set { // same colour as our input property deed
+					if v.Owner != pd.Owner {
+						ownsAll = false
+					}
 				}
 			}
 		}
+	*/
+	propsInSet, setCounter := propsOwnedByPlayerInASet(pd, pc)
+	if len(propsInSet) == setCounter {
+		ownsAll = true
 	}
 	return ownsAll
 }
 
 // Given a property deed card of a particular set, find the positions (i.e. ownership) of other cards in a set
-// TODO: Merge similar functionality above into one function
 func propsOwnedByPlayerInASet(pd *PropertyDeed, pc *PropertyCollection) ([]int, int) {
 	var propsInSet []int
 	var setCounter int
@@ -139,9 +148,26 @@ func propsOwnedByPlayerInASet(pd *PropertyDeed, pc *PropertyCollection) ([]int, 
 	return propsInSet, setCounter
 }
 
+// input a set colour, get the owners
+func ownersOfASet(setColour string, pc *PropertyCollection) ([]byte, bool) {
+	var owners []byte
+	var bankOwned bool = false
+	for _, property := range pc.AllProperty { // over array
+		for _, v := range property.Card { // over 1-map
+			if v.Set == setColour {
+				owners = append(owners, v.Owner)
+				if v.Owner == 'u' {
+					bankOwned = true
+				}
+			}
+		}
+	}
+	return owners, bankOwned
+}
+
 // input: player number
 // output: properties owned
-func (gs *GameState) ShowPropertiesOfPlayer(playerNumber int, myPropertyCardCollection *PropertyCollection) ([]string, []*PropertyDeed) {
+func ShowPropertiesOfPlayer(playerNumber int, myPropertyCardCollection *PropertyCollection) ([]string, []*PropertyDeed) {
 	propsOwnedNameOnly := []string{}
 	propDeeds := []*PropertyDeed{}
 	for _, card := range myPropertyCardCollection.AllProperty {
@@ -176,4 +202,27 @@ func (gs *GameState) UnownedProperties(myPropertyCardCollection *PropertyCollect
 			gs.allPropsSold = true
 		}
 	}
+}
+
+func (pd *PropertyDeed) SwapProperty(from *Player, to *Player, board *Board, props *PropertyCollection) (int, error) {
+	// TODO implement it
+	return 0, nil
+}
+
+// who owns the set besides us when we have a majority
+func OtherOwnerOfSet(playerNum int, owners []byte) byte {
+	var otherPlayer byte
+	for _, j := range owners {
+		if int(j) != playerNum {
+			otherPlayer = j
+		}
+	}
+	return otherPlayer
+}
+
+func highestPartiallyCompleteSet(otherPlayer byte, AllPlayers []Player, myPropertyCardCollection *PropertyCollection) {
+	names, _ := ShowPropertiesOfPlayer(int(otherPlayer), myPropertyCardCollection)
+	// TODO: implement it
+	fmt.Println(names)
+	//fmt.Println(deeds[0])
 }

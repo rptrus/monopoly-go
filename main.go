@@ -36,7 +36,7 @@ func main() {
 		prePosition := gameState.CurrentPlayer.PositionOnBoard // place before we advance to our roll
 		passGoPayment := gameState.CurrentPlayer.AdvancePlayer(gameState.CurrentDiceRoll)
 		// do some monopoly stuff here
-		fmt.Println("\nTurn:", gameState.GlobalTurnsMade, "Current Player", gameState.CurrentPlayer.PlayerNumber, "rolled a", gameState.CurrentDiceRoll)
+		fmt.Println("\nTurn:", gameState.GlobalTurnsMade, "Current Player", gameState.CurrentPlayer.Name, gameState.CurrentPlayer.PlayerNumber, "rolled a", gameState.CurrentDiceRoll)
 		if passGoPayment > 0 {
 			fmt.Println("BANK PAYS PLAYER $", passGoPayment)
 		}
@@ -51,17 +51,20 @@ func main() {
 				fmt.Println(str+"Bank", theDeed.Owner)
 			}
 			if theDeed.Owner == 'u' {
-				gameState.CurrentPlayer.BuyProperty(theDeed)
+				_, err := gameState.CurrentPlayer.BuyProperty(theDeed)
+				if err != nil {
+					fmt.Println(err)
+				}
 				fmt.Println("Purchase $", theDeed.PurchaseCost, "by player", gameState.CurrentPlayer.Name, "who now has $", gameState.CurrentPlayer.CashAvailable)
 			} else {
 				_, err := theDeed.PayRent(&allPlayers[gameState.CurrentPlayer.PlayerNumber], &allPlayers[int(theDeed.Owner)], board, propertyCardCollection)
 				if err == nil { // no errors
 					fmt.Println(allPlayers[gameState.CurrentPlayer.PlayerNumber].Name, gameState.CurrentPlayer.PlayerNumber, "paid $", theDeed.Rent, "rent to Player", allPlayers[int(theDeed.Owner)].Name, int(theDeed.Owner))
 					fmt.Println(allPlayers[gameState.CurrentPlayer.PlayerNumber].Name, "now has $", allPlayers[gameState.CurrentPlayer.PlayerNumber].CashAvailable, "and", allPlayers[int(theDeed.Owner)].Name, "has $", allPlayers[int(theDeed.Owner)].CashAvailable)
-					names, _ := gameState.ShowPropertiesOfPlayer(gameState.CurrentPlayer.PlayerNumber, propertyCardCollection)
-					fmt.Println(allPlayers[gameState.CurrentPlayer.PlayerNumber].Name, "owns the following properties:", "[ \""+strings.Join(names, "\",\"")+"\" ]")
 				}
 			}
+			names, _ := game_objects.ShowPropertiesOfPlayer(gameState.CurrentPlayer.PlayerNumber, propertyCardCollection)
+			fmt.Println(allPlayers[gameState.CurrentPlayer.PlayerNumber].Name, "owns the following properties:", "[ \""+strings.Join(names, "\",\"")+"\" ]")
 			gameState.DoDeals(allPlayers, propertyCardCollection)
 		} else {
 			sqType := board.MonopolySpace[gameState.CurrentPlayer.PositionOnBoard].SquareType
