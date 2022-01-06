@@ -16,6 +16,7 @@ type Player struct {
 	Name            string
 	CashAvailable   int
 	PositionOnBoard int
+	Active          bool
 }
 
 // return reward if GO is passed, 0 otherwise. If return results need to be augmented will create a struct in future

@@ -76,6 +76,7 @@ func InitializePlayers(numberOfPlayers int) []game_objects.Player {
 			PlayerNumber:    i,
 			CashAvailable:   1500,
 			PositionOnBoard: 0,
+			Active:          true,
 		}
 		// using new is probably not idiomatic Go, but is still available to use. Must deref though.
 		q := new(game_objects.Player)
@@ -89,7 +90,7 @@ func InitializePlayers(numberOfPlayers int) []game_objects.Player {
 	AllPlayers[2].Name = "Jason"
 	AllPlayers[3].Name = "Sally"
 	AllPlayers[4].Name = "Bradley"
-	AllPlayers[5].Name = "Kate"
+	AllPlayers[5].Name = "Indigo"
 
 	for a, b := range AllPlayers {
 		fmt.Println("Player: \n", a, b)

@@ -1,0 +1,16 @@
+Swapping routines
+
+I want to make this is quick and painless as possible. I'm not here to be making a fully fledged AI system, just something naieve and simple.
+
+Here are some rules to follow:
+These rules are from the perspective of a single on-focus player. The current player A will do the initiation. A->B A->C, A->D  but never C->D etc.
+
+1) Assign
+   If player A has 2 of X and player B has the other X, Player A will acquire the X off B and give them the property they need (if they have a 2-set that A can complete).
+   In this case, we do a straight swap. No monetary difference at this stage.
+   Otherwise: A will still acquire the X from B, and give them 2 random properties. If they have 1 property, give this plus $300, if no properties, $600
+
+2) Distribute (Rejig):
+   Randomly re-assign cards to other players if cards are split up in a 1-1-1 situation.
+   Find a single card and randomly give it to some player that needs it. The other player will give back 2 cards (or whatever cash incentive as above)
+   Only do a rejig once per turn. If others are eligible then they can wait for next turn

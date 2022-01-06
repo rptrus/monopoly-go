@@ -14,7 +14,7 @@ type PropertyDeed struct {
 	PurchaseCost    int
 	Rent            int
 	RentWithHouses  []int
-	Owner           byte // ['1'-'6'] or 'b' for bank. 'u' if unowned
+	Owner           byte // [1-6] or 'u' for bank. 'u' is unowned
 }
 
 type Property struct {
@@ -81,8 +81,13 @@ func (pd *PropertyDeed) PayRent(from *Player, to *Player, board *Board, props *P
 	return pd.Rent, nil
 }
 
-func swapPropertyBetweenPlayers(from *Player, to *Player, props *PropertyCollection) {
-	// TODO
+func swapPropertyBetweenPlayers(from *Player, to *Player, card *PropertyDeed, myPropertyCardCollection *PropertyCollection) {
+	fmt.Println("Player", from.Name, "Will give property", GetTheCurrentCardName(card.PositionOnBoard, myPropertyCardCollection), "to", to.Name)
+	// since we will be swapping properties later, we don't need to adjust cash here
+	//from.CashAvailable -= card.PurchaseCost
+	//to.CashAvailable += card.PurchaseCost
+	card.Owner = byte(to.PlayerNumber)
+	fmt.Println("Now assigned")
 }
 
 // Given a square of a particular type, find all the others of that type
@@ -188,8 +193,7 @@ func (gs *GameState) UnownedProperties(myPropertyCardCollection *PropertyCollect
 	for _, props := range myPropertyCardCollection.AllProperty {
 		for _, k := range props.Card { // 1 element map
 			if k.Owner == 'u' {
-				name, _ := GetTheCurrentCard(k.PositionOnBoard, myPropertyCardCollection)
-				propsSpare = append(propsSpare, name)
+				propsSpare = append(propsSpare, GetTheCurrentCardName(k.PositionOnBoard, myPropertyCardCollection))
 			}
 		}
 	}
@@ -204,11 +208,6 @@ func (gs *GameState) UnownedProperties(myPropertyCardCollection *PropertyCollect
 	}
 }
 
-func (pd *PropertyDeed) SwapProperty(from *Player, to *Player, board *Board, props *PropertyCollection) (int, error) {
-	// TODO implement it
-	return 0, nil
-}
-
 // who owns the set besides us when we have a majority
 func OtherOwnerOfSet(playerNum int, owners []byte) byte {
 	var otherPlayer byte
@@ -220,9 +219,15 @@ func OtherOwnerOfSet(playerNum int, owners []byte) byte {
 	return otherPlayer
 }
 
-func highestPartiallyCompleteSet(otherPlayer byte, AllPlayers []Player, myPropertyCardCollection *PropertyCollection) {
-	names, _ := ShowPropertiesOfPlayer(int(otherPlayer), myPropertyCardCollection)
-	// TODO: implement it
-	fmt.Println(names)
-	//fmt.Println(deeds[0])
+// we consider 2 of a 3-set or 1 of a 2-set to be the highest partially completed set
+func highestPartiallyCompleteSet(otherPlayer byte, AllPlayers []Player, myPropertyCardCollection *PropertyCollection) []*PropertyDeed {
+	var setsWithMostPropertiesOwned []*PropertyDeed
+	_, deeds := ShowPropertiesOfPlayer(int(otherPlayer), myPropertyCardCollection)
+	for _, pd := range deeds {
+		owned, totalInSet := propsOwnedByPlayerInASet(pd, myPropertyCardCollection)
+		if len(owned) == 2 && totalInSet == 3 || len(owned) == 1 && totalInSet == 2 {
+			setsWithMostPropertiesOwned = append(setsWithMostPropertiesOwned, pd)
+		}
+	}
+	return setsWithMostPropertiesOwned
 }
