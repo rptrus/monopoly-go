@@ -30,6 +30,7 @@ func main() {
 		CurrentPlayer:   firstUp,
 		CurrentDiceRoll: 0,
 		GlobalTurnsMade: 0,
+		AllPlayers:      allPlayers,
 	}
 	for {
 		gameState.RollDice()
@@ -66,13 +67,13 @@ func main() {
 			names, _ := game_objects.ShowPropertiesOfPlayer(gameState.CurrentPlayer.PlayerNumber, propertyCardCollection)
 			fmt.Println("\n", allPlayers[gameState.CurrentPlayer.PlayerNumber].Name, "owns the following properties:", "[ \""+strings.Join(names, "\",\"")+"\" ]\n")
 
-			gameState.DoDeals(allPlayers, propertyCardCollection)
+			gameState.DoDeals(propertyCardCollection)
 		} else {
 			sqType := board.MonopolySpace[gameState.CurrentPlayer.PositionOnBoard].SquareType
 			fmt.Println("Landed on a non property square!", gameState.CurrentPlayer.PositionOnBoard, game_objects.GetPropertyType(sqType))
 			gameState.ProcessNonPropertySquare(gameState.CurrentPlayer, sqType, tax)
 		}
-		gameState.NextPlayer(allPlayers)
+		gameState.NextPlayer()
 		if gameState.GlobalTurnsMade == numberOfTurns {
 			break
 		}

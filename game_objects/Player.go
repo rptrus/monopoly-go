@@ -64,4 +64,5 @@ func (p *Player) BuyProperty(pd *PropertyDeed) (int, error) {
 
 func (p *Player) pay200Dollars() {
 	p.CashAvailable += roundTripPayment
+	TheBank.CashReservesInDollars -= 200
 }

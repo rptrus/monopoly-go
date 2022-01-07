@@ -247,18 +247,35 @@ func highestPartiallyCompleteSet(otherPlayer byte, AllPlayers []Player, myProper
 }
 
 // needs work for things like utility / train station. works ok for coloured property sets
-func ownsFullSet(propertiesToGiveOut []*PropertyDeed, myPropertyCardCollection *PropertyCollection) []string {
+func ownsFullSet(properties []*PropertyDeed, myPropertyCardCollection *PropertyCollection) []string {
 	var setsOwned []string
+	// we are already using sort for purchase price, so we can't really sort by name now. We will just do a small hacky thing
+	// for stations and utilities. It's a bit ugly, but this can be tweaked.
+	var utilityAdded = false
+	var stationAdded = false
 	// for this, we just want one representative property for each set to iterate over
 	var currentSetColour string
 	var oneOfEach []*PropertyDeed = nil
-	for _, pd := range propertiesToGiveOut {
+	for _, pd := range properties {
 		if (*pd).Set != currentSetColour {
+			if pd.Set == GetPropertyType(Utility) && utilityAdded {
+				continue
+			}
+			if pd.Set == GetPropertyType(Station) && stationAdded {
+				stationAdded = true
+				continue
+			}
 			currentSetColour = pd.Set
+			if pd.Set == GetPropertyType(Utility) {
+				utilityAdded = true
+			}
+			if pd.Set == GetPropertyType(Station) {
+				stationAdded = true
+			}
 			oneOfEach = append(oneOfEach, pd)
 		} else {
 			continue
-		} // check utility. it's not contiguous like the colours.
+		}
 	}
 	//
 	for _, pd := range oneOfEach {
@@ -267,7 +284,7 @@ func ownsFullSet(propertiesToGiveOut []*PropertyDeed, myPropertyCardCollection *
 		owners, _ := ownersOfASet(pd.Set, myPropertyCardCollection)
 		// check we own all of them
 		for _, owner := range owners {
-			if owner != propertiesToGiveOut[0].Owner { // we just need any card to establish our player number
+			if owner != properties[0].Owner { // we just need any card to establish our player number
 				fullyOwned = false
 			}
 		}

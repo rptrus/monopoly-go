@@ -8,15 +8,16 @@ import (
 	"time"
 )
 
-func (gs *GameState) DoDeals(allPlayers []Player, myPropertyCardCollection *PropertyCollection) {
-	// TODO
+func (gs *GameState) DoDeals(myPropertyCardCollection *PropertyCollection) {
 	// Show some helpful logging so we know the state of play
-	var propsOwned []string
 	fmt.Println("These other players own the following properties:")
-	for i, j := range allPlayers {
+	for i, j := range gs.AllPlayers {
+		propNamesOwned, propDeeds := ShowPropertiesOfPlayer(j.PlayerNumber, myPropertyCardCollection)
+		fullSetters := strings.Join(ownsFullSet(propDeeds, myPropertyCardCollection), " ")
 		if j.PlayerNumber != gs.CurrentPlayer.PlayerNumber {
-			propsOwned, _ = ShowPropertiesOfPlayer(j.PlayerNumber, myPropertyCardCollection)
-			fmt.Print("[", j.Name, " (", i, ")-> \"", strings.Join(propsOwned, "\",\""), "\"]\n")
+			fmt.Print("[", j.Name, " (", i, ")-> \"", strings.Join(propNamesOwned, "\",\""), "\"] Fullsets: "+fullSetters+"\n")
+		} else {
+			fmt.Print("ME: [", j.Name, " (", i, ")-> \"", strings.Join(propNamesOwned, "\",\""), "\"] Fullsets: "+fullSetters+"\n")
 		}
 	}
 	gs.UnownedProperties(myPropertyCardCollection)
@@ -41,12 +42,12 @@ func (gs *GameState) DoDeals(allPlayers []Player, myPropertyCardCollection *Prop
 						otherCardNeeded = listOfCardsOtherPlayer
 					}
 				}
-				fmt.Println("We will get the card", GetTheCurrentCardName(otherCardNeeded.PositionOnBoard, myPropertyCardCollection), "from", allPlayers[otherOwner].Name)
+				fmt.Println("We will get the card", GetTheCurrentCardName(otherCardNeeded.PositionOnBoard, myPropertyCardCollection), "from", gs.AllPlayers[otherOwner].Name)
 				// obtain what we need to fill this missing piece
-				swapPropertyBetweenPlayers(&allPlayers[otherOwner], gs.CurrentPlayer, otherCardNeeded, myPropertyCardCollection)
+				swapPropertyBetweenPlayers(&gs.AllPlayers[otherOwner], gs.CurrentPlayer, otherCardNeeded, myPropertyCardCollection)
 				// now we have to give back to the swapper, preferably something they need
 				// check which set the player has 2 or more of. If they are lucky enough, send them that card
-				pdSetOfOtherPlayer := highestPartiallyCompleteSet(otherOwner, allPlayers, myPropertyCardCollection)
+				pdSetOfOtherPlayer := highestPartiallyCompleteSet(otherOwner, gs.AllPlayers, myPropertyCardCollection)
 				// for each high available (generally 2+) set another player owns, check if we own it by cycling through the owners to see if we're there
 				dealDone := false
 			out:
@@ -59,7 +60,7 @@ func (gs *GameState) DoDeals(allPlayers []Player, myPropertyCardCollection *Prop
 							_, propertyOfCurrentPlayer := ShowPropertiesOfPlayer(gs.CurrentPlayer.PlayerNumber, myPropertyCardCollection)
 							for _, j := range propertyOfCurrentPlayer {
 								if j.Set == pd2.Set { // colour of other player who will get the magic card to fill their set
-									swapPropertyBetweenPlayers(gs.CurrentPlayer, &allPlayers[otherOwner], pd2, myPropertyCardCollection)
+									swapPropertyBetweenPlayers(gs.CurrentPlayer, &gs.AllPlayers[otherOwner], pd2, myPropertyCardCollection)
 									dealDone = true
 									break out
 								}
@@ -100,14 +101,17 @@ func (gs *GameState) DoDeals(allPlayers []Player, myPropertyCardCollection *Prop
 							} // first iteration we always give highest value card
 							usedup = choice
 							property := propertiesToGiveOut[choice]
-							swapPropertyBetweenPlayers(gs.CurrentPlayer, &allPlayers[otherOwner], property, myPropertyCardCollection)
+							swapPropertyBetweenPlayers(gs.CurrentPlayer, &gs.AllPlayers[otherOwner], property, myPropertyCardCollection)
 						}
 					} else if leng == 1 {
-						swapPropertyBetweenPlayers(gs.CurrentPlayer, &allPlayers[otherOwner], propertiesToGiveOut[0], myPropertyCardCollection)
+						swapPropertyBetweenPlayers(gs.CurrentPlayer, &gs.AllPlayers[otherOwner], propertiesToGiveOut[0], myPropertyCardCollection)
+						// make up for the shortfall
+						gs.CurrentPlayer.CashAvailable -= 300
+						gs.AllPlayers[otherOwner].CashAvailable += 300
 					} else if leng == 0 {
 						// TODO: availability check
 						gs.CurrentPlayer.CashAvailable -= 700
-						allPlayers[otherOwner].CashAvailable += 700
+						gs.AllPlayers[otherOwner].CashAvailable += 700
 					}
 					//first := maxdicelow + rand.Intn(maxdicehigh-maxdicelow+1)
 					//second := maxdicelow + rand.Intn(maxdicehigh-maxdicelow+1)

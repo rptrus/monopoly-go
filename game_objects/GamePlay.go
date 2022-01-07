@@ -1,6 +1,7 @@
 package game_objects
 
 import (
+	"errors"
 	"fmt"
 	"math/rand"
 	"time"
@@ -21,6 +22,7 @@ type GameState struct {
 	CurrentDiceRoll       int
 	GlobalTurnsMade       int
 	allPropsSold          bool
+	AllPlayers            []Player
 }
 
 // TODO: tie situation. At the moment first player with highest score wins the toss
@@ -68,9 +70,9 @@ func (gs *GameState) RollDice() {
 }
 
 // For now we assume that there will be 6 players always
-func (gs *GameState) NextPlayer(allPlayers []Player) {
-	//gs.CurrentPlayer.PlayerNumber = (gs.CurrentPlayer.PlayerNumber + 1) % totalPlayersPlaying
-	gs.CurrentPlayer = &allPlayers[(gs.CurrentPlayer.PlayerNumber+1)%totalPlayersPlaying]
+// TODO: no need to pass in the allPlayers. See if other instances like this....
+func (gs *GameState) NextPlayer() {
+	gs.CurrentPlayer = &gs.AllPlayers[(gs.CurrentPlayer.PlayerNumber+1)%totalPlayersPlaying]
 }
 
 // board position to property[28]
@@ -116,4 +118,30 @@ func (gs *GameState) ProcessNonPropertySquare(CurrentPlayer *Player, sqType int,
 		}
 	default:
 	}
+}
+
+// 'n' means it will just not allow, 'x' will mean that if the payer can't pay they will go bankrupt
+func transact(from *Player, to *Player, fromAmount int, priority byte) error {
+	var err error = nil
+	if from.CashAvailable-fromAmount < 0 {
+		if priority == 'n' {
+			err = errors.New("Insufficient cash!")
+			return err
+		} else if priority == 'x' { // on reciprocal deals we don't muck around, you gotta have it
+			from.CashAvailable -= from.CashAvailable
+			to.CashAvailable += from.CashAvailable
+			from.Active = false
+		}
+	} else {
+		from.CashAvailable -= fromAmount
+		to.CashAvailable += fromAmount
+	}
+	return nil
+}
+
+func (gs *GameState) removeToken(playerToRemove *Player) {
+	// something to do with AllPlayers.
+	// TEST THIS
+	newPlayerList := append(gs.AllPlayers[:playerToRemove.PlayerNumber], gs.AllPlayers[playerToRemove.PlayerNumber+1:]...)
+	fmt.Println(newPlayerList)
 }
