@@ -13,7 +13,7 @@ func InitializeBoard() *game_objects.Board {
 	fmt.Println("Calling initialize")
 	brd := game_objects.Board{}
 	// side 1
-	brd.MonopolySpace[0].SquareType = game_objects.NoAction
+	brd.MonopolySpace[0].SquareType = game_objects.Payment
 	brd.MonopolySpace[1].SquareType = game_objects.BuildableProperty
 	brd.MonopolySpace[2].SquareType = game_objects.ChanceChest
 	brd.MonopolySpace[3].SquareType = game_objects.BuildableProperty
@@ -46,7 +46,7 @@ func InitializeBoard() *game_objects.Board {
 	brd.MonopolySpace[28].SquareType = game_objects.Utility
 	brd.MonopolySpace[29].SquareType = game_objects.BuildableProperty
 	// side 4
-	brd.MonopolySpace[30].SquareType = game_objects.Action
+	brd.MonopolySpace[30].SquareType = game_objects.Jail
 	brd.MonopolySpace[31].SquareType = game_objects.BuildableProperty
 	brd.MonopolySpace[32].SquareType = game_objects.BuildableProperty
 	brd.MonopolySpace[33].SquareType = game_objects.ChanceChest

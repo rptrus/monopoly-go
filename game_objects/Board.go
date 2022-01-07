@@ -15,7 +15,8 @@ const (
 	Station
 	NoAction
 	Utility
-	Action
+	Jail
+	Payment
 )
 
 func GetPropertyType(number int) string {
@@ -33,8 +34,11 @@ func GetPropertyType(number int) string {
 		propType = "Nothing"
 	case Utility:
 		propType = "Utility"
-	case Action:
-		propType = "Action"
+	case Jail:
+		propType = "Jail"
+	case Payment:
+		propType = "Payment"
+
 	}
 	return propType
 }

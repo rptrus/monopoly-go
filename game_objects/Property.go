@@ -17,6 +17,20 @@ type PropertyDeed struct {
 	Owner           byte // [1-6] or 'u' for bank. 'u' is unowned
 }
 
+type arrayOfPropertyDeed []*PropertyDeed
+
+func (p arrayOfPropertyDeed) Len() int {
+	return len(p)
+}
+
+func (p arrayOfPropertyDeed) Less(i, j int) bool {
+	return p[i].PurchaseCost > p[j].PurchaseCost
+}
+
+func (p arrayOfPropertyDeed) Swap(i, j int) {
+	p[i], p[j] = p[j], p[i]
+}
+
 type Property struct {
 	Card map[string]*PropertyDeed
 }
@@ -172,7 +186,7 @@ func ownersOfASet(setColour string, pc *PropertyCollection) ([]byte, bool) {
 
 // input: player number
 // output: properties owned
-func ShowPropertiesOfPlayer(playerNumber int, myPropertyCardCollection *PropertyCollection) ([]string, []*PropertyDeed) {
+func ShowPropertiesOfPlayer(playerNumber int, myPropertyCardCollection *PropertyCollection) ([]string, arrayOfPropertyDeed) {
 	propsOwnedNameOnly := []string{}
 	propDeeds := []*PropertyDeed{}
 	for _, card := range myPropertyCardCollection.AllProperty {
@@ -265,7 +279,7 @@ func ownsFullSet(propertiesToGiveOut []*PropertyDeed, myPropertyCardCollection *
 	return setsOwned
 }
 
-func removeProperties(setColor string, propertiesToGiveOut []*PropertyDeed) []*PropertyDeed {
+func removeProperties(setColor string, propertiesToGiveOut []*PropertyDeed) arrayOfPropertyDeed {
 	//var start int = 0
 	//var end int = 0
 	var noFullSets []*PropertyDeed

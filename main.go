@@ -64,31 +64,15 @@ func main() {
 				}
 			}
 			names, _ := game_objects.ShowPropertiesOfPlayer(gameState.CurrentPlayer.PlayerNumber, propertyCardCollection)
-			fmt.Println(allPlayers[gameState.CurrentPlayer.PlayerNumber].Name, "owns the following properties:", "[ \""+strings.Join(names, "\",\"")+"\" ]")
+			fmt.Println("\n", allPlayers[gameState.CurrentPlayer.PlayerNumber].Name, "owns the following properties:", "[ \""+strings.Join(names, "\",\"")+"\" ]\n")
+
 			gameState.DoDeals(allPlayers, propertyCardCollection)
 		} else {
 			sqType := board.MonopolySpace[gameState.CurrentPlayer.PositionOnBoard].SquareType
 			fmt.Println("Landed on a non property square!", gameState.CurrentPlayer.PositionOnBoard, game_objects.GetPropertyType(sqType))
-			taxCollection := 0
-			switch sqType {
-			case game_objects.Tax:
-				taxCollection += tax
-				game_objects.TheBank.CashReservesInDollars += taxCollection
-				gameState.CurrentPlayer.CashAvailable -= taxCollection
-				// general tax need 200
-				if gameState.CurrentPlayer.PositionOnBoard == 4 {
-					taxCollection += tax
-					game_objects.TheBank.CashReservesInDollars += taxCollection
-					gameState.CurrentPlayer.CashAvailable -= taxCollection
-				}
-				fmt.Println("Collected Tax: $", taxCollection)
-			//implement Go To Jail
-			case game_objects.Action:
-			default:
-			}
+			gameState.ProcessNonPropertySquare(gameState.CurrentPlayer, sqType, tax)
 		}
 		gameState.NextPlayer(allPlayers)
-
 		if gameState.GlobalTurnsMade == numberOfTurns {
 			break
 		}

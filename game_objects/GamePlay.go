@@ -52,6 +52,15 @@ func rollDice() int {
 	return total
 }
 
+// substantially similar code reuse (I know) but I'd rather keep both for convenience, mmkay?
+func rollToGetOutOfJail() (int, int) {
+	time.Sleep(1 * time.Millisecond)
+	rand.Seed(time.Now().UnixNano())
+	first := maxdicelow + rand.Intn(maxdicehigh-maxdicelow+1)
+	second := maxdicelow + rand.Intn(maxdicehigh-maxdicelow+1)
+	return first, second
+}
+
 // acts as though it's a method on a class
 func (gs *GameState) RollDice() {
 	gs.GlobalTurnsMade++
@@ -83,4 +92,28 @@ func GetTheCurrentCard(board int, MyPropertyCardCollection *PropertyCollection) 
 func GetTheCurrentCardName(board int, MyPropertyCardCollection *PropertyCollection) string {
 	name, _ := GetTheCurrentCard(board, MyPropertyCardCollection)
 	return name
+}
+
+func (gs *GameState) ProcessNonPropertySquare(CurrentPlayer *Player, sqType int, tax int) {
+	taxCollection := 0
+	switch sqType {
+	case Tax:
+		taxCollection += tax
+		TheBank.CashReservesInDollars += taxCollection
+		CurrentPlayer.CashAvailable -= taxCollection
+		// general tax need 200
+		if CurrentPlayer.PositionOnBoard == 4 {
+			taxCollection += tax
+			TheBank.CashReservesInDollars += taxCollection
+			CurrentPlayer.CashAvailable -= taxCollection
+		}
+		fmt.Println("Collected Tax: $", taxCollection)
+	//implement Go To Jail
+	case Jail:
+		if CurrentPlayer.PositionOnBoard == 30 {
+			CurrentPlayer.PositionOnBoard = 10
+			CurrentPlayer.JailTurns = 3
+		}
+	default:
+	}
 }

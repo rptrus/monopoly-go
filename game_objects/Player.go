@@ -2,6 +2,7 @@ package game_objects
 
 import (
 	"errors"
+	"fmt"
 )
 
 // This file uses receiver methods for structs
@@ -17,14 +18,35 @@ type Player struct {
 	CashAvailable   int
 	PositionOnBoard int
 	Active          bool
+	JailTurns       int
 }
 
 // return reward if GO is passed, 0 otherwise. If return results need to be augmented will create a struct in future
 func (p *Player) AdvancePlayer(steps int) int {
 	prePosition := p.PositionOnBoard
-	p.PositionOnBoard += steps
+	if p.JailTurns == 0 {
+		p.PositionOnBoard += steps
+	} else {
+		firstRoll, secondRoll := rollToGetOutOfJail()
+		if firstRoll == secondRoll {
+			fmt.Println("Rolled a double! lets get out of Jail")
+			p.JailTurns = 0
+			p.PositionOnBoard += firstRoll + secondRoll
+		} else {
+			if p.JailTurns == 1 {
+				fmt.Println("Exhausted all rolls, pay $50 to get out and roll", firstRoll+secondRoll, "spaces")
+				p.CashAvailable -= 50
+				TheBank.CashReservesInDollars += 50
+				p.JailTurns = 0
+				p.PositionOnBoard += firstRoll + secondRoll
+			} else {
+				p.JailTurns--
+				p.PositionOnBoard += 0
+			}
+		}
+	}
 	p.PositionOnBoard = p.PositionOnBoard % placesonboard
-	if p.PositionOnBoard < prePosition {
+	if p.PositionOnBoard < prePosition && p.JailTurns == 0 {
 		p.pay200Dollars()
 		return roundTripPayment
 	}

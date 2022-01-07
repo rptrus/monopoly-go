@@ -3,6 +3,7 @@ package game_objects
 import (
 	"fmt"
 	"math/rand"
+	"sort"
 	"strings"
 	"time"
 )
@@ -77,6 +78,8 @@ func (gs *GameState) DoDeals(allPlayers []Player, myPropertyCardCollection *Prop
 					for _, colour := range fullSetsToTakeOut {
 						propertiesToGiveOut = removeProperties(colour, propertiesToGiveOut)
 					}
+					sort.Sort(propertiesToGiveOut) // highest starts at [0]
+
 					// do the removal from
 					fmt.Println(fullSetsToTakeOut)
 					// FUTURE TODO: sort them and give out the highest property
@@ -84,26 +87,27 @@ func (gs *GameState) DoDeals(allPlayers []Player, myPropertyCardCollection *Prop
 					fmt.Println(leng, propertiesToGiveOut) // useless
 					time.Sleep(1 * time.Millisecond)
 					rand.Seed(time.Now().UnixNano())
-					//if (leng >= 2) {
-					//	choice := rand.Intn(leng)
-					//	choice2 := rand.Intn(leng)
-					//	if choice2 == choice {
-					//		choice2 = choice + 1%leng
-					//	}
-					//	property1 := propertiesToGiveOut[choice]
-					//	property2 := propertiesToGiveOut[choice2]
-					//	swapPropertyBetweenPlayers(gs.CurrentPlayer, &allPlayers[otherOwner], property1, myPropertyCardCollection)
-					//	swapPropertyBetweenPlayers(gs.CurrentPlayer, &allPlayers[otherOwner], property2, myPropertyCardCollection)
-					//}
 					var usedup int = -1
-					for i := 0; i < 2; i++ { // 2 choices of properties. There could be, say, 5 or 6 to choose from
-						choice := rand.Intn(leng)
-						if choice == usedup {
-							choice = choice + 1%leng
+					if leng >= 2 {
+						for i := 0; i < 2; i++ { // 2 choices of properties. There could be, say, 5 or 6 to choose from
+							println(leng)
+							choice := rand.Intn(leng)
+							if choice == usedup {
+								choice = choice + 1%leng
+							}
+							if i == 0 {
+								choice = 0
+							} // first iteration we always give highest value card
+							usedup = choice
+							property := propertiesToGiveOut[choice]
+							swapPropertyBetweenPlayers(gs.CurrentPlayer, &allPlayers[otherOwner], property, myPropertyCardCollection)
 						}
-						usedup = choice
-						property := propertiesToGiveOut[choice]
-						swapPropertyBetweenPlayers(gs.CurrentPlayer, &allPlayers[otherOwner], property, myPropertyCardCollection)
+					} else if leng == 1 {
+						swapPropertyBetweenPlayers(gs.CurrentPlayer, &allPlayers[otherOwner], propertiesToGiveOut[0], myPropertyCardCollection)
+					} else if leng == 0 {
+						// TODO: availability check
+						gs.CurrentPlayer.CashAvailable -= 700
+						allPlayers[otherOwner].CashAvailable += 700
 					}
 					//first := maxdicelow + rand.Intn(maxdicehigh-maxdicelow+1)
 					//second := maxdicelow + rand.Intn(maxdicehigh-maxdicelow+1)
