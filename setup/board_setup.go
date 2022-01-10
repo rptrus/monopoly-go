@@ -86,11 +86,17 @@ func InitializePlayers(numberOfPlayers int) []game_objects.Player {
 	}
 	// give some names to the players, make it less boring
 	AllPlayers[0].Name = "Fred"
+	AllPlayers[0].Token = "Wheelbarrow"
 	AllPlayers[1].Name = "Mary"
+	AllPlayers[1].Token = "Racing car"
 	AllPlayers[2].Name = "Jason"
+	AllPlayers[2].Token = "Top Hate"
 	AllPlayers[3].Name = "Sally"
+	AllPlayers[3].Token = "Cat"
 	AllPlayers[4].Name = "Bradley"
+	AllPlayers[4].Token = "Boot"
 	AllPlayers[5].Name = "Indigo"
+	AllPlayers[5].Token = "Thimble"
 
 	for a, b := range AllPlayers {
 		fmt.Println("Player: \n", a, b)

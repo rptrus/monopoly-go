@@ -66,14 +66,18 @@ func main() {
 			}
 			names, _ := game_objects.ShowPropertiesOfPlayer(gameState.CurrentPlayer.PlayerNumber, propertyCardCollection)
 			fmt.Println("\n", allPlayers[gameState.CurrentPlayer.PlayerNumber].Name, "owns the following properties:", "[ \""+strings.Join(names, "\",\"")+"\" ]\n")
-
 			gameState.DoDeals(propertyCardCollection)
+			gameState.CurrentPlayer.PutUpHouses(propertyCardCollection)
 		} else {
 			sqType := board.MonopolySpace[gameState.CurrentPlayer.PositionOnBoard].SquareType
 			fmt.Println("Landed on a non property square!", gameState.CurrentPlayer.PositionOnBoard, game_objects.GetPropertyType(sqType))
 			gameState.ProcessNonPropertySquare(gameState.CurrentPlayer, sqType, tax)
 		}
 		gameState.NextPlayer()
+		//if gameState.GlobalTurnsMade == 50 {
+		//	gameState.RemoveToken(&allPlayers[1])
+		//	fmt.Println(allPlayers)
+		//}
 		if gameState.GlobalTurnsMade == numberOfTurns {
 			break
 		}

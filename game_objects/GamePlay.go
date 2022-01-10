@@ -12,6 +12,7 @@ const (
 	maxdicehigh         int = 6
 	placesonboard       int = 40
 	totalPlayersPlaying int = 6
+	minThresholdHouses  int = 500
 )
 
 var TheBank *Bank
@@ -76,8 +77,8 @@ func (gs *GameState) NextPlayer() {
 }
 
 // board position to property[28]
-func GetTheCurrentCard(board int, MyPropertyCardCollection *PropertyCollection) (string, *PropertyDeed) {
-	for _, card := range (*MyPropertyCardCollection).AllProperty {
+func GetTheCurrentCard(board int, pc *PropertyCollection) (string, *PropertyDeed) {
+	for _, card := range (*pc).AllProperty {
 		// j is single entry map of name:Property
 		aSingularCardMap := card.Card
 		for n, v := range aSingularCardMap {
@@ -91,8 +92,8 @@ func GetTheCurrentCard(board int, MyPropertyCardCollection *PropertyCollection) 
 }
 
 // convenience if we just want the name, we can use directly in a fmt.println statement
-func GetTheCurrentCardName(board int, MyPropertyCardCollection *PropertyCollection) string {
-	name, _ := GetTheCurrentCard(board, MyPropertyCardCollection)
+func GetTheCurrentCardName(board int, pc *PropertyCollection) string {
+	name, _ := GetTheCurrentCard(board, pc)
 	return name
 }
 
@@ -139,9 +140,8 @@ func transact(from *Player, to *Player, fromAmount int, priority byte) error {
 	return nil
 }
 
-func (gs *GameState) removeToken(playerToRemove *Player) {
-	// something to do with AllPlayers.
-	// TEST THIS
+func (gs *GameState) RemoveToken(playerToRemove *Player) {
+	fmt.Println("Removing token", playerToRemove.Token, "played by", playerToRemove.Name)
 	newPlayerList := append(gs.AllPlayers[:playerToRemove.PlayerNumber], gs.AllPlayers[playerToRemove.PlayerNumber+1:]...)
 	fmt.Println(newPlayerList)
 }

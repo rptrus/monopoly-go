@@ -19,6 +19,7 @@ type Player struct {
 	PositionOnBoard int
 	Active          bool
 	JailTurns       int
+	Token           string
 }
 
 // return reward if GO is passed, 0 otherwise. If return results need to be augmented will create a struct in future
@@ -65,4 +66,26 @@ func (p *Player) BuyProperty(pd *PropertyDeed) (int, error) {
 func (p *Player) pay200Dollars() {
 	p.CashAvailable += roundTripPayment
 	TheBank.CashReservesInDollars -= 200
+}
+
+func (p *Player) PutUpHouses(pc *PropertyCollection) {
+	_, deeds := ShowPropertiesOfPlayer(p.PlayerNumber, pc)
+	colour := ownsFullSet(deeds, pc)
+	// buy houses of these colours, 1 lot at a time
+	for _, aFullSetColour := range colour {
+		for _, deed := range deeds {
+			if deed.Set == aFullSetColour {
+				if deed.Set == "Utility" || deed.Set == "Train" {
+					continue
+				} // no houses for these
+				if p.CashAvailable > minThresholdHouses {
+					if deed.HousesOwned >= 5 {
+						break
+					}
+					deed.HousesOwned++
+					fmt.Println("House purchased for", GetTheCurrentCardName(deed.PositionOnBoard, pc), "by", p.Name, ". Total houses on this property are: ", deed.HousesOwned)
+				}
+			}
+		}
+	}
 }
