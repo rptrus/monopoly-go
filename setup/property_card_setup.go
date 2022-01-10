@@ -20,6 +20,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 		PurchaseCost:    60,
 		Rent:            2,
 		RentWithHouses:  []int{2, 10, 30, 90, 160, 250}, // creates another slice literal by first creating the underlying array
+		HouseCost:       50,
 		Owner:           'u',
 	}
 	PropertyCollection.AllProperty[0] = *prop
@@ -32,6 +33,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 		PurchaseCost:    60,
 		Rent:            4,
 		RentWithHouses:  []int{4, 20, 60, 180, 320, 450},
+		HouseCost:       50,
 		Owner:           'u',
 	}
 	PropertyCollection.AllProperty[1] = *prop
@@ -44,6 +46,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 		PurchaseCost:    200,
 		Rent:            25, // base cost
 		RentWithHouses:  nil,
+		HouseCost:       0,
 		Owner:           'u',
 	}
 	PropertyCollection.AllProperty[2] = *prop
@@ -56,6 +59,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 		PurchaseCost:    100,
 		Rent:            6,
 		RentWithHouses:  []int{30, 90, 270, 400, 550},
+		HouseCost:       50,
 		Owner:           'u',
 	}
 	PropertyCollection.AllProperty[3] = *prop
@@ -68,6 +72,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 		PurchaseCost:    100,
 		Rent:            6,
 		RentWithHouses:  []int{30, 90, 270, 400, 550},
+		HouseCost:       50,
 		Owner:           'u',
 	}
 	PropertyCollection.AllProperty[4] = *prop
@@ -80,6 +85,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 		PurchaseCost:    120,
 		Rent:            8,
 		RentWithHouses:  []int{40, 100, 300, 450, 600},
+		HouseCost:       50,
 		Owner:           'u',
 	}
 	PropertyCollection.AllProperty[5] = *prop
@@ -94,6 +100,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 		PurchaseCost:    140,
 		Rent:            10,
 		RentWithHouses:  []int{50, 140, 450, 625, 750},
+		HouseCost:       100,
 		Owner:           'u',
 	}
 	PropertyCollection.AllProperty[6] = *prop
@@ -106,6 +113,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 		PurchaseCost:    150,
 		Rent:            -1, // special case
 		RentWithHouses:  nil,
+		HouseCost:       0,
 		Owner:           'u',
 	}
 	PropertyCollection.AllProperty[7] = *prop
@@ -118,6 +126,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 		PurchaseCost:    140,
 		Rent:            10,
 		RentWithHouses:  []int{50, 150, 450, 625, 750},
+		HouseCost:       100,
 		Owner:           'u',
 	}
 	PropertyCollection.AllProperty[8] = *prop
@@ -130,6 +139,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 		PurchaseCost:    140,
 		Rent:            10,
 		RentWithHouses:  []int{50, 150, 450, 625, 750},
+		HouseCost:       100,
 		Owner:           'u',
 	}
 	PropertyCollection.AllProperty[9] = *prop
@@ -142,6 +152,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 		PurchaseCost:    200,
 		Rent:            25,
 		RentWithHouses:  nil,
+		HouseCost:       0,
 		Owner:           'u',
 	}
 	PropertyCollection.AllProperty[10] = *prop
@@ -154,6 +165,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 		PurchaseCost:    180,
 		Rent:            14,
 		RentWithHouses:  []int{70, 200, 550, 750, 950},
+		HouseCost:       100,
 		Owner:           'u',
 	}
 	PropertyCollection.AllProperty[11] = *prop
@@ -166,6 +178,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 		PurchaseCost:    180,
 		Rent:            14,
 		RentWithHouses:  []int{70, 200, 550, 750, 950},
+		HouseCost:       100,
 		Owner:           'u',
 	}
 	PropertyCollection.AllProperty[12] = *prop
@@ -178,6 +191,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 		PurchaseCost:    200,
 		Rent:            16,
 		RentWithHouses:  []int{80, 220, 600, 800, 1000},
+		HouseCost:       100,
 		Owner:           'u',
 	}
 	PropertyCollection.AllProperty[13] = *prop
@@ -192,6 +206,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 		PurchaseCost:    220,
 		Rent:            18,
 		RentWithHouses:  []int{90, 250, 700, 875, 1050},
+		HouseCost:       150,
 		Owner:           'u',
 	}
 	PropertyCollection.AllProperty[14] = *prop
@@ -204,6 +219,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 		PurchaseCost:    220,
 		Rent:            20,
 		RentWithHouses:  []int{90, 250, 700, 875, 1050},
+		HouseCost:       150,
 		Owner:           'u',
 	}
 	PropertyCollection.AllProperty[15] = *prop
@@ -216,6 +232,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 		PurchaseCost:    240,
 		Rent:            20,
 		RentWithHouses:  []int{100, 300, 750, 925, 1100},
+		HouseCost:       150,
 		Owner:           'u',
 	}
 	PropertyCollection.AllProperty[16] = *prop
@@ -228,6 +245,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 		PurchaseCost:    200,
 		Rent:            25,
 		RentWithHouses:  nil,
+		HouseCost:       0,
 		Owner:           'u',
 	}
 	PropertyCollection.AllProperty[17] = *prop
@@ -240,6 +258,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 		PurchaseCost:    260,
 		Rent:            22,
 		RentWithHouses:  []int{110, 330, 800, 975, 1150},
+		HouseCost:       150,
 		Owner:           'u',
 	}
 	PropertyCollection.AllProperty[18] = *prop
@@ -252,6 +271,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 		PurchaseCost:    260,
 		Rent:            22,
 		RentWithHouses:  []int{110, 330, 800, 975, 1150},
+		HouseCost:       150,
 		Owner:           'u',
 	}
 	PropertyCollection.AllProperty[19] = *prop
@@ -264,6 +284,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 		PurchaseCost:    150,
 		Rent:            -1,
 		RentWithHouses:  nil,
+		HouseCost:       150,
 		Owner:           'u',
 	}
 	PropertyCollection.AllProperty[20] = *prop
@@ -276,6 +297,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 		PurchaseCost:    280,
 		Rent:            22,
 		RentWithHouses:  []int{120, 360, 850, 1025, 1200},
+		HouseCost:       150,
 		Owner:           'u',
 	}
 	PropertyCollection.AllProperty[21] = *prop
@@ -290,6 +312,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 		PurchaseCost:    300,
 		Rent:            26,
 		RentWithHouses:  []int{130, 390, 900, 1100, 1275},
+		HouseCost:       200,
 		Owner:           'u',
 	}
 	PropertyCollection.AllProperty[22] = *prop
@@ -302,6 +325,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 		PurchaseCost:    300,
 		Rent:            26,
 		RentWithHouses:  []int{130, 390, 900, 1100, 1275},
+		HouseCost:       200,
 		Owner:           'u',
 	}
 	PropertyCollection.AllProperty[23] = *prop
@@ -314,6 +338,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 		PurchaseCost:    320,
 		Rent:            28,
 		RentWithHouses:  []int{150, 450, 1000, 1200, 1400},
+		HouseCost:       200,
 		Owner:           'u',
 	}
 	PropertyCollection.AllProperty[24] = *prop
@@ -326,6 +351,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 		PurchaseCost:    200,
 		Rent:            25,
 		RentWithHouses:  nil,
+		HouseCost:       0,
 		Owner:           'u',
 	}
 	PropertyCollection.AllProperty[25] = *prop
@@ -338,6 +364,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 		PurchaseCost:    350,
 		Rent:            35,
 		RentWithHouses:  []int{175, 500, 1100, 1300, 1500},
+		HouseCost:       200,
 		Owner:           'u',
 	}
 	PropertyCollection.AllProperty[26] = *prop
@@ -350,6 +377,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 		PurchaseCost:    400,
 		Rent:            50,
 		RentWithHouses:  []int{200, 600, 1400, 1700, 2000},
+		HouseCost:       200,
 		Owner:           'u',
 	}
 	PropertyCollection.AllProperty[27] = *prop

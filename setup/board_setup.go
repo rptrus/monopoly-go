@@ -62,6 +62,8 @@ func InitializeBoard() *game_objects.Board {
 func InitializeBank() *game_objects.Bank {
 	bk := new(game_objects.Bank)
 	bk.CashReservesInDollars = 20580
+	bk.TotalHouses = 32
+	bk.TotalHotels = 12
 	return bk
 }
 
@@ -90,7 +92,7 @@ func InitializePlayers(numberOfPlayers int) []game_objects.Player {
 	AllPlayers[1].Name = "Mary"
 	AllPlayers[1].Token = "Racing car"
 	AllPlayers[2].Name = "Jason"
-	AllPlayers[2].Token = "Top Hate"
+	AllPlayers[2].Token = "Top Hat"
 	AllPlayers[3].Name = "Sally"
 	AllPlayers[3].Token = "Cat"
 	AllPlayers[4].Name = "Bradley"

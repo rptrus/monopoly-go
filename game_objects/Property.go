@@ -15,6 +15,7 @@ type PropertyDeed struct {
 	Rent            int
 	RentWithHouses  []int
 	Owner           byte // [1-6] or 'u' for bank. 'u' is unowned
+	HouseCost       int
 	HousesOwned     int
 }
 
@@ -74,26 +75,44 @@ func (pd *PropertyDeed) PayRent(from *Player, to *Player, board *Board, props *P
 		} else {
 			pd.Rent = 4 * roll
 		}
-		from.CashAvailable -= pd.Rent
-		to.CashAvailable += pd.Rent
+		//from.CashAvailable -= pd.Rent
+		//to.CashAvailable += pd.Rent
+		t := Transaction{
+			sender:   from,
+			receiver: to,
+			amount:   pd.Rent,
+		}
+		t.TransactWithPlayer('x')
 	case Station:
 		stationsOwnedByPlayer := len(findSameType(board, pd, props))
 		pd.Rent = stationsOwnedByPlayer * 25
-		from.CashAvailable -= pd.Rent
-		to.CashAvailable += pd.Rent
+		//from.CashAvailable -= pd.Rent
+		//to.CashAvailable += pd.Rent
+		t := Transaction{
+			sender:   from,
+			receiver: to,
+			amount:   pd.Rent,
+		}
+		t.TransactWithPlayer('x')
 	case BuildableProperty:
 		// check if the property landed on is a complete set
 		moneyOwing := pd.Rent
 		multiplyFactor := 1
 		hasAllSet := checkCompleteSet(pd, props)
-		if hasAllSet {
+		if hasAllSet && pd.HousesOwned == 0 {
 			multiplyFactor = 2
 		}
 		if pd.HousesOwned > 0 {
 			moneyOwing = pd.RentWithHouses[pd.HousesOwned-1]
 		}
-		from.CashAvailable -= moneyOwing * multiplyFactor
-		to.CashAvailable += moneyOwing * multiplyFactor
+		t := Transaction{
+			sender:   from,
+			receiver: to,
+			amount:   moneyOwing * multiplyFactor,
+		}
+		t.TransactWithPlayer('x')
+		//from.CashAvailable -= moneyOwing * multiplyFactor
+		//to.CashAvailable += moneyOwing * multiplyFactor
 	default:
 		fmt.Println("Unknown or not implemented", board.MonopolySpace[from.PositionOnBoard].SquareType)
 	}
@@ -302,8 +321,6 @@ func ownsFullSet(properties []*PropertyDeed, pc *PropertyCollection) []string {
 }
 
 func removeProperties(setColor string, propertiesToGiveOut []*PropertyDeed) arrayOfPropertyDeed {
-	//var start int = 0
-	//var end int = 0
 	var noFullSets []*PropertyDeed
 	for _, deed := range propertiesToGiveOut {
 		if deed.Set == setColor {

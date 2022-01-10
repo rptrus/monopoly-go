@@ -1,7 +1,6 @@
 package game_objects
 
 import (
-	"errors"
 	"fmt"
 	"math/rand"
 	"time"
@@ -24,6 +23,7 @@ type GameState struct {
 	GlobalTurnsMade       int
 	allPropsSold          bool
 	AllPlayers            []Player
+	RecentBankruptcy      bool
 }
 
 // TODO: tie situation. At the moment first player with highest score wins the toss
@@ -70,10 +70,67 @@ func (gs *GameState) RollDice() {
 	gs.CurrentDiceRoll = rollDice()
 }
 
-// For now we assume that there will be 6 players always
-// TODO: no need to pass in the allPlayers. See if other instances like this....
 func (gs *GameState) NextPlayer() {
-	gs.CurrentPlayer = &gs.AllPlayers[(gs.CurrentPlayer.PlayerNumber+1)%totalPlayersPlaying]
+	//gs.CurrentPlayer = &gs.AllPlayers[(gs.CurrentPlayer.PlayerNumber+1)%totalPlayersPlaying]
+	var countActive int
+	for _, j := range gs.AllPlayers {
+		if j.Active == true {
+			countActive++
+		}
+	}
+
+	switch countActive {
+	case 1:
+		gs.CurrentPlayer = &gs.AllPlayers[(gs.CurrentPlayer.PlayerNumber+1)%totalPlayersPlaying]
+		if gs.CurrentPlayer.Active == true {
+			break
+		}
+		fallthrough
+	case 2:
+		gs.CurrentPlayer = &gs.AllPlayers[(gs.CurrentPlayer.PlayerNumber+1)%totalPlayersPlaying]
+		if gs.CurrentPlayer.Active == true {
+			break
+		}
+		fallthrough
+	case 3:
+		gs.CurrentPlayer = &gs.AllPlayers[(gs.CurrentPlayer.PlayerNumber+1)%totalPlayersPlaying]
+		if gs.CurrentPlayer.Active == true {
+			break
+		}
+		fallthrough
+	case 4:
+		gs.CurrentPlayer = &gs.AllPlayers[(gs.CurrentPlayer.PlayerNumber+1)%totalPlayersPlaying]
+		if gs.CurrentPlayer.Active == true {
+			break
+		}
+		fallthrough
+	case 5:
+		gs.CurrentPlayer = &gs.AllPlayers[(gs.CurrentPlayer.PlayerNumber+1)%totalPlayersPlaying]
+		if gs.CurrentPlayer.Active == true {
+			break
+		}
+		fallthrough
+	default:
+		gs.CurrentPlayer = &gs.AllPlayers[(gs.CurrentPlayer.PlayerNumber+1)%totalPlayersPlaying]
+		if gs.CurrentPlayer.Active == true {
+			break
+		}
+	}
+	fmt.Println(gs.CurrentPlayer.Name, "is now up")
+
+	/*
+		if !gs.RecentBankruptcy {
+			for _, j := range gs.AllPlayers {
+				if gs.CurrentPlayer.PlayerNumber == j.PlayerNumber {
+					// add 1
+					gs.CurrentPlayer = &gs.AllPlayers[(gs.CurrentPlayer.PlayerNumber+1)%len(gs.AllPlayers)]
+					break
+				}
+			}
+		} else {
+			gs.RecentBankruptcy = false
+		}
+	*/
 }
 
 // board position to property[28]
@@ -102,14 +159,22 @@ func (gs *GameState) ProcessNonPropertySquare(CurrentPlayer *Player, sqType int,
 	switch sqType {
 	case Tax:
 		taxCollection += tax
-		TheBank.CashReservesInDollars += taxCollection
-		CurrentPlayer.CashAvailable -= taxCollection
+		t := Transaction{
+			//gs: gs,
+			sender:   CurrentPlayer,
+			receiver: nil,
+			amount:   tax,
+		}
+		//TheBank.CashReservesInDollars += taxCollection
+		//CurrentPlayer.CashAvailable -= taxCollection
 		// general tax need 200
 		if CurrentPlayer.PositionOnBoard == 4 {
-			taxCollection += tax
-			TheBank.CashReservesInDollars += taxCollection
-			CurrentPlayer.CashAvailable -= taxCollection
+			//taxCollection += tax
+			//TheBank.CashReservesInDollars += taxCollection
+			//CurrentPlayer.CashAvailable -= taxCollection
+			t.amount += tax
 		}
+		t.TransactWithBank()
 		fmt.Println("Collected Tax: $", taxCollection)
 	//implement Go To Jail
 	case Jail:
@@ -121,27 +186,29 @@ func (gs *GameState) ProcessNonPropertySquare(CurrentPlayer *Player, sqType int,
 	}
 }
 
-// 'n' means it will just not allow, 'x' will mean that if the payer can't pay they will go bankrupt
-func transact(from *Player, to *Player, fromAmount int, priority byte) error {
-	var err error = nil
-	if from.CashAvailable-fromAmount < 0 {
-		if priority == 'n' {
-			err = errors.New("Insufficient cash!")
-			return err
-		} else if priority == 'x' { // on reciprocal deals we don't muck around, you gotta have it
-			from.CashAvailable -= from.CashAvailable
-			to.CashAvailable += from.CashAvailable
-			from.Active = false
-		}
-	} else {
-		from.CashAvailable -= fromAmount
-		to.CashAvailable += fromAmount
-	}
-	return nil
-}
-
 func (gs *GameState) RemoveToken(playerToRemove *Player) {
 	fmt.Println("Removing token", playerToRemove.Token, "played by", playerToRemove.Name)
-	newPlayerList := append(gs.AllPlayers[:playerToRemove.PlayerNumber], gs.AllPlayers[playerToRemove.PlayerNumber+1:]...)
-	fmt.Println(newPlayerList)
+	//var playerToExterminate int
+	for _, j := range gs.AllPlayers {
+		if j.PlayerNumber == playerToRemove.PlayerNumber {
+			//playerToExterminate = i
+			j.Active = false
+			break
+		}
+	}
+	/*
+		// TODO set up the current player. But then nextplayer will add as well
+		for _,j := range gs.AllPlayers {
+			if gs.CurrentPlayer.PlayerNumber == j.PlayerNumber {
+				// add 1
+				gs.CurrentPlayer = &gs.AllPlayers[((gs.CurrentPlayer.PlayerNumber+1)%len(gs.AllPlayers)-1)] //-1 for just removed
+				gs.RecentBankruptcy = true
+				break
+			}
+		}
+
+		newPlayerList := append(gs.AllPlayers[:playerToExterminate], gs.AllPlayers[playerToExterminate+1:]...)
+		gs.AllPlayers = newPlayerList
+		fmt.Println(newPlayerList)
+	*/
 }

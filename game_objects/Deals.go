@@ -99,12 +99,26 @@ func (gs *GameState) DoDeals(pc *PropertyCollection) {
 					} else if leng == 1 {
 						swapPropertyBetweenPlayers(gs.CurrentPlayer, &gs.AllPlayers[otherOwner], propertiesToGiveOut[0], pc)
 						// make up for the shortfall
-						gs.CurrentPlayer.CashAvailable -= 300
-						gs.AllPlayers[otherOwner].CashAvailable += 300
+						t := Transaction{
+							//gs: gs,
+							sender:   gs.CurrentPlayer,
+							receiver: &gs.AllPlayers[otherOwner],
+							amount:   300,
+						}
+						t.TransactWithPlayer('x')
+
+						//gs.CurrentPlayer.CashAvailable -= 300
+						//gs.AllPlayers[otherOwner].CashAvailable += 300
 					} else if leng == 0 {
-						// TODO: availability check
-						gs.CurrentPlayer.CashAvailable -= 700
-						gs.AllPlayers[otherOwner].CashAvailable += 700
+						t := Transaction{
+							//gs:       gs,
+							sender:   gs.CurrentPlayer,
+							receiver: &gs.AllPlayers[otherOwner],
+							amount:   700,
+						}
+						t.TransactWithPlayer('x')
+						//gs.CurrentPlayer.CashAvailable -= 700
+						//gs.AllPlayers[otherOwner].CashAvailable += 700
 					}
 					// if we don't have 2 properties, then swap 1 + $300
 					// if we don't have any properties, then swap $700

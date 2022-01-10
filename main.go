@@ -32,6 +32,7 @@ func main() {
 		GlobalTurnsMade: 0,
 		AllPlayers:      allPlayers,
 	}
+	game_objects.BankGameState = &gameState
 	for {
 		gameState.RollDice()
 		prePosition := gameState.CurrentPlayer.PositionOnBoard // place before we advance to our roll

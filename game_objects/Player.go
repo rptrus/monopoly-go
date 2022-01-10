@@ -36,8 +36,14 @@ func (p *Player) AdvancePlayer(steps int) int {
 		} else {
 			if p.JailTurns == 1 {
 				fmt.Println("Exhausted all rolls, pay $50 to get out and roll", firstRoll+secondRoll, "spaces")
-				p.CashAvailable -= 50
-				TheBank.CashReservesInDollars += 50
+				t := Transaction{
+					sender:   p,
+					receiver: nil,
+					amount:   50,
+				}
+				t.TransactWithBank()
+				//p.CashAvailable -= 50
+				//TheBank.CashReservesInDollars += 50
 				p.JailTurns = 0
 				p.PositionOnBoard += firstRoll + secondRoll
 			} else {
@@ -58,14 +64,26 @@ func (p *Player) BuyProperty(pd *PropertyDeed) (int, error) {
 	if p.CashAvailable-pd.PurchaseCost < 0 {
 		return 0, errors.New("Cannot afford property!")
 	}
-	(*p).CashAvailable -= (*pd).PurchaseCost
+	//(*p).CashAvailable -= (*pd).PurchaseCost
+	t := Transaction{
+		sender:   p,
+		receiver: nil,
+		amount:   (*pd).PurchaseCost,
+	}
+	t.TransactWithBank()
 	pd.Owner = byte(p.PlayerNumber)
 	return pd.PurchaseCost, nil
 }
 
 func (p *Player) pay200Dollars() {
-	p.CashAvailable += roundTripPayment
-	TheBank.CashReservesInDollars -= 200
+	t := Transaction{
+		sender:   nil,
+		receiver: p,
+		amount:   200,
+	}
+	t.BankCheque()
+	//p.CashAvailable += roundTripPayment
+	//TheBank.CashReservesInDollars -= 200
 }
 
 func (p *Player) PutUpHouses(pc *PropertyCollection) {
@@ -82,6 +100,14 @@ func (p *Player) PutUpHouses(pc *PropertyCollection) {
 					if deed.HousesOwned >= 5 {
 						break
 					}
+					t := Transaction{
+						sender:   p,
+						receiver: nil,
+						amount:   deed.HouseCost,
+					}
+					t.TransactWithBank()
+					//p.CashAvailable -= deed.HouseCost
+					//TheBank.CashReservesInDollars += deed.HouseCost
 					deed.HousesOwned++
 					fmt.Println("House purchased for", GetTheCurrentCardName(deed.PositionOnBoard, pc), "by", p.Name, ". Total houses on this property are: ", deed.HousesOwned)
 				}
