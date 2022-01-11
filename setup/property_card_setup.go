@@ -19,7 +19,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 		PositionOnBoard: 1,
 		PurchaseCost:    60,
 		Rent:            2,
-		RentWithHouses:  []int{2, 10, 30, 90, 160, 250}, // creates another slice literal by first creating the underlying array
+		RentWithHouses:  []int{10, 30, 90, 160, 250}, // creates another slice literal by first creating the underlying array
 		HouseCost:       50,
 		Owner:           'u',
 	}
@@ -32,7 +32,7 @@ func InitializePropertyCards() *game_objects.PropertyCollection {
 		PositionOnBoard: 3,
 		PurchaseCost:    60,
 		Rent:            4,
-		RentWithHouses:  []int{4, 20, 60, 180, 320, 450},
+		RentWithHouses:  []int{20, 60, 180, 320, 450},
 		HouseCost:       50,
 		Owner:           'u',
 	}

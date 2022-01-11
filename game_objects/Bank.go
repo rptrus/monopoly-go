@@ -42,22 +42,25 @@ func (txn *Transaction) BankCheque() {
 	}
 }
 
-func (txn *Transaction) TransactWithPlayer(priority byte) error {
+func (txn *Transaction) TransactWithPlayer(priority byte) (int, error) {
 	var err error = nil
+	var moneyPaid = txn.amount
 	if txn.sender.CashAvailable < txn.amount {
 		if priority == 'n' {
 			err = errors.New("Insufficient cash!")
-			return err
+			return 0, err
 		} else if priority == 'x' {
 			txn.sender.Active = false
-			txn.sender.CashAvailable -= txn.amount
-			txn.receiver.CashAvailable += txn.amount
+			allOfIt := txn.sender.CashAvailable
+			txn.sender.CashAvailable -= allOfIt
+			txn.receiver.CashAvailable += allOfIt
 			fmt.Println("Player", txn.sender.Name, "is bankrupt!")
 			BankGameState.RemoveToken(txn.sender)
+			moneyPaid = allOfIt
 		}
 	} else {
 		txn.sender.CashAvailable -= txn.amount
 		txn.receiver.CashAvailable += txn.amount
 	}
-	return nil
+	return moneyPaid, nil
 }

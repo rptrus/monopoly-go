@@ -56,18 +56,20 @@ type OtherPropertyCollection struct {
 	AllProperty [12]OtherProperty
 }
 
-func (pd *PropertyDeed) PayRent(from *Player, to *Player, board *Board, props *PropertyCollection) (int, error) {
+func (pd *PropertyDeed) PayRent(from *Player, to *Player, board *Board, pc *PropertyCollection) (int, error) {
+	t := Transaction{
+		sender:   from,
+		receiver: to,
+		amount:   0,
+	}
+	var actualPaid = 0 // a player may not be able to pay the full amount
 	if (*from).PlayerNumber == (*to).PlayerNumber {
 		fmt.Println("Don't pay rent to ourselves")
 		return 0, errors.New("RentToOurself") // *not really* an error, but a way to suppress output
 	}
-	if (*from).CashAvailable-pd.Rent < 0 {
-		str := []string{"Player does not have enough funds to cover rent ", string(pd.Rent)}
-		return 0, errors.New(strings.Join(str, " "))
-	}
 	switch board.MonopolySpace[from.PositionOnBoard].SquareType {
 	case Utility:
-		ownsBoth := len(findSameType(board, pd, props)) == 2
+		ownsBoth := len(findSameType(board, pd, pc)) == 2
 		roll := rollDice()
 		fmt.Println("Utility re-roll of", roll)
 		if ownsBoth {
@@ -75,55 +77,36 @@ func (pd *PropertyDeed) PayRent(from *Player, to *Player, board *Board, props *P
 		} else {
 			pd.Rent = 4 * roll
 		}
-		//from.CashAvailable -= pd.Rent
-		//to.CashAvailable += pd.Rent
-		t := Transaction{
-			sender:   from,
-			receiver: to,
-			amount:   pd.Rent,
-		}
-		t.TransactWithPlayer('x')
+		t.amount = pd.Rent
+		actualPaid, _ = t.TransactWithPlayer('x')
 	case Station:
-		stationsOwnedByPlayer := len(findSameType(board, pd, props))
+		stationsOwnedByPlayer := len(findSameType(board, pd, pc))
 		pd.Rent = stationsOwnedByPlayer * 25
-		//from.CashAvailable -= pd.Rent
-		//to.CashAvailable += pd.Rent
-		t := Transaction{
-			sender:   from,
-			receiver: to,
-			amount:   pd.Rent,
-		}
-		t.TransactWithPlayer('x')
+		t.amount = pd.Rent
+		actualPaid, _ = t.TransactWithPlayer('x')
 	case BuildableProperty:
 		// check if the property landed on is a complete set
 		moneyOwing := pd.Rent
 		multiplyFactor := 1
-		hasAllSet := checkCompleteSet(pd, props)
+		hasAllSet := checkCompleteSet(pd, pc)
 		if hasAllSet && pd.HousesOwned == 0 {
 			multiplyFactor = 2
 		}
 		if pd.HousesOwned > 0 {
 			moneyOwing = pd.RentWithHouses[pd.HousesOwned-1]
 		}
-		t := Transaction{
-			sender:   from,
-			receiver: to,
-			amount:   moneyOwing * multiplyFactor,
-		}
-		t.TransactWithPlayer('x')
-		//from.CashAvailable -= moneyOwing * multiplyFactor
-		//to.CashAvailable += moneyOwing * multiplyFactor
+		t.amount = moneyOwing * multiplyFactor
+		actualPaid, _ = t.TransactWithPlayer('x')
 	default:
 		fmt.Println("Unknown or not implemented", board.MonopolySpace[from.PositionOnBoard].SquareType)
 	}
-	return pd.Rent, nil
+	fmt.Println("Cost of landing on property", GetTheCurrentCardName(pd.PositionOnBoard, pc), "is: $", t.amount, "with", pd.HousesOwned, "houses")
+	return actualPaid, nil
 }
 
 func swapPropertyBetweenPlayers(from *Player, to *Player, card *PropertyDeed, pc *PropertyCollection) {
 	fmt.Println("Player", from.Name, "Will give property", GetTheCurrentCardName(card.PositionOnBoard, pc), "to", to.Name)
 	// since we will be swapping properties later, we don't need to adjust cash here
-	//from.CashAvailable -= card.PurchaseCost
-	//to.CashAvailable += card.PurchaseCost
 	card.Owner = byte(to.PlayerNumber)
 	fmt.Println("Now assigned")
 }
@@ -156,17 +139,6 @@ func findSameType(board *Board, pd *PropertyDeed, pc *PropertyCollection) []byte
 // easier to handle the case by exception. Assume owns all, until a counterexample emerges
 func checkCompleteSet(pd *PropertyDeed, pc *PropertyCollection) bool {
 	var ownsAll = true
-	/*
-		for _, property := range pc.AllProperty {
-			for _, v := range property.Card {
-				if v.Set == pd.Set { // same colour as our input property deed
-					if v.Owner != pd.Owner {
-						ownsAll = false
-					}
-				}
-			}
-		}
-	*/
 	propsInSet, setCounter := propsOwnedByPlayerInASet(pd, pc)
 	if len(propsInSet) == setCounter {
 		ownsAll = true

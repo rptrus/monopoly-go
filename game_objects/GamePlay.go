@@ -64,13 +64,13 @@ func rollToGetOutOfJail() (int, int) {
 	return first, second
 }
 
-// acts as though it's a method on a class
 func (gs *GameState) RollDice() {
 	gs.GlobalTurnsMade++
 	gs.CurrentDiceRoll = rollDice()
 }
 
-func (gs *GameState) NextPlayer() {
+// true: if game has been won by a player
+func (gs *GameState) NextPlayer() bool {
 	//gs.CurrentPlayer = &gs.AllPlayers[(gs.CurrentPlayer.PlayerNumber+1)%totalPlayersPlaying]
 	var countActive int
 	for _, j := range gs.AllPlayers {
@@ -118,19 +118,11 @@ func (gs *GameState) NextPlayer() {
 	}
 	fmt.Println(gs.CurrentPlayer.Name, "is now up")
 
-	/*
-		if !gs.RecentBankruptcy {
-			for _, j := range gs.AllPlayers {
-				if gs.CurrentPlayer.PlayerNumber == j.PlayerNumber {
-					// add 1
-					gs.CurrentPlayer = &gs.AllPlayers[(gs.CurrentPlayer.PlayerNumber+1)%len(gs.AllPlayers)]
-					break
-				}
-			}
-		} else {
-			gs.RecentBankruptcy = false
-		}
-	*/
+	if countActive == 1 {
+		fmt.Println("Player", gs.CurrentPlayer.Name, "has won the game!")
+		return true
+	}
+	return false
 }
 
 // board position to property[28]
@@ -165,18 +157,12 @@ func (gs *GameState) ProcessNonPropertySquare(CurrentPlayer *Player, sqType int,
 			receiver: nil,
 			amount:   tax,
 		}
-		//TheBank.CashReservesInDollars += taxCollection
-		//CurrentPlayer.CashAvailable -= taxCollection
 		// general tax need 200
 		if CurrentPlayer.PositionOnBoard == 4 {
-			//taxCollection += tax
-			//TheBank.CashReservesInDollars += taxCollection
-			//CurrentPlayer.CashAvailable -= taxCollection
 			t.amount += tax
 		}
 		t.TransactWithBank()
-		fmt.Println("Collected Tax: $", taxCollection)
-	//implement Go To Jail
+		fmt.Println("Collected Tax: $", t.amount)
 	case Jail:
 		if CurrentPlayer.PositionOnBoard == 30 {
 			CurrentPlayer.PositionOnBoard = 10
@@ -196,19 +182,4 @@ func (gs *GameState) RemoveToken(playerToRemove *Player) {
 			break
 		}
 	}
-	/*
-		// TODO set up the current player. But then nextplayer will add as well
-		for _,j := range gs.AllPlayers {
-			if gs.CurrentPlayer.PlayerNumber == j.PlayerNumber {
-				// add 1
-				gs.CurrentPlayer = &gs.AllPlayers[((gs.CurrentPlayer.PlayerNumber+1)%len(gs.AllPlayers)-1)] //-1 for just removed
-				gs.RecentBankruptcy = true
-				break
-			}
-		}
-
-		newPlayerList := append(gs.AllPlayers[:playerToExterminate], gs.AllPlayers[playerToExterminate+1:]...)
-		gs.AllPlayers = newPlayerList
-		fmt.Println(newPlayerList)
-	*/
 }

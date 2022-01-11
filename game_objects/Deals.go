@@ -15,9 +15,9 @@ func (gs *GameState) DoDeals(pc *PropertyCollection) {
 		propNamesOwned, propDeeds := ShowPropertiesOfPlayer(j.PlayerNumber, pc)
 		fullSetters := strings.Join(ownsFullSet(propDeeds, pc), " ")
 		if j.PlayerNumber != gs.CurrentPlayer.PlayerNumber {
-			fmt.Print("[", j.Name, " (", i, ")-> \"", strings.Join(propNamesOwned, "\",\""), "\"] Fullsets: "+fullSetters+"\n")
+			fmt.Print("[", j.Name, " (", i, ")-> \"", strings.Join(propNamesOwned, "\",\""), "\"] Fullsets: "+fullSetters+" COH: $", gs.AllPlayers[i].CashAvailable, "\n")
 		} else {
-			fmt.Print("ME: [", j.Name, " (", i, ")-> \"", strings.Join(propNamesOwned, "\",\""), "\"] Fullsets: "+fullSetters+"\n")
+			fmt.Print("THIS TURN: [", j.Name, " (", i, ")-> \"", strings.Join(propNamesOwned, "\",\""), "\"] Fullsets: "+fullSetters+" COH: $", gs.AllPlayers[i].CashAvailable, "\n")
 		}
 	}
 	gs.UnownedProperties(pc)
@@ -107,8 +107,6 @@ func (gs *GameState) DoDeals(pc *PropertyCollection) {
 						}
 						t.TransactWithPlayer('x')
 
-						//gs.CurrentPlayer.CashAvailable -= 300
-						//gs.AllPlayers[otherOwner].CashAvailable += 300
 					} else if leng == 0 {
 						t := Transaction{
 							//gs:       gs,
@@ -117,8 +115,6 @@ func (gs *GameState) DoDeals(pc *PropertyCollection) {
 							amount:   700,
 						}
 						t.TransactWithPlayer('x')
-						//gs.CurrentPlayer.CashAvailable -= 700
-						//gs.AllPlayers[otherOwner].CashAvailable += 700
 					}
 					// if we don't have 2 properties, then swap 1 + $300
 					// if we don't have any properties, then swap $700
