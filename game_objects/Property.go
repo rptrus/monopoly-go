@@ -3,6 +3,7 @@ package game_objects
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -17,6 +18,7 @@ type PropertyDeed struct {
 	Owner           byte // [1-6] or 'u' for bank. 'u' is unowned
 	HouseCost       int
 	HousesOwned     int
+	Mortgaged		bool
 }
 
 type arrayOfPropertyDeed []*PropertyDeed
@@ -57,6 +59,9 @@ type OtherPropertyCollection struct {
 }
 
 func (pd *PropertyDeed) PayRent(from *Player, to *Player, board *Board, pc *PropertyCollection) (int, error) {
+	if pd.Mortgaged {
+		return 0, nil
+	}
 	t := Transaction{
 		sender:   from,
 		receiver: to,
@@ -100,7 +105,11 @@ func (pd *PropertyDeed) PayRent(from *Player, to *Player, board *Board, pc *Prop
 	default:
 		fmt.Println("Unknown or not implemented", board.MonopolySpace[from.PositionOnBoard].SquareType)
 	}
-	fmt.Println("Cost of landing on property", GetTheCurrentCardName(pd.PositionOnBoard, pc), "is: $", t.amount, "with", pd.HousesOwned, "houses")
+	var addition = ""
+	if !(pd.Set == "Train" || pd.Set == "Utility") {
+		addition = "with "+strconv.Itoa(pd.HousesOwned)+" houses"
+	}
+	fmt.Println("Cost of landing on property", GetTheCurrentCardName(pd.PositionOnBoard, pc), "is: $", t.amount,addition)
 	return actualPaid, nil
 }
 
@@ -183,6 +192,7 @@ func ownersOfASet(setColour string, pc *PropertyCollection) ([]byte, bool) {
 // input: player number
 // output: properties owned
 func ShowPropertiesOfPlayer(playerNumber int, pc *PropertyCollection) ([]string, arrayOfPropertyDeed) {
+	var M = ""
 	propsOwnedNameOnly := []string{}
 	propDeeds := []*PropertyDeed{}
 	for _, card := range pc.AllProperty {
@@ -190,7 +200,10 @@ func ShowPropertiesOfPlayer(playerNumber int, pc *PropertyCollection) ([]string,
 		for _, v := range aSingularCardMap {
 			if int(v.Owner) == playerNumber {
 				n, pd := GetTheCurrentCard(v.PositionOnBoard, pc)
-				propsOwnedNameOnly = append(propsOwnedNameOnly, n)
+				if pd.Mortgaged == true {
+					M=" (M)"
+				}
+				propsOwnedNameOnly = append(propsOwnedNameOnly, n+M)
 				propDeeds = append(propDeeds, pd)
 			}
 		}

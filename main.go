@@ -31,6 +31,7 @@ func main() {
 		CurrentDiceRoll: 0,
 		GlobalTurnsMade: 0,
 		AllPlayers:      allPlayers,
+		AllProperties:   propertyCardCollection,
 	}
 	game_objects.BankGameState = &gameState
 	for {
@@ -43,10 +44,10 @@ func main() {
 		if passGoPayment > 0 {
 			fmt.Println("BANK PAYS PLAYER $", passGoPayment)
 		}
-		thePropertyName, theDeed := game_objects.GetTheCurrentCard(gameState.CurrentPlayer.PositionOnBoard, propertyCardCollection)
+		thePropertyName, theDeed := game_objects.GetTheCurrentCard(gameState.CurrentPlayer.PositionOnBoard, gameState.AllProperties)
 		if theDeed != nil {
 			// currently a bug (or design shortfall) that it will only display property cards and not other non-property cards. Will create another array for non-property cards
-			preName, _ := game_objects.GetTheCurrentCard(prePosition, propertyCardCollection)
+			preName, _ := game_objects.GetTheCurrentCard(prePosition, gameState.AllProperties)
 			str := "Moved from space " + strconv.Itoa(prePosition) + " " + preName + " and Landed on space " + strconv.Itoa(gameState.CurrentPlayer.PositionOnBoard) + " " + string(thePropertyName) + " owned by "
 			if theDeed.Owner != 'u' {
 				fmt.Println(str+"Player", int(theDeed.Owner))
@@ -60,16 +61,16 @@ func main() {
 				}
 				fmt.Println("Purchase $", theDeed.PurchaseCost, "by player", gameState.CurrentPlayer.Name, "who now has $", gameState.CurrentPlayer.CashAvailable)
 			} else {
-				rent, err := theDeed.PayRent(&allPlayers[gameState.CurrentPlayer.PlayerNumber], &allPlayers[int(theDeed.Owner)], board, propertyCardCollection)
+				rent, err := theDeed.PayRent(&allPlayers[gameState.CurrentPlayer.PlayerNumber], &allPlayers[int(theDeed.Owner)], board, gameState.AllProperties)
 				if err == nil { // no errors
 					fmt.Println(allPlayers[gameState.CurrentPlayer.PlayerNumber].Name, gameState.CurrentPlayer.PlayerNumber, "paid $", rent, "rent to Player", allPlayers[int(theDeed.Owner)].Name, int(theDeed.Owner))
 					fmt.Println(allPlayers[gameState.CurrentPlayer.PlayerNumber].Name, "now has $", allPlayers[gameState.CurrentPlayer.PlayerNumber].CashAvailable, "and", allPlayers[int(theDeed.Owner)].Name, "has $", allPlayers[int(theDeed.Owner)].CashAvailable)
 				}
 			}
-			names, _ := game_objects.ShowPropertiesOfPlayer(gameState.CurrentPlayer.PlayerNumber, propertyCardCollection)
+			names, _ := game_objects.ShowPropertiesOfPlayer(gameState.CurrentPlayer.PlayerNumber, gameState.AllProperties)
 			fmt.Println("\n"+allPlayers[gameState.CurrentPlayer.PlayerNumber].Name, "owns the following properties:", "[ \""+strings.Join(names, "\",\"")+"\" ]\n")
-			gameState.DoDeals(propertyCardCollection)
-			gameState.CurrentPlayer.PutUpHouses(propertyCardCollection)
+			gameState.DoDeals(gameState.AllProperties)
+			gameState.CurrentPlayer.PutUpHouses(gameState.AllProperties)
 		} else {
 			sqType := board.MonopolySpace[gameState.CurrentPlayer.PositionOnBoard].SquareType
 			fmt.Println("Landed on a non property square!", gameState.CurrentPlayer.PositionOnBoard, game_objects.GetPropertyType(sqType))

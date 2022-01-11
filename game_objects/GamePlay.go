@@ -23,7 +23,7 @@ type GameState struct {
 	GlobalTurnsMade       int
 	allPropsSold          bool
 	AllPlayers            []Player
-	RecentBankruptcy      bool
+	AllProperties         *PropertyCollection
 }
 
 // TODO: tie situation. At the moment first player with highest score wins the toss

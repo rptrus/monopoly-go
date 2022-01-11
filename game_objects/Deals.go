@@ -15,9 +15,13 @@ func (gs *GameState) DoDeals(pc *PropertyCollection) {
 		propNamesOwned, propDeeds := ShowPropertiesOfPlayer(j.PlayerNumber, pc)
 		fullSetters := strings.Join(ownsFullSet(propDeeds, pc), " ")
 		if j.PlayerNumber != gs.CurrentPlayer.PlayerNumber {
-			fmt.Print("[", j.Name, " (", i, ")-> \"", strings.Join(propNamesOwned, "\",\""), "\"] Fullsets: "+fullSetters+" COH: $", gs.AllPlayers[i].CashAvailable, "\n")
+			if j.Active {
+				fmt.Print("[", j.Name, " (", i, ")-> \"", strings.Join(propNamesOwned, "\",\""), "\"] Fullsets: "+fullSetters+" COH: $", gs.AllPlayers[i].CashAvailable, gs.CurrentPlayer.Active, "\n")
+			}
 		} else {
+			//if gs.CurrentPlayer.Active {
 			fmt.Print("THIS TURN: [", j.Name, " (", i, ")-> \"", strings.Join(propNamesOwned, "\",\""), "\"] Fullsets: "+fullSetters+" COH: $", gs.AllPlayers[i].CashAvailable, "\n")
+			//}
 		}
 	}
 	gs.UnownedProperties(pc)
@@ -72,7 +76,7 @@ func (gs *GameState) DoDeals(pc *PropertyCollection) {
 				// We can't give them the property they need. Will need to contend with giving them 2 of ours. One should be high value property.
 				if !dealDone {
 					fmt.Println("Will do another deal. TBD.")
-					_, propertiesToGiveOut := ShowPropertiesOfPlayer(gs.CurrentPlayer.PlayerNumber, pc) // can we cache this? we use it a lot
+					_, propertiesToGiveOut := ShowPropertiesOfPlayer(gs.CurrentPlayer.PlayerNumber, pc)
 					// take out any full sets, we don't give those away
 					fullSetsToTakeOut := ownsFullSet(propertiesToGiveOut, pc)
 					for _, colour := range fullSetsToTakeOut {
