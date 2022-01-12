@@ -12,7 +12,10 @@ type Transaction struct {
 	amount   int
 }
 
-const half float64 = 0.5
+const (
+	half       float64 = 0.5
+	tenPercent float64 = 0.1
+)
 
 var BankGameState *GameState
 
@@ -68,6 +71,7 @@ func (txn *Transaction) TransactWithPlayer(priority byte) (int, error) {
 				allOfIt := txn.sender.CashAvailable
 				txn.sender.CashAvailable -= allOfIt
 				txn.receiver.CashAvailable += allOfIt
+				AcquireAllMortgagedProperties(txn.receiver, txn.sender)
 				fmt.Println("Player", txn.sender.Name, "is bankrupt!")
 				BankGameState.RemoveToken(txn.sender)
 				moneyPaid = allOfIt
@@ -84,7 +88,7 @@ func (txn *Transaction) TransactWithPlayer(priority byte) (int, error) {
 func (txn *Transaction) sellDownHouses() bool {
 	// cycle through the properties of the debtor
 	// if they have houses, sell them down at half price first
-	_, props := ShowPropertiesOfPlayer(txn.sender.PlayerNumber, BankGameState.AllProperties)
+	props := ShowPropertyDeedsOfPlayer(txn.sender.PlayerNumber, BankGameState.AllProperties)
 	// represents taking off 1 house from each of the properties.
 	var stillMoreHouses = true
 	var noHouseCounter = 0

@@ -18,8 +18,10 @@ type PropertyDeed struct {
 	Owner           byte // [1-6] or 'u' for bank. 'u' is unowned
 	HouseCost       int
 	HousesOwned     int
-	Mortgaged		bool
+	Mortgaged       bool
 }
+
+const cashBufferThreshold = 600
 
 type arrayOfPropertyDeed []*PropertyDeed
 
@@ -107,9 +109,9 @@ func (pd *PropertyDeed) PayRent(from *Player, to *Player, board *Board, pc *Prop
 	}
 	var addition = ""
 	if !(pd.Set == "Train" || pd.Set == "Utility") {
-		addition = "with "+strconv.Itoa(pd.HousesOwned)+" houses"
+		addition = "with " + strconv.Itoa(pd.HousesOwned) + " houses"
 	}
-	fmt.Println("Cost of landing on property", GetTheCurrentCardName(pd.PositionOnBoard, pc), "is: $", t.amount,addition)
+	fmt.Println("Cost of landing on property", GetTheCurrentCardName(pd.PositionOnBoard, pc), "is: $", t.amount, addition)
 	return actualPaid, nil
 }
 
@@ -201,7 +203,7 @@ func ShowPropertiesOfPlayer(playerNumber int, pc *PropertyCollection) ([]string,
 			if int(v.Owner) == playerNumber {
 				n, pd := GetTheCurrentCard(v.PositionOnBoard, pc)
 				if pd.Mortgaged == true {
-					M=" (M)"
+					M = " (M)"
 				}
 				propsOwnedNameOnly = append(propsOwnedNameOnly, n+M)
 				propDeeds = append(propDeeds, pd)
@@ -209,6 +211,12 @@ func ShowPropertiesOfPlayer(playerNumber int, pc *PropertyCollection) ([]string,
 		}
 	}
 	return propsOwnedNameOnly, propDeeds
+}
+
+// convenience that we can use this in function calls without needing a preceeding variable first
+func ShowPropertyDeedsOfPlayer(playerNumber int, pc *PropertyCollection) arrayOfPropertyDeed {
+	_, properties := ShowPropertiesOfPlayer(playerNumber, pc)
+	return properties
 }
 
 func (gs *GameState) UnownedProperties(pc *PropertyCollection) {
@@ -315,4 +323,34 @@ func removeProperties(setColor string, propertiesToGiveOut []*PropertyDeed) arra
 		}
 	}
 	return noFullSets
+}
+
+func AcquireAllMortgagedProperties(playerToAcquire *Player, playerToRecoverFrom *Player) {
+	_, props := ShowPropertiesOfPlayer(playerToRecoverFrom.PlayerNumber, BankGameState.AllProperties)
+	// everything should be mortgaged at this point since we tried to mortgage everything prior to paying debts
+	for _, prop := range props {
+		fmt.Println("Player", playerToAcquire.Name, "has just acquired", GetTheCurrentCardName(prop.PositionOnBoard, BankGameState.AllProperties))
+		//unMortgageOptions(playerToAcquire, prop)
+		if playerToAcquire.CashAvailable >= 600 { // 600 just an aribtrary chosen buffer of cash to keep
+			unMortgageCost := int(float64(prop.PurchaseCost) * half * (1 + tenPercent))
+			t := Transaction{
+				sender:   playerToAcquire,
+				receiver: nil,
+				amount:   unMortgageCost,
+			}
+			t.TransactWithBank()
+			prop.Owner = byte(playerToAcquire.PlayerNumber)
+			prop.Mortgaged = false
+		} else {
+			unMortgageCost := int(float64(prop.PurchaseCost) * half * tenPercent)
+			t := Transaction{
+				sender:   playerToAcquire,
+				receiver: nil,
+				amount:   unMortgageCost,
+			}
+			t.TransactWithBank()
+			prop.Owner = byte(playerToAcquire.PlayerNumber)
+			prop.Mortgaged = true // redundant, just to document
+		}
+	}
 }

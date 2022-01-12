@@ -24,8 +24,8 @@ func main() {
 	game_objects.TheBank = setup.InitializeBank()
 	propertyCardCollection := setup.InitializePropertyCards()
 	allPlayers := setup.InitializePlayers(numberOfPlayers)
-	firstUp := game_objects.RollToSeeWhoGoesFirst(allPlayers)
-	println(firstUp.Name, " is going first...")
+	firstUp, score := game_objects.RollToSeeWhoGoesFirst(allPlayers)
+	println(firstUp.Name, " is going first with score", score, "...")
 	gameState := game_objects.GameState{
 		CurrentPlayer:   firstUp,
 		CurrentDiceRoll: 0,
@@ -35,6 +35,10 @@ func main() {
 	}
 	game_objects.BankGameState = &gameState
 	for {
+		deedsOwned := game_objects.ShowPropertyDeedsOfPlayer(gameState.CurrentPlayer.PlayerNumber, gameState.AllProperties)
+		gameState.CurrentPlayer.CheckToUnmortgage(gameState.CurrentPlayer, deedsOwned)
+		gameState.DoDeals(gameState.AllProperties)
+		gameState.CurrentPlayer.PutUpHouses(gameState.AllProperties)
 		gameState.RollDice()
 		prePosition := gameState.CurrentPlayer.PositionOnBoard // place before we advance to our roll
 		passGoPayment := gameState.CurrentPlayer.AdvancePlayer(gameState.CurrentDiceRoll)
@@ -69,8 +73,6 @@ func main() {
 			}
 			names, _ := game_objects.ShowPropertiesOfPlayer(gameState.CurrentPlayer.PlayerNumber, gameState.AllProperties)
 			fmt.Println("\n"+allPlayers[gameState.CurrentPlayer.PlayerNumber].Name, "owns the following properties:", "[ \""+strings.Join(names, "\",\"")+"\" ]\n")
-			gameState.DoDeals(gameState.AllProperties)
-			gameState.CurrentPlayer.PutUpHouses(gameState.AllProperties)
 		} else {
 			sqType := board.MonopolySpace[gameState.CurrentPlayer.PositionOnBoard].SquareType
 			fmt.Println("Landed on a non property square!", gameState.CurrentPlayer.PositionOnBoard, game_objects.GetPropertyType(sqType))

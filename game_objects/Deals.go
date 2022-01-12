@@ -16,17 +16,17 @@ func (gs *GameState) DoDeals(pc *PropertyCollection) {
 		fullSetters := strings.Join(ownsFullSet(propDeeds, pc), " ")
 		if j.PlayerNumber != gs.CurrentPlayer.PlayerNumber {
 			if j.Active {
-				fmt.Print("[", j.Name, " (", i, ")-> \"", strings.Join(propNamesOwned, "\",\""), "\"] Fullsets: "+fullSetters+" COH: $", gs.AllPlayers[i].CashAvailable, gs.CurrentPlayer.Active, "\n")
+				fmt.Print("[", j.Name, " (", i, ")-> \"", strings.Join(propNamesOwned, "\",\""), "\"] Fullsets: "+fullSetters+" CASH: $", gs.AllPlayers[i].CashAvailable, gs.CurrentPlayer.Active, "\n")
 			}
 		} else {
 			//if gs.CurrentPlayer.Active {
-			fmt.Print("THIS TURN: [", j.Name, " (", i, ")-> \"", strings.Join(propNamesOwned, "\",\""), "\"] Fullsets: "+fullSetters+" COH: $", gs.AllPlayers[i].CashAvailable, "\n")
+			fmt.Print("THIS TURN: [", j.Name, " (", i, ")-> \"", strings.Join(propNamesOwned, "\",\""), "\"] Fullsets: "+fullSetters+" CASH: $", gs.AllPlayers[i].CashAvailable, "\n")
 			//}
 		}
 	}
 	gs.UnownedProperties(pc)
 	// work out if we have anything that we (the current player) have anything viable to trade to the player we just got our card from
-	_, propertyDeeds := ShowPropertiesOfPlayer(gs.CurrentPlayer.PlayerNumber, pc)
+	propertyDeeds := ShowPropertyDeedsOfPlayer(gs.CurrentPlayer.PlayerNumber, pc)
 	for _, pd := range propertyDeeds {
 		myCount, totalCount := propsOwnedByPlayerInASet(pd, pc)
 		if (len(myCount) == 1 && totalCount == 2) || (len(myCount) == 2 && totalCount == 3) {
@@ -39,7 +39,7 @@ func (gs *GameState) DoDeals(pc *PropertyCollection) {
 				fmt.Println("Owners (with no bank as owner): ", owners)
 				// simply look for player who isn't our player number
 				otherOwner := OtherOwnerOfSet(gs.CurrentPlayer.PlayerNumber, owners)
-				_, propsAll := ShowPropertiesOfPlayer(int(otherOwner), pc)
+				propsAll := ShowPropertyDeedsOfPlayer(int(otherOwner), pc)
 				var otherCardNeeded *PropertyDeed = nil
 				for _, listOfCardsOtherPlayer := range propsAll {
 					if listOfCardsOtherPlayer.Set == cardToSwap.Set {

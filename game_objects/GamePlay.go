@@ -26,24 +26,39 @@ type GameState struct {
 	AllProperties         *PropertyCollection
 }
 
-// TODO: tie situation. At the moment first player with highest score wins the toss
-func RollToSeeWhoGoesFirst(AllPlayers []Player) *Player {
-	// in the same directory / package so no need to qualify it
+func RollToSeeWhoGoesFirst(AllPlayers []Player) (*Player, int) {
 	var (
 		highestSoFarPlayer int = 0
 		highestSoFarScore  int = 0
+		rollOffPlayer      []int
 	)
 
 	for i, _ := range AllPlayers {
 		total := rollDice()
 		if total > highestSoFarScore {
+			rollOffPlayer = rollOffPlayer[:0]
 			highestSoFarScore = total
 			highestSoFarPlayer = i
 		}
+		if total == highestSoFarScore {
+			rollOffPlayer = append(rollOffPlayer, i)
+		}
+	}
+
+	if len(rollOffPlayer) > 1 {
+		// TIE! - roll off time. If again a tie, then the leftmost player will prevail
+		highestSoFarPlayer = 0
+		highestSoFarScore = 0
+		for i, _ := range rollOffPlayer {
+			total := rollDice()
+			if total > highestSoFarScore {
+				highestSoFarScore = total
+				highestSoFarPlayer = rollOffPlayer[i]
+			}
+		}
 	}
 	fmt.Println(highestSoFarPlayer, " wins the toss")
-	//return highestSoFarPlayer
-	return &AllPlayers[highestSoFarPlayer]
+	return &AllPlayers[highestSoFarPlayer], highestSoFarScore
 }
 
 func rollDice() int {
@@ -169,6 +184,7 @@ func (gs *GameState) ProcessNonPropertySquare(CurrentPlayer *Player, sqType int,
 			CurrentPlayer.JailTurns = 3
 		}
 	default:
+		fmt.Println("To Be Implemented")
 	}
 }
 

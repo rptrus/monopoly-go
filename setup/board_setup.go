@@ -67,11 +67,9 @@ func InitializeBank() *game_objects.Bank {
 	return bk
 }
 
-//// functions to work on all players ////
-
 func InitializePlayers(numberOfPlayers int) []game_objects.Player {
 
-	var AllPlayers []game_objects.Player // slice
+	var AllPlayers []game_objects.Player
 
 	for i := 0; i < numberOfPlayers; i++ {
 		p := game_objects.Player{
@@ -101,7 +99,7 @@ func InitializePlayers(numberOfPlayers int) []game_objects.Player {
 	AllPlayers[5].Token = "Thimble"
 
 	for a, b := range AllPlayers {
-		fmt.Println("Player: \n", a, b)
+		fmt.Println("Player", a, ":", b.Name, b.Token, "$", b.CashAvailable)
 	}
 	return AllPlayers
 }

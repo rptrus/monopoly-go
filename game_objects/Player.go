@@ -82,7 +82,7 @@ func (p *Player) pay200Dollars() {
 }
 
 func (p *Player) PutUpHouses(pc *PropertyCollection) {
-	_, deeds := ShowPropertiesOfPlayer(p.PlayerNumber, pc)
+	deeds := ShowPropertyDeedsOfPlayer(p.PlayerNumber, pc)
 	colour := ownsFullSet(deeds, pc)
 	// buy houses of these colours, 1 lot at a time
 	for _, aFullSetColour := range colour {
@@ -105,6 +105,23 @@ func (p *Player) PutUpHouses(pc *PropertyCollection) {
 					fmt.Println("House purchased for", GetTheCurrentCardName(deed.PositionOnBoard, pc), "by", p.Name, ". Total houses on this property are: ", deed.HousesOwned)
 				}
 			}
+		}
+	}
+}
+
+// if we have mortgaged properties and the requisite cash, we can umortgage them and make them productive!
+func (p *Player) CheckToUnmortgage(player *Player, pc arrayOfPropertyDeed) {
+	for _, prop := range pc {
+		if player.CashAvailable > cashBufferThreshold {
+		}
+		if prop.Mortgaged == true {
+			t := Transaction{
+				sender:   player,
+				receiver: nil,
+				amount:   int(float64(prop.PurchaseCost) * tenPercent),
+			}
+			prop.Mortgaged = false
+			t.TransactWithBank()
 		}
 	}
 }
