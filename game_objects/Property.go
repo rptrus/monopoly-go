@@ -3,6 +3,7 @@ package game_objects
 import (
 	"errors"
 	"fmt"
+	"github.com/rptrus/monopoly-go/utils"
 	"strconv"
 	"strings"
 )
@@ -22,6 +23,8 @@ type PropertyDeed struct {
 }
 
 const cashBufferThreshold = 600
+
+var ErrR2O = errors.New("RentToOurself")
 
 type arrayOfPropertyDeed []*PropertyDeed
 
@@ -61,6 +64,9 @@ type OtherPropertyCollection struct {
 }
 
 func (pd *PropertyDeed) PayRent(from *Player, to *Player, board *Board, pc *PropertyCollection) (int, error) {
+	if !(pd.Set == "Train" || pd.Set == "Utility") && pd.HousesOwned > 0 {
+		fmt.Println("Cost of landing on builtup property:", GetTheCurrentCardName(pd.PositionOnBoard, pc), "is: $", pd.RentWithHouses[pd.HousesOwned-1])
+	}
 	if pd.Mortgaged {
 		return 0, nil
 	}
@@ -69,10 +75,13 @@ func (pd *PropertyDeed) PayRent(from *Player, to *Player, board *Board, pc *Prop
 		receiver: to,
 		amount:   0,
 	}
-	var actualPaid = 0 // a player may not be able to pay the full amount
+	var (
+		actualPaid       = 0 // a player may not be able to pay the full amount
+		err        error = nil
+	)
 	if (*from).PlayerNumber == (*to).PlayerNumber {
 		fmt.Println("Don't pay rent to ourselves")
-		return 0, errors.New("RentToOurself") // *not really* an error, but a way to suppress output
+		return 0, ErrR2O // *not really* an error, but a way to suppress output
 	}
 	switch board.MonopolySpace[from.PositionOnBoard].SquareType {
 	case Utility:
@@ -85,12 +94,12 @@ func (pd *PropertyDeed) PayRent(from *Player, to *Player, board *Board, pc *Prop
 			pd.Rent = 4 * roll
 		}
 		t.amount = pd.Rent
-		actualPaid, _ = t.TransactWithPlayer('x')
+		actualPaid, err = t.TransactWithPlayer('x')
 	case Station:
 		stationsOwnedByPlayer := len(findSameType(board, pd, pc))
 		pd.Rent = stationsOwnedByPlayer * 25
 		t.amount = pd.Rent
-		actualPaid, _ = t.TransactWithPlayer('x')
+		actualPaid, err = t.TransactWithPlayer('x')
 	case BuildableProperty:
 		// check if the property landed on is a complete set
 		moneyOwing := pd.Rent
@@ -103,7 +112,7 @@ func (pd *PropertyDeed) PayRent(from *Player, to *Player, board *Board, pc *Prop
 			moneyOwing = pd.RentWithHouses[pd.HousesOwned-1]
 		}
 		t.amount = moneyOwing * multiplyFactor
-		actualPaid, _ = t.TransactWithPlayer('x')
+		actualPaid, err = t.TransactWithPlayer('x')
 	default:
 		fmt.Println("Unknown or not implemented", board.MonopolySpace[from.PositionOnBoard].SquareType)
 	}
@@ -111,8 +120,11 @@ func (pd *PropertyDeed) PayRent(from *Player, to *Player, board *Board, pc *Prop
 	if !(pd.Set == "Train" || pd.Set == "Utility") {
 		addition = "with " + strconv.Itoa(pd.HousesOwned) + " houses"
 	}
-	fmt.Println("Cost of landing on property", GetTheCurrentCardName(pd.PositionOnBoard, pc), "is: $", t.amount, addition)
-	return actualPaid, nil
+	fmt.Println("Invoice for landing", GetTheCurrentCardName(pd.PositionOnBoard, pc), "is: $", t.amount, addition)
+	if err == nil {
+		err = errors.New("Full-Payment")
+	} // not really an error, but more like a status
+	return actualPaid, err
 }
 
 func swapPropertyBetweenPlayers(from *Player, to *Player, card *PropertyDeed, pc *PropertyCollection) {
@@ -264,40 +276,11 @@ func highestPartiallyCompleteSet(otherPlayer byte, AllPlayers []Player, pc *Prop
 }
 
 // needs work for things like utility / train station. works ok for coloured property sets
-func ownsFullSet(properties []*PropertyDeed, pc *PropertyCollection) []string {
+func ownsFullSet(properties arrayOfPropertyDeed, pc *PropertyCollection) []string {
 	var setsOwned []string
-	// we are already using sort for purchase price, so we can't really sort by name now. We will just do a small hacky thing
-	// for stations and utilities. It's a bit ugly, but this can be tweaked.
-	var utilityAdded = false
-	var stationAdded = false
-	// for this, we just want one representative property for each set to iterate over
-	var currentSetColour string
-	var oneOfEach []*PropertyDeed = nil
 	for _, pd := range properties {
-		if (*pd).Set != currentSetColour {
-			if pd.Set == GetPropertyType(Utility) && utilityAdded {
-				continue
-			}
-			if pd.Set == GetPropertyType(Station) && stationAdded {
-				stationAdded = true
-				continue
-			}
-			currentSetColour = pd.Set
-			if pd.Set == GetPropertyType(Utility) {
-				utilityAdded = true
-			}
-			if pd.Set == GetPropertyType(Station) {
-				stationAdded = true
-			}
-			oneOfEach = append(oneOfEach, pd)
-		} else {
-			continue
-		}
-	}
-	//
-	for _, pd := range oneOfEach {
 		fullyOwned := true
-		// we only need to do one of each colour
+		// we technically only need to do one of each colour, but we are checking others of a set again unnecessarily (tradeoff is not large enough to warrant concern and keep code simpler)
 		owners, _ := ownersOfASet(pd.Set, pc)
 		// check we own all of them
 		for _, owner := range owners {
@@ -306,10 +289,10 @@ func ownsFullSet(properties []*PropertyDeed, pc *PropertyCollection) []string {
 			}
 		}
 		if fullyOwned {
-
 			setsOwned = append(setsOwned, pd.Set)
 		}
 	}
+	setsOwned = utils.RemoveDuplicateStr(setsOwned)
 	return setsOwned
 }
 
@@ -329,7 +312,7 @@ func AcquireAllMortgagedProperties(playerToAcquire *Player, playerToRecoverFrom 
 	_, props := ShowPropertiesOfPlayer(playerToRecoverFrom.PlayerNumber, BankGameState.AllProperties)
 	// everything should be mortgaged at this point since we tried to mortgage everything prior to paying debts
 	for _, prop := range props {
-		fmt.Println("Player", playerToAcquire.Name, "has just acquired", GetTheCurrentCardName(prop.PositionOnBoard, BankGameState.AllProperties))
+		fmt.Println("Player", playerToAcquire.Name, "has just acquired", GetTheCurrentCardName(prop.PositionOnBoard, BankGameState.AllProperties)+" (", prop.Set, ") ")
 		//unMortgageOptions(playerToAcquire, prop)
 		if playerToAcquire.CashAvailable >= 600 { // 600 just an aribtrary chosen buffer of cash to keep
 			unMortgageCost := int(float64(prop.PurchaseCost) * half * (1 + tenPercent))
@@ -339,6 +322,7 @@ func AcquireAllMortgagedProperties(playerToAcquire *Player, playerToRecoverFrom 
 				amount:   unMortgageCost,
 			}
 			t.TransactWithBank()
+			fmt.Println("Unmortgage (full) cost:", unMortgageCost)
 			prop.Owner = byte(playerToAcquire.PlayerNumber)
 			prop.Mortgaged = false
 		} else {
@@ -349,6 +333,7 @@ func AcquireAllMortgagedProperties(playerToAcquire *Player, playerToRecoverFrom 
 				amount:   unMortgageCost,
 			}
 			t.TransactWithBank()
+			fmt.Println("Unmortgage (partial) cost:", unMortgageCost)
 			prop.Owner = byte(playerToAcquire.PlayerNumber)
 			prop.Mortgaged = true // redundant, just to document
 		}

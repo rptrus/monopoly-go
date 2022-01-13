@@ -50,24 +50,20 @@ func main() {
 		}
 		thePropertyName, theDeed := game_objects.GetTheCurrentCard(gameState.CurrentPlayer.PositionOnBoard, gameState.AllProperties)
 		if theDeed != nil {
-			// currently a bug (or design shortfall) that it will only display property cards and not other non-property cards. Will create another array for non-property cards
 			preName, _ := game_objects.GetTheCurrentCard(prePosition, gameState.AllProperties)
-			str := "Moved from space " + strconv.Itoa(prePosition) + " " + preName + " and Landed on space " + strconv.Itoa(gameState.CurrentPlayer.PositionOnBoard) + " " + string(thePropertyName) + " owned by "
-			if theDeed.Owner != 'u' {
-				fmt.Println(str+"Player", int(theDeed.Owner))
-			} else {
-				fmt.Println(str+"Bank", theDeed.Owner)
-			}
+			movedToStr := "Moved from space " + strconv.Itoa(prePosition) + " " + preName + " and Landed on space " + strconv.Itoa(gameState.CurrentPlayer.PositionOnBoard) + " " + string(thePropertyName) + " owned by "
 			if theDeed.Owner == 'u' {
+				fmt.Println(movedToStr+"Bank", theDeed.Owner)
 				_, err := gameState.CurrentPlayer.BuyProperty(theDeed)
 				if err != nil {
 					fmt.Println(err)
 				}
 				fmt.Println("Purchase $", theDeed.PurchaseCost, "by player", gameState.CurrentPlayer.Name, "who now has $", gameState.CurrentPlayer.CashAvailable)
 			} else {
+				fmt.Println(movedToStr+"Player", int(theDeed.Owner))
 				rent, err := theDeed.PayRent(&allPlayers[gameState.CurrentPlayer.PlayerNumber], &allPlayers[int(theDeed.Owner)], board, gameState.AllProperties)
-				if err == nil { // no errors
-					fmt.Println(allPlayers[gameState.CurrentPlayer.PlayerNumber].Name, gameState.CurrentPlayer.PlayerNumber, "paid $", rent, "rent to Player", allPlayers[int(theDeed.Owner)].Name, int(theDeed.Owner))
+				if err != game_objects.ErrR2O { // suppress rent to ourself messages
+					fmt.Println(allPlayers[gameState.CurrentPlayer.PlayerNumber].Name, gameState.CurrentPlayer.PlayerNumber, "paid $", rent, "rent to Player", allPlayers[int(theDeed.Owner)].Name, int(theDeed.Owner), "(", err, ")")
 					fmt.Println(allPlayers[gameState.CurrentPlayer.PlayerNumber].Name, "now has $", allPlayers[gameState.CurrentPlayer.PlayerNumber].CashAvailable, "and", allPlayers[int(theDeed.Owner)].Name, "has $", allPlayers[int(theDeed.Owner)].CashAvailable)
 				}
 			}
@@ -83,5 +79,5 @@ func main() {
 			break
 		}
 	}
-	fmt.Println("Finish.")
+	fmt.Println("Finish.", gameState.GlobalTurnsMade, "turns.")
 }

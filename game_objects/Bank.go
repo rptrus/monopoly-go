@@ -12,6 +12,12 @@ type Transaction struct {
 	amount   int
 }
 
+type CardTransaction struct {
+	Sender   *Player
+	Receiver *Player
+	Amount   int
+}
+
 const (
 	half       float64 = 0.5
 	tenPercent float64 = 0.1
@@ -28,7 +34,7 @@ type Bank struct {
 
 // Player gives money to the bank
 func (txn *Transaction) TransactWithBank() {
-	if txn.sender.CashAvailable < txn.amount {
+	if txn.sender.CashAvailable < txn.amount && txn.sender.Active == true {
 		txn.amount = txn.sender.CashAvailable
 		txn.sender.CashAvailable -= txn.amount
 		fmt.Println("Player", txn.sender.Name, "is bankrupt!")
@@ -37,6 +43,7 @@ func (txn *Transaction) TransactWithBank() {
 	}
 	txn.sender.CashAvailable -= txn.amount
 	TheBank.CashReservesInDollars += txn.amount
+	TheBank.TransactionLedger = append(TheBank.TransactionLedger, *txn)
 }
 
 // Bank gives money to Player for things like passing go (universal basic income!) and returning houses
@@ -49,6 +56,7 @@ func (txn *Transaction) BankCheque() {
 	if TheBank.CashReservesInDollars <= 0 {
 		panic("The bank has gone bankrupt! Game is over")
 	}
+	TheBank.TransactionLedger = append(TheBank.TransactionLedger, *txn)
 }
 
 func (txn *Transaction) TransactWithPlayer(priority byte) (int, error) {
@@ -75,13 +83,15 @@ func (txn *Transaction) TransactWithPlayer(priority byte) (int, error) {
 				fmt.Println("Player", txn.sender.Name, "is bankrupt!")
 				BankGameState.RemoveToken(txn.sender)
 				moneyPaid = allOfIt
+				err = errors.New("Partial-Payment")
 			}
 		}
 	} else {
 		txn.sender.CashAvailable -= txn.amount
 		txn.receiver.CashAvailable += txn.amount
 	}
-	return moneyPaid, nil
+	TheBank.TransactionLedger = append(TheBank.TransactionLedger, *txn)
+	return moneyPaid, err
 }
 
 // true: if we have enough money to pay off debts, false otherwise
@@ -127,8 +137,6 @@ func (txn *Transaction) sellDownHouses() bool {
 }
 
 func (txn *Transaction) mortgage() bool {
-	// TODO Check balance after each unmortgage
-
 	_, props := ShowPropertiesOfPlayer(txn.sender.PlayerNumber, BankGameState.AllProperties)
 	for _, prop := range props {
 		t := Transaction{
@@ -142,6 +150,12 @@ func (txn *Transaction) mortgage() bool {
 
 		if txn.sender.CashAvailable >= txn.amount {
 			fmt.Println("Debt can be paid off after mortgaging. Needed", txn.amount, "have", txn.sender.CashAvailable)
+			t := Transaction{
+				sender:   txn.sender,
+				receiver: txn.receiver,
+				amount:   txn.amount,
+			}
+			t.TransactWithPlayer('x')
 			return true
 		}
 	}
