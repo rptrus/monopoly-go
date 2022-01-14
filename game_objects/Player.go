@@ -19,6 +19,7 @@ type Player struct {
 	PositionOnBoard int
 	Active          bool
 	JailTurns       int
+	JailCards       int
 	Token           string
 }
 
@@ -37,9 +38,9 @@ func (p *Player) AdvancePlayer(steps int) int {
 			if p.JailTurns == 1 {
 				fmt.Println("Exhausted all rolls, pay $50 to get out and roll", firstRoll+secondRoll, "spaces")
 				t := Transaction{
-					sender:   p,
-					receiver: nil,
-					amount:   50,
+					Sender:   p,
+					Receiver: nil,
+					Amount:   50,
 				}
 				t.TransactWithBank()
 				p.JailTurns = 0
@@ -63,9 +64,9 @@ func (p *Player) BuyProperty(pd *PropertyDeed) (int, error) {
 		return 0, errors.New("Cannot afford property!")
 	}
 	t := Transaction{
-		sender:   p,
-		receiver: nil,
-		amount:   (*pd).PurchaseCost,
+		Sender:   p,
+		Receiver: nil,
+		Amount:   (*pd).PurchaseCost,
 	}
 	t.TransactWithBank()
 	pd.Owner = byte(p.PlayerNumber)
@@ -74,9 +75,9 @@ func (p *Player) BuyProperty(pd *PropertyDeed) (int, error) {
 
 func (p *Player) pay200Dollars() {
 	t := Transaction{
-		sender:   nil,
-		receiver: p,
-		amount:   200,
+		Sender:   nil,
+		Receiver: p,
+		Amount:   200,
 	}
 	t.BankCheque()
 }
@@ -96,9 +97,9 @@ func (p *Player) PutUpHouses(pc *PropertyCollection) {
 						break
 					}
 					t := Transaction{
-						sender:   p,
-						receiver: nil,
-						amount:   deed.HouseCost,
+						Sender:   p,
+						Receiver: nil,
+						Amount:   deed.HouseCost,
 					}
 					t.TransactWithBank()
 					deed.HousesOwned++
@@ -116,9 +117,9 @@ func (p *Player) CheckToUnmortgage(player *Player, pc arrayOfPropertyDeed) {
 		}
 		if prop.Mortgaged == true {
 			t := Transaction{
-				sender:   player,
-				receiver: nil,
-				amount:   int(float64(prop.PurchaseCost) * tenPercent),
+				Sender:   player,
+				Receiver: nil,
+				Amount:   int(float64(prop.PurchaseCost) * tenPercent),
 			}
 			prop.Mortgaged = false
 			t.TransactWithBank()

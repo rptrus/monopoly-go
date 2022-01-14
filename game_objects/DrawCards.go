@@ -10,18 +10,20 @@ type DrawCard struct {
 	Id             int
 	Designator     byte // 'c' = chance, 'o' = community chest
 	Content        string
-	PlayerToPlayer *CardTransaction
-	PlayerToBank   *CardTransaction
-	BankToPlayer   *CardTransaction
+	PlayerToPlayer *Transaction
+	PlayerToBank   *Transaction
+	BankToPlayer   *Transaction
 	MoveToSpace    *int // always check if they pass Go, except for Jail or Mayfair
 	RelativeMove   *int // -3 = go back 3 spaces
-	NearestType    *Square
+	NearestType    *int
+	PlayerPaysAll  *Transaction
+	AllPaysPlayer  *Transaction
 }
 
 type CardCollection struct {
 	AllDrawCards [32]DrawCard
 	ShuffleOrder []int
-	CurrentCard  int
+	CurrentCard  int // TODO: seperate out so that each has it's own counter
 }
 
 func GenerateOrderForChanceCommunityChestCards() []int {

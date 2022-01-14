@@ -24,7 +24,7 @@ func (gs *GameState) DoDeals(pc *PropertyCollection) {
 			//}
 		}
 	}
-	gs.UnownedProperties(pc)
+	gs.UnownedProperties(pc) // needs to set AllPropsSold when applicable
 	// work out if we have anything that we (the current player) have anything viable to trade to the player we just got our card from
 	propertyDeeds := ShowPropertyDeedsOfPlayer(gs.CurrentPlayer.PlayerNumber, pc)
 	for _, pd := range propertyDeeds {
@@ -105,18 +105,18 @@ func (gs *GameState) DoDeals(pc *PropertyCollection) {
 						// make up for the shortfall
 						t := Transaction{
 							//gs: gs,
-							sender:   gs.CurrentPlayer,
-							receiver: &gs.AllPlayers[otherOwner],
-							amount:   300,
+							Sender:   gs.CurrentPlayer,
+							Receiver: &gs.AllPlayers[otherOwner],
+							Amount:   300,
 						}
 						t.TransactWithPlayer('x')
 
 					} else if leng == 0 {
 						t := Transaction{
 							//gs:       gs,
-							sender:   gs.CurrentPlayer,
-							receiver: &gs.AllPlayers[otherOwner],
-							amount:   700,
+							Sender:   gs.CurrentPlayer,
+							Receiver: &gs.AllPlayers[otherOwner],
+							Amount:   700,
 						}
 						t.TransactWithPlayer('x')
 					}

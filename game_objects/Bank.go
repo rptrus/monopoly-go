@@ -7,12 +7,6 @@ import (
 
 // every one will have a plus or minus side
 type Transaction struct {
-	sender   *Player
-	receiver *Player
-	amount   int
-}
-
-type CardTransaction struct {
 	Sender   *Player
 	Receiver *Player
 	Amount   int
@@ -34,23 +28,23 @@ type Bank struct {
 
 // Player gives money to the bank
 func (txn *Transaction) TransactWithBank() {
-	if txn.sender.CashAvailable < txn.amount && txn.sender.Active == true {
-		txn.amount = txn.sender.CashAvailable
-		txn.sender.CashAvailable -= txn.amount
-		fmt.Println("Player", txn.sender.Name, "is bankrupt!")
-		txn.sender.Active = false
-		BankGameState.RemoveToken(txn.sender)
+	if txn.Sender.CashAvailable < txn.Amount && txn.Sender.Active == true {
+		txn.Amount = txn.Sender.CashAvailable
+		txn.Sender.CashAvailable -= txn.Amount
+		fmt.Println("Player", txn.Sender.Name, "is bankrupt!")
+		txn.Sender.Active = false
+		BankGameState.RemoveToken(txn.Sender)
 	}
-	txn.sender.CashAvailable -= txn.amount
-	TheBank.CashReservesInDollars += txn.amount
+	txn.Sender.CashAvailable -= txn.Amount
+	TheBank.CashReservesInDollars += txn.Amount
 	TheBank.TransactionLedger = append(TheBank.TransactionLedger, *txn)
 }
 
 // Bank gives money to Player for things like passing go (universal basic income!) and returning houses
 func (txn *Transaction) BankCheque() {
-	TheBank.CashReservesInDollars -= txn.amount
-	txn.receiver.CashAvailable += txn.amount
-	if txn.sender != nil {
+	TheBank.CashReservesInDollars -= txn.Amount
+	txn.Receiver.CashAvailable += txn.Amount
+	if txn.Sender != nil {
 		fmt.Errorf("Cannot set the receiver when doing a bank cheque!")
 	}
 	if TheBank.CashReservesInDollars <= 0 {
@@ -62,10 +56,10 @@ func (txn *Transaction) BankCheque() {
 func (txn *Transaction) TransactWithPlayer(priority byte) (int, error) {
 	var (
 		err               error = nil
-		moneyPaid               = txn.amount
+		moneyPaid               = txn.Amount
 		haveEnoughToCover       = false
 	)
-	if txn.sender.CashAvailable < txn.amount {
+	if txn.Sender.CashAvailable < txn.Amount {
 		if priority == 'n' {
 			err = errors.New("Insufficient cash!")
 			return 0, err
@@ -75,20 +69,20 @@ func (txn *Transaction) TransactWithPlayer(priority byte) (int, error) {
 				haveEnoughToCover = txn.mortgage()
 			}
 			if !haveEnoughToCover {
-				txn.sender.Active = false
-				allOfIt := txn.sender.CashAvailable
-				txn.sender.CashAvailable -= allOfIt
-				txn.receiver.CashAvailable += allOfIt
-				AcquireAllMortgagedProperties(txn.receiver, txn.sender)
-				fmt.Println("Player", txn.sender.Name, "is bankrupt!")
-				BankGameState.RemoveToken(txn.sender)
+				txn.Sender.Active = false
+				allOfIt := txn.Sender.CashAvailable
+				txn.Sender.CashAvailable -= allOfIt
+				txn.Receiver.CashAvailable += allOfIt
+				AcquireAllMortgagedProperties(txn.Receiver, txn.Sender)
+				fmt.Println("Player", txn.Sender.Name, "is bankrupt!")
+				BankGameState.RemoveToken(txn.Sender)
 				moneyPaid = allOfIt
 				err = errors.New("Partial-Payment")
 			}
 		}
 	} else {
-		txn.sender.CashAvailable -= txn.amount
-		txn.receiver.CashAvailable += txn.amount
+		txn.Sender.CashAvailable -= txn.Amount
+		txn.Receiver.CashAvailable += txn.Amount
 	}
 	TheBank.TransactionLedger = append(TheBank.TransactionLedger, *txn)
 	return moneyPaid, err
@@ -98,12 +92,12 @@ func (txn *Transaction) TransactWithPlayer(priority byte) (int, error) {
 func (txn *Transaction) sellDownHouses() bool {
 	// cycle through the properties of the debtor
 	// if they have houses, sell them down at half price first
-	props := ShowPropertyDeedsOfPlayer(txn.sender.PlayerNumber, BankGameState.AllProperties)
+	props := ShowPropertyDeedsOfPlayer(txn.Sender.PlayerNumber, BankGameState.AllProperties)
 	// represents taking off 1 house from each of the properties.
 	var stillMoreHouses = true
 	var noHouseCounter = 0
 	howManyToLookThrough := len(props)
-	for txn.sender.CashAvailable < txn.amount {
+	for txn.Sender.CashAvailable < txn.Amount {
 		if stillMoreHouses == false {
 			break
 		}
@@ -114,9 +108,9 @@ func (txn *Transaction) sellDownHouses() bool {
 				halfCostHouse := int(half * float64(prop.HouseCost))
 				// don't use the txn transaction object, we need another for working this out
 				t := Transaction{
-					sender:   nil,
-					receiver: txn.sender,
-					amount:   halfCostHouse,
+					Sender:   nil,
+					Receiver: txn.Sender,
+					Amount:   halfCostHouse,
 				}
 				t.BankCheque()
 			} else {
@@ -127,8 +121,8 @@ func (txn *Transaction) sellDownHouses() bool {
 			stillMoreHouses = false
 		}
 	}
-	if txn.sender.CashAvailable >= txn.amount {
-		fmt.Println("Debt can be paid off after selling houses. Needed", txn.amount, "have", txn.sender.CashAvailable)
+	if txn.Sender.CashAvailable >= txn.Amount {
+		fmt.Println("Debt can be paid off after selling houses. Needed", txn.Amount, "have", txn.Sender.CashAvailable)
 		return true
 	}
 	// after all houses are down, then proceed to mortgaging properties
@@ -137,23 +131,23 @@ func (txn *Transaction) sellDownHouses() bool {
 }
 
 func (txn *Transaction) mortgage() bool {
-	_, props := ShowPropertiesOfPlayer(txn.sender.PlayerNumber, BankGameState.AllProperties)
+	_, props := ShowPropertiesOfPlayer(txn.Sender.PlayerNumber, BankGameState.AllProperties)
 	for _, prop := range props {
 		t := Transaction{
-			sender:   nil,
-			receiver: txn.sender,
-			amount:   int(half * float64(prop.PurchaseCost)),
+			Sender:   nil,
+			Receiver: txn.Sender,
+			Amount:   int(half * float64(prop.PurchaseCost)),
 		}
 		t.BankCheque()
 		prop.Mortgaged = true
-		fmt.Println("Mortgaged", GetTheCurrentCardName(prop.PositionOnBoard, BankGameState.AllProperties), "for", t.amount)
+		fmt.Println("Mortgaged", GetTheCurrentCardName(prop.PositionOnBoard, BankGameState.AllProperties), "for", t.Amount)
 
-		if txn.sender.CashAvailable >= txn.amount {
-			fmt.Println("Debt can be paid off after mortgaging. Needed", txn.amount, "have", txn.sender.CashAvailable)
+		if txn.Sender.CashAvailable >= txn.Amount {
+			fmt.Println("Debt can be paid off after mortgaging. Needed", txn.Amount, "have", txn.Sender.CashAvailable)
 			t := Transaction{
-				sender:   txn.sender,
-				receiver: txn.receiver,
-				amount:   txn.amount,
+				Sender:   txn.Sender,
+				Receiver: txn.Receiver,
+				Amount:   txn.Amount,
 			}
 			t.TransactWithPlayer('x')
 			return true

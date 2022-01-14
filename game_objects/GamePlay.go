@@ -156,6 +156,7 @@ func GetTheCurrentCard(board int, pc *PropertyCollection) (string, *PropertyDeed
 }
 
 // convenience if we just want the name, we can use directly in a fmt.println statement
+// TODO: display also if it's a non property card using our otherPropertyArray. LOW priority for now.
 func GetTheCurrentCardName(board int, pc *PropertyCollection) string {
 	name, _ := GetTheCurrentCard(board, pc)
 	return name
@@ -168,16 +169,16 @@ func (gs *GameState) ProcessNonPropertySquare(CurrentPlayer *Player, sqType int,
 		taxCollection += tax
 		t := Transaction{
 			//gs: gs,
-			sender:   CurrentPlayer,
-			receiver: nil,
-			amount:   tax,
+			Sender:   CurrentPlayer,
+			Receiver: nil,
+			Amount:   tax,
 		}
 		// general tax need 200
 		if CurrentPlayer.PositionOnBoard == 4 {
-			t.amount += tax
+			t.Amount += tax
 		}
 		t.TransactWithBank()
-		fmt.Println("Collected Tax: $", t.amount)
+		fmt.Println("Collected Tax: $", t.Amount)
 	case Jail:
 		if CurrentPlayer.PositionOnBoard == 30 {
 			CurrentPlayer.PositionOnBoard = 10
@@ -189,21 +190,89 @@ func (gs *GameState) ProcessNonPropertySquare(CurrentPlayer *Player, sqType int,
 		fmt.Println("Landed on GO!")
 	case Chance:
 		ofs := 0
-		processDrawCard(ofs, cc)
+		gs.processDrawCard(ofs, cc)
 	case CommunityChest:
 		ofs := 16
-		processDrawCard(ofs, cc)
+		gs.processDrawCard(ofs, cc)
 	default:
 		fmt.Println("Unknown or To Be Implemented")
 	}
 }
 
-func processDrawCard(offset int, cc *CardCollection) {
-	a := cc.AllDrawCards[offset]
-	fmt.Println(a)
+func (gs *GameState) processDrawCard(offset int, cc *CardCollection) {
 	cc.CurrentCard = (cc.CurrentCard + 1) % 16
 	card := cc.AllDrawCards[cc.ShuffleOrder[cc.CurrentCard]]
+	fmt.Println(card)
 	fmt.Println(card.Content)
+	if card.MoveToSpace != nil {
+		fmt.Println("Move to space")
+		if *card.MoveToSpace == 10 {
+			gs.CurrentPlayer.JailTurns = 3
+		} // special case
+		gs.GoToSquare(*card.MoveToSpace)
+	} else if card.RelativeMove != nil {
+		fmt.Println("Relative move")
+		gs.GoToSquare(gs.CurrentPlayer.PositionOnBoard - 3)
+	} else if card.NearestType != nil {
+		fmt.Println("Move to nearest type")
+		currentPos := gs.CurrentPlayer.PositionOnBoard
+		toPos := -1
+		if currentPos == 36 {
+			toPos = 5
+		}
+		for currentPos%5 != 0 || currentPos%10 == 0 {
+			currentPos++
+		}
+		toPos = currentPos
+		gs.GoToSquare(toPos)
+	} else if card.BankToPlayer != nil {
+		fmt.Println("Bank pays player")
+		card.BankToPlayer.Receiver = gs.CurrentPlayer
+		card.BankToPlayer.BankCheque()
+	} else if card.PlayerToBank != nil {
+		fmt.Println("Player pays bank")
+		card.PlayerToBank.Sender = gs.CurrentPlayer
+		card.PlayerToBank.TransactWithBank()
+	} else if card.PlayerToPlayer != nil {
+		card.PlayerToPlayer.Sender = gs.CurrentPlayer
+		card.PlayerToPlayer.TransactWithPlayer('x')
+		fmt.Println("Player pays other players")
+	} else if card.PlayerPaysAll != nil {
+		card.PlayerPaysAll.Sender = gs.CurrentPlayer
+		for i, j := range gs.AllPlayers {
+			if j.PlayerNumber == gs.CurrentPlayer.PlayerNumber { // skip  ourself
+			} else {
+				card.PlayerPaysAll.Receiver = &gs.AllPlayers[i]
+			}
+		}
+		fmt.Println("Current player pays all other players")
+	} else if card.AllPaysPlayer != nil {
+		fmt.Println("All players pay current player")
+		for i, j := range gs.AllPlayers {
+			if j.PlayerNumber == gs.CurrentPlayer.PlayerNumber {
+				continue
+			}
+			card.PlayerToPlayer.Sender = &gs.AllPlayers[i]
+			card.PlayerToPlayer.Receiver = gs.CurrentPlayer
+			card.PlayerToPlayer.TransactWithPlayer('x')
+		}
+	} else {
+		fmt.Println("What is it?", card.Content)
+	}
+
+}
+
+func (gs *GameState) GoToSquare(space int) {
+
+	if space < 0 || space > 39 {
+		panic("We are attempting to move to a board space out of range")
+	}
+	prePosition := gs.CurrentPlayer.PositionOnBoard
+	gs.CurrentPlayer.PositionOnBoard = space
+	fmt.Println("Player has moved to space", space, GetTheCurrentCardName(space, gs.AllProperties))
+	if gs.CurrentPlayer.PositionOnBoard < prePosition {
+		gs.CurrentPlayer.pay200Dollars()
+	}
 }
 
 func (gs *GameState) RemoveToken(playerToRemove *Player) {

@@ -71,9 +71,9 @@ func (pd *PropertyDeed) PayRent(from *Player, to *Player, board *Board, pc *Prop
 		return 0, nil
 	}
 	t := Transaction{
-		sender:   from,
-		receiver: to,
-		amount:   0,
+		Sender:   from,
+		Receiver: to,
+		Amount:   0,
 	}
 	var (
 		actualPaid       = 0 // a player may not be able to pay the full amount
@@ -93,12 +93,12 @@ func (pd *PropertyDeed) PayRent(from *Player, to *Player, board *Board, pc *Prop
 		} else {
 			pd.Rent = 4 * roll
 		}
-		t.amount = pd.Rent
+		t.Amount = pd.Rent
 		actualPaid, err = t.TransactWithPlayer('x')
 	case Station:
 		stationsOwnedByPlayer := len(findSameType(board, pd, pc))
 		pd.Rent = stationsOwnedByPlayer * 25
-		t.amount = pd.Rent
+		t.Amount = pd.Rent
 		actualPaid, err = t.TransactWithPlayer('x')
 	case BuildableProperty:
 		// check if the property landed on is a complete set
@@ -111,7 +111,7 @@ func (pd *PropertyDeed) PayRent(from *Player, to *Player, board *Board, pc *Prop
 		if pd.HousesOwned > 0 {
 			moneyOwing = pd.RentWithHouses[pd.HousesOwned-1]
 		}
-		t.amount = moneyOwing * multiplyFactor
+		t.Amount = moneyOwing * multiplyFactor
 		actualPaid, err = t.TransactWithPlayer('x')
 	default:
 		fmt.Println("Unknown or not implemented", board.MonopolySpace[from.PositionOnBoard].SquareType)
@@ -120,7 +120,7 @@ func (pd *PropertyDeed) PayRent(from *Player, to *Player, board *Board, pc *Prop
 	if !(pd.Set == "Train" || pd.Set == "Utility") {
 		addition = "with " + strconv.Itoa(pd.HousesOwned) + " houses"
 	}
-	fmt.Println("Invoice for landing", GetTheCurrentCardName(pd.PositionOnBoard, pc), "is: $", t.amount, addition)
+	fmt.Println("Invoice for landing", GetTheCurrentCardName(pd.PositionOnBoard, pc), "is: $", t.Amount, addition)
 	if err == nil {
 		err = errors.New("Full-Payment")
 	} // not really an error, but more like a status
@@ -317,9 +317,9 @@ func AcquireAllMortgagedProperties(playerToAcquire *Player, playerToRecoverFrom 
 		if playerToAcquire.CashAvailable >= 600 { // 600 just an aribtrary chosen buffer of cash to keep
 			unMortgageCost := int(float64(prop.PurchaseCost) * half * (1 + tenPercent))
 			t := Transaction{
-				sender:   playerToAcquire,
-				receiver: nil,
-				amount:   unMortgageCost,
+				Sender:   playerToAcquire,
+				Receiver: nil,
+				Amount:   unMortgageCost,
 			}
 			t.TransactWithBank()
 			fmt.Println("Unmortgage (full) cost:", unMortgageCost)
@@ -328,9 +328,9 @@ func AcquireAllMortgagedProperties(playerToAcquire *Player, playerToRecoverFrom 
 		} else {
 			unMortgageCost := int(float64(prop.PurchaseCost) * half * tenPercent)
 			t := Transaction{
-				sender:   playerToAcquire,
-				receiver: nil,
-				amount:   unMortgageCost,
+				Sender:   playerToAcquire,
+				Receiver: nil,
+				Amount:   unMortgageCost,
 			}
 			t.TransactWithBank()
 			fmt.Println("Unmortgage (partial) cost:", unMortgageCost)
