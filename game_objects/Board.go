@@ -10,7 +10,8 @@ type Square struct {
 
 const (
 	BuildableProperty int = iota
-	ChanceChest
+	CommunityChest
+	Chance
 	Tax
 	Station
 	NoAction
@@ -24,8 +25,10 @@ func GetPropertyType(number int) string {
 	switch number {
 	case BuildableProperty:
 		propType = "Property"
-	case ChanceChest:
-		propType = "Community Chest / Chance"
+	case CommunityChest:
+		propType = "Community Chest"
+	case Chance:
+		propType = "Chance"
 	case Tax:
 		propType = "Tax collection"
 	case Station:

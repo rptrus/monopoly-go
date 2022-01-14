@@ -1,9 +1,5 @@
 package setup
 
-// Key things learned here are range over for loop
-// new provides a pointer and struct literal returns the actual data structure (use & if necessary to get address)
-// slices don't provide a length, but are otherwise defined like arrays
-
 import (
 	"fmt"
 	"github.com/rptrus/monopoly-go/game_objects"
@@ -15,12 +11,12 @@ func InitializeBoard() *game_objects.Board {
 	// side 1
 	brd.MonopolySpace[0].SquareType = game_objects.Payment
 	brd.MonopolySpace[1].SquareType = game_objects.BuildableProperty
-	brd.MonopolySpace[2].SquareType = game_objects.ChanceChest
+	brd.MonopolySpace[2].SquareType = game_objects.CommunityChest
 	brd.MonopolySpace[3].SquareType = game_objects.BuildableProperty
 	brd.MonopolySpace[4].SquareType = game_objects.Tax
 	brd.MonopolySpace[5].SquareType = game_objects.Station
 	brd.MonopolySpace[6].SquareType = game_objects.BuildableProperty
-	brd.MonopolySpace[7].SquareType = game_objects.ChanceChest
+	brd.MonopolySpace[7].SquareType = game_objects.Chance
 	brd.MonopolySpace[8].SquareType = game_objects.BuildableProperty
 	brd.MonopolySpace[9].SquareType = game_objects.BuildableProperty
 	// side 2
@@ -31,13 +27,13 @@ func InitializeBoard() *game_objects.Board {
 	brd.MonopolySpace[14].SquareType = game_objects.BuildableProperty
 	brd.MonopolySpace[15].SquareType = game_objects.Station
 	brd.MonopolySpace[16].SquareType = game_objects.BuildableProperty
-	brd.MonopolySpace[17].SquareType = game_objects.ChanceChest
+	brd.MonopolySpace[17].SquareType = game_objects.CommunityChest
 	brd.MonopolySpace[18].SquareType = game_objects.BuildableProperty
 	brd.MonopolySpace[19].SquareType = game_objects.BuildableProperty
 	// side 3
 	brd.MonopolySpace[20].SquareType = game_objects.NoAction
 	brd.MonopolySpace[21].SquareType = game_objects.BuildableProperty
-	brd.MonopolySpace[22].SquareType = game_objects.ChanceChest
+	brd.MonopolySpace[22].SquareType = game_objects.Chance
 	brd.MonopolySpace[23].SquareType = game_objects.BuildableProperty
 	brd.MonopolySpace[24].SquareType = game_objects.BuildableProperty
 	brd.MonopolySpace[25].SquareType = game_objects.Station
@@ -49,10 +45,10 @@ func InitializeBoard() *game_objects.Board {
 	brd.MonopolySpace[30].SquareType = game_objects.Jail
 	brd.MonopolySpace[31].SquareType = game_objects.BuildableProperty
 	brd.MonopolySpace[32].SquareType = game_objects.BuildableProperty
-	brd.MonopolySpace[33].SquareType = game_objects.ChanceChest
+	brd.MonopolySpace[33].SquareType = game_objects.CommunityChest
 	brd.MonopolySpace[34].SquareType = game_objects.BuildableProperty
 	brd.MonopolySpace[35].SquareType = game_objects.Station
-	brd.MonopolySpace[36].SquareType = game_objects.ChanceChest
+	brd.MonopolySpace[36].SquareType = game_objects.Chance
 	brd.MonopolySpace[37].SquareType = game_objects.BuildableProperty
 	brd.MonopolySpace[38].SquareType = game_objects.Tax
 	brd.MonopolySpace[39].SquareType = game_objects.BuildableProperty

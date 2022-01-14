@@ -161,7 +161,7 @@ func GetTheCurrentCardName(board int, pc *PropertyCollection) string {
 	return name
 }
 
-func (gs *GameState) ProcessNonPropertySquare(CurrentPlayer *Player, sqType int, tax int) {
+func (gs *GameState) ProcessNonPropertySquare(CurrentPlayer *Player, sqType int, tax int, cc *CardCollection) {
 	taxCollection := 0
 	switch sqType {
 	case Tax:
@@ -183,9 +183,27 @@ func (gs *GameState) ProcessNonPropertySquare(CurrentPlayer *Player, sqType int,
 			CurrentPlayer.PositionOnBoard = 10
 			CurrentPlayer.JailTurns = 3
 		}
+	case NoAction:
+		fmt.Println("Have a rest!")
+	case Payment:
+		fmt.Println("Landed on GO!")
+	case Chance:
+		ofs := 0
+		processDrawCard(ofs, cc)
+	case CommunityChest:
+		ofs := 16
+		processDrawCard(ofs, cc)
 	default:
-		fmt.Println("To Be Implemented")
+		fmt.Println("Unknown or To Be Implemented")
 	}
+}
+
+func processDrawCard(offset int, cc *CardCollection) {
+	a := cc.AllDrawCards[offset]
+	fmt.Println(a)
+	cc.CurrentCard = (cc.CurrentCard + 1) % 16
+	card := cc.AllDrawCards[cc.ShuffleOrder[cc.CurrentCard]]
+	fmt.Println(card.Content)
 }
 
 func (gs *GameState) RemoveToken(playerToRemove *Player) {

@@ -23,6 +23,7 @@ func main() {
 	board := setup.InitializeBoard()
 	game_objects.TheBank = setup.InitializeBank()
 	propertyCardCollection := setup.InitializePropertyCards()
+	drawCards := setup.InitializeDrawCards()
 	allPlayers := setup.InitializePlayers(numberOfPlayers)
 	firstUp, score := game_objects.RollToSeeWhoGoesFirst(allPlayers)
 	println(firstUp.Name, " is going first with score", score, "...")
@@ -72,7 +73,7 @@ func main() {
 		} else {
 			sqType := board.MonopolySpace[gameState.CurrentPlayer.PositionOnBoard].SquareType
 			fmt.Println("Landed on a non property square!", gameState.CurrentPlayer.PositionOnBoard, game_objects.GetPropertyType(sqType))
-			gameState.ProcessNonPropertySquare(gameState.CurrentPlayer, sqType, tax)
+			gameState.ProcessNonPropertySquare(gameState.CurrentPlayer, sqType, tax, drawCards)
 		}
 		gameWon := gameState.NextPlayer()
 		if gameWon == true || gameState.GlobalTurnsMade == numberOfTurns {
