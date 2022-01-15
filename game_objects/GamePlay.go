@@ -3,6 +3,7 @@ package game_objects
 import (
 	"fmt"
 	"math/rand"
+	"strconv"
 	"time"
 )
 
@@ -200,77 +201,28 @@ func (gs *GameState) ProcessNonPropertySquare(CurrentPlayer *Player, sqType int,
 }
 
 func (gs *GameState) processDrawCard(offset int, cc *CardCollection) {
-	cc.CurrentCard = (cc.CurrentCard + 1) % 16
-	card := cc.AllDrawCards[cc.ShuffleOrder[cc.CurrentCard]]
+	var card DrawCard
+	if offset == 0 {
+		cc.CurrentCardH = (cc.CurrentCardH + 1) % 16
+		card = cc.AllDrawCards[cc.ShuffleOrderH[cc.CurrentCardH]]
+	} else {
+		cc.CurrentCardO = (cc.CurrentCardO + 1) % 16
+		card = cc.AllDrawCards[cc.ShuffleOrderO[cc.CurrentCardO]]
+	}
 	fmt.Println(card)
 	fmt.Println(card.Content)
-	if card.MoveToSpace != nil {
-		fmt.Println("Move to space")
-		if *card.MoveToSpace == 10 {
-			gs.CurrentPlayer.JailTurns = 3
-		} // special case
-		gs.GoToSquare(*card.MoveToSpace)
-	} else if card.RelativeMove != nil {
-		fmt.Println("Relative move")
-		gs.GoToSquare(gs.CurrentPlayer.PositionOnBoard - 3)
-	} else if card.NearestType != nil {
-		fmt.Println("Move to nearest type")
-		currentPos := gs.CurrentPlayer.PositionOnBoard
-		toPos := -1
-		if currentPos == 36 {
-			toPos = 5
-		}
-		for currentPos%5 != 0 || currentPos%10 == 0 {
-			currentPos++
-		}
-		toPos = currentPos
-		gs.GoToSquare(toPos)
-	} else if card.BankToPlayer != nil {
-		fmt.Println("Bank pays player")
-		card.BankToPlayer.Receiver = gs.CurrentPlayer
-		card.BankToPlayer.BankCheque()
-	} else if card.PlayerToBank != nil {
-		fmt.Println("Player pays bank")
-		card.PlayerToBank.Sender = gs.CurrentPlayer
-		card.PlayerToBank.TransactWithBank()
-	} else if card.PlayerToPlayer != nil {
-		card.PlayerToPlayer.Sender = gs.CurrentPlayer
-		card.PlayerToPlayer.TransactWithPlayer('x')
-		fmt.Println("Player pays other players")
-	} else if card.PlayerPaysAll != nil {
-		card.PlayerPaysAll.Sender = gs.CurrentPlayer
-		for i, j := range gs.AllPlayers {
-			if j.PlayerNumber == gs.CurrentPlayer.PlayerNumber { // skip  ourself
-			} else {
-				card.PlayerPaysAll.Receiver = &gs.AllPlayers[i]
-			}
-		}
-		fmt.Println("Current player pays all other players")
-	} else if card.AllPaysPlayer != nil {
-		fmt.Println("All players pay current player")
-		for i, j := range gs.AllPlayers {
-			if j.PlayerNumber == gs.CurrentPlayer.PlayerNumber {
-				continue
-			}
-			card.PlayerToPlayer.Sender = &gs.AllPlayers[i]
-			card.PlayerToPlayer.Receiver = gs.CurrentPlayer
-			card.PlayerToPlayer.TransactWithPlayer('x')
-		}
-	} else {
-		fmt.Println("What is it?", card.Content)
-	}
-
+	processDrawCard(&card, gs, cc)
 }
 
-func (gs *GameState) GoToSquare(space int) {
+func (gs *GameState) GoToSquare(space int, paymentCheck bool) {
 
 	if space < 0 || space > 39 {
-		panic("We are attempting to move to a board space out of range")
+		panic("We are attempting to move to a board space out of range: " + strconv.Itoa(space))
 	}
 	prePosition := gs.CurrentPlayer.PositionOnBoard
 	gs.CurrentPlayer.PositionOnBoard = space
 	fmt.Println("Player has moved to space", space, GetTheCurrentCardName(space, gs.AllProperties))
-	if gs.CurrentPlayer.PositionOnBoard < prePosition {
+	if gs.CurrentPlayer.PositionOnBoard < prePosition && paymentCheck == true {
 		gs.CurrentPlayer.pay200Dollars()
 	}
 }

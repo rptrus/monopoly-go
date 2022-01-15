@@ -19,14 +19,24 @@ type Player struct {
 	PositionOnBoard int
 	Active          bool
 	JailTurns       int
-	JailCards       int
+	JailCards       []byte
 	Token           string
 }
 
 // return reward if GO is passed, 0 otherwise. If return results need to be augmented will create a struct in future
-func (p *Player) AdvancePlayer(steps int) int {
+func (p *Player) AdvancePlayer(steps int, cc *CardCollection) int {
 	prePosition := p.PositionOnBoard
 	if p.JailTurns == 0 {
+		p.PositionOnBoard += steps
+	} else if p.JailTurns > 0 && len(p.JailCards) > 0 {
+		p.JailTurns = 0
+		backIntoStack := p.JailCards[0]
+		if backIntoStack == 'H' {
+			cc.ShuffleOrderH = append(cc.ShuffleOrderH, 15) // 15 is chance card for jail free
+		} else {
+			cc.ShuffleOrderO = append(cc.ShuffleOrderO, 11) // 11 is community chest card for jail free
+		}
+		p.JailCards = p.JailCards[1:]
 		p.PositionOnBoard += steps
 	} else {
 		firstRoll, secondRoll := rollToGetOutOfJail()

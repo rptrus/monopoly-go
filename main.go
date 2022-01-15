@@ -42,7 +42,7 @@ func main() {
 		gameState.CurrentPlayer.PutUpHouses(gameState.AllProperties)
 		gameState.RollDice()
 		prePosition := gameState.CurrentPlayer.PositionOnBoard // place before we advance to our roll
-		passGoPayment := gameState.CurrentPlayer.AdvancePlayer(gameState.CurrentDiceRoll)
+		passGoPayment := gameState.CurrentPlayer.AdvancePlayer(gameState.CurrentDiceRoll, drawCards)
 		// do some monopoly stuff here
 		fmt.Println("==============================================================================="+
 			"\nTurn:", gameState.GlobalTurnsMade, "Current Player", gameState.CurrentPlayer.Name, gameState.CurrentPlayer.PlayerNumber, "rolled a", gameState.CurrentDiceRoll)

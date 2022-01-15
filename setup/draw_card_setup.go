@@ -6,7 +6,6 @@ func InitializeDrawCards() *game_objects.CardCollection {
 
 	// CHANCE
 
-	//var ct game_objects.Transaction
 	var card game_objects.DrawCard
 	CardCollection := new(game_objects.CardCollection)
 
@@ -167,10 +166,9 @@ func InitializeDrawCards() *game_objects.CardCollection {
 	CardCollection.AllDrawCards[14] = card
 
 	card = game_objects.DrawCard{
-		Id:          15,
-		Designator:  'H',
-		Content:     "Get out of Jail free. This card may be kept until needed or traded.",
-		NearestType: &utility,
+		Id:         15,
+		Designator: 'H',
+		Content:    "Get out of Jail free. This card may be kept until needed or traded.",
 	}
 	CardCollection.AllDrawCards[15] = card
 
@@ -362,8 +360,8 @@ func InitializeDrawCards() *game_objects.CardCollection {
 	}
 	CardCollection.AllDrawCards[CC+15] = card
 
-	CardCollection.ShuffleOrder = game_objects.GenerateOrderForChanceCommunityChestCards()
-	CardCollection.CurrentCard = 0
+	CardCollection.ShuffleOrderH = game_objects.GenerateOrderForChanceCommunityChestCards()
+	CardCollection.ShuffleOrderO = game_objects.GenerateOrderForChanceCommunityChestCards()
 
 	return CardCollection
 }
