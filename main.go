@@ -4,15 +4,17 @@ import (
 	"fmt"
 	"github.com/rptrus/monopoly-go/game_objects"
 	"github.com/rptrus/monopoly-go/setup"
+	"os"
 	"strconv"
 	"strings"
 )
 
 const (
-	numberOfPlayers int = 6
-	numberOfTurns       = 800
-	tax                 = 100
+	numberOfTurns = 800
+	tax           = 100
 )
+
+var numberOfPlayers int = 6
 
 func init() {
 	fmt.Println("Starting Monopoly Go SIM")
@@ -20,6 +22,9 @@ func init() {
 
 func main() {
 	// move to init function
+	if len(os.Args) == 2 {
+		numberOfPlayers, _ = strconv.Atoi(os.Args[1])
+	}
 	board := setup.InitializeBoard()
 	game_objects.TheBank = setup.InitializeBank()
 	propertyCardCollection := setup.InitializePropertyCards()
@@ -30,12 +35,15 @@ func main() {
 	gameState := game_objects.GameState{
 		CurrentPlayer:   firstUp,
 		CurrentDiceRoll: 0,
-		GlobalTurnsMade: 0,
+		GlobalTurnsMade: 1,
 		AllPlayers:      allPlayers,
 		AllProperties:   propertyCardCollection,
 	}
 	game_objects.BankGameState = &gameState
 	for {
+		fmt.Println("\n==============================================================================="+
+			"\nTurn:", gameState.GlobalTurnsMade, "Current Player", gameState.CurrentPlayer.Name, gameState.CurrentPlayer.PlayerNumber, " currently on", game_objects.GetTheCurrentCardName(gameState.CurrentPlayer.PositionOnBoard, gameState.AllProperties), "rolled a", gameState.CurrentDiceRoll,
+			"\n===============================================================================")
 		deedsOwned := game_objects.ShowPropertyDeedsOfPlayer(gameState.CurrentPlayer.PlayerNumber, gameState.AllProperties)
 		gameState.CurrentPlayer.CheckToUnmortgage(gameState.CurrentPlayer, deedsOwned)
 		gameState.DoDeals(gameState.AllProperties)
@@ -43,9 +51,6 @@ func main() {
 		gameState.RollDice()
 		prePosition := gameState.CurrentPlayer.PositionOnBoard // place before we advance to our roll
 		passGoPayment := gameState.CurrentPlayer.AdvancePlayer(gameState.CurrentDiceRoll, drawCards)
-		// do some monopoly stuff here
-		fmt.Println("==============================================================================="+
-			"\nTurn:", gameState.GlobalTurnsMade, "Current Player", gameState.CurrentPlayer.Name, gameState.CurrentPlayer.PlayerNumber, "rolled a", gameState.CurrentDiceRoll)
 		if passGoPayment > 0 {
 			fmt.Println("BANK PAYS PLAYER $", passGoPayment)
 		}
@@ -69,6 +74,9 @@ func main() {
 				}
 			}
 			names, _ := game_objects.ShowPropertiesOfPlayer(gameState.CurrentPlayer.PlayerNumber, gameState.AllProperties)
+			if names != nil && len(names) == 0 {
+				names = append(names, "none")
+			}
 			fmt.Println("\n"+allPlayers[gameState.CurrentPlayer.PlayerNumber].Name, "owns the following properties:", "[ \""+strings.Join(names, "\",\"")+"\" ]\n")
 		} else {
 			sqType := board.MonopolySpace[gameState.CurrentPlayer.PositionOnBoard].SquareType

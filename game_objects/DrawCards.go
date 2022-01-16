@@ -32,6 +32,7 @@ func GenerateOrderForChanceCommunityChestCards() []int {
 	cardsToDeal := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
 	fmt.Println(cardsToDeal)
 	rand.Seed(time.Now().UnixNano())
+	time.Sleep(200)
 	rand.Shuffle(len(cardsToDeal), func(i, j int) { cardsToDeal[i], cardsToDeal[j] = cardsToDeal[j], cardsToDeal[i] })
 	fmt.Println(cardsToDeal)
 	return cardsToDeal
@@ -109,7 +110,7 @@ func processDrawCardInternal(card *DrawCard, gs *GameState, cc *CardCollection) 
 			}
 		}
 	} else {
-		fmt.Println("More complex card processing", card.Content)
+		// More complex card processing here
 		var (
 			countHousesOwned = 0
 			countHotelsOwned = 0
@@ -152,15 +153,15 @@ func processDrawCardInternal(card *DrawCard, gs *GameState, cc *CardCollection) 
 			gs.CurrentPlayer.JailCards = append(gs.CurrentPlayer.JailCards, card.Designator)
 			// remove card 11 from deck
 			if card.Id == 11 {
-				for i, j := range cc.ShuffleOrderH {
+				for i, j := range cc.ShuffleOrderO {
 					if j == 11 {
-						cc.ShuffleOrderH = append(cc.ShuffleOrderH[:i], cc.ShuffleOrderH[i+1:]...)
+						cc.ShuffleOrderO = append(cc.ShuffleOrderO[:i], cc.ShuffleOrderO[i+1:]...)
 					}
 				}
 			}
 			// remove card 15 from deck
 			if card.Id == 15 {
-				for i, j := range cc.ShuffleOrderO {
+				for i, j := range cc.ShuffleOrderH {
 					if j == 15 {
 						cc.ShuffleOrderH = append(cc.ShuffleOrderH[:i], cc.ShuffleOrderH[i+1:]...)
 					}

@@ -28,16 +28,17 @@ type Bank struct {
 
 // Player gives money to the bank
 func (txn *Transaction) TransactWithBank() {
-	if txn.Sender.CashAvailable < txn.Amount && txn.Sender.Active == true {
-		txn.Amount = txn.Sender.CashAvailable
+	if txn.Sender.Active == true {
+		if txn.Sender.CashAvailable < txn.Amount {
+			fmt.Println("Paying a partial amount to Bank, player out of cash!")
+			txn.Amount = txn.Sender.CashAvailable
+			txn.Sender.Active = false
+			BankGameState.RemoveToken(txn.Sender)
+		}
 		txn.Sender.CashAvailable -= txn.Amount
-		fmt.Println("Player", txn.Sender.Name, "is bankrupt!")
-		txn.Sender.Active = false
-		BankGameState.RemoveToken(txn.Sender)
+		TheBank.CashReservesInDollars += txn.Amount
+		TheBank.TransactionLedger = append(TheBank.TransactionLedger, *txn)
 	}
-	txn.Sender.CashAvailable -= txn.Amount
-	TheBank.CashReservesInDollars += txn.Amount
-	TheBank.TransactionLedger = append(TheBank.TransactionLedger, *txn)
 }
 
 // Bank gives money to Player for things like passing go (universal basic income!) and returning houses
@@ -74,7 +75,7 @@ func (txn *Transaction) TransactWithPlayer(priority byte) (int, error) {
 				txn.Sender.CashAvailable -= allOfIt
 				txn.Receiver.CashAvailable += allOfIt
 				AcquireAllMortgagedProperties(txn.Receiver, txn.Sender)
-				fmt.Println("Player", txn.Sender.Name, "is bankrupt!")
+				fmt.Println("[TWP] Player", txn.Sender.Name, "is bankrupt!")
 				BankGameState.RemoveToken(txn.Sender)
 				moneyPaid = allOfIt
 				err = errors.New("Partial-Payment")

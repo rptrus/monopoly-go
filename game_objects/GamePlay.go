@@ -8,14 +8,16 @@ import (
 )
 
 const (
-	maxdicelow          int = 1
-	maxdicehigh         int = 6
-	placesonboard       int = 40
-	totalPlayersPlaying int = 6
-	minThresholdHouses  int = 500
+	maxdicelow         int = 1
+	maxdicehigh        int = 6
+	placesonboard      int = 40
+	minThresholdHouses int = 500
 )
 
-var TheBank *Bank
+var (
+	TheBank             *Bank
+	TotalPlayersPlaying int = 6
+)
 
 type GameState struct {
 	CurrentPlayer         *Player
@@ -97,42 +99,43 @@ func (gs *GameState) NextPlayer() bool {
 
 	switch countActive {
 	case 1:
-		gs.CurrentPlayer = &gs.AllPlayers[(gs.CurrentPlayer.PlayerNumber+1)%totalPlayersPlaying]
+		gs.CurrentPlayer = &gs.AllPlayers[(gs.CurrentPlayer.PlayerNumber+1)%TotalPlayersPlaying]
 		if gs.CurrentPlayer.Active == true {
 			break
 		}
 		fallthrough
 	case 2:
-		gs.CurrentPlayer = &gs.AllPlayers[(gs.CurrentPlayer.PlayerNumber+1)%totalPlayersPlaying]
+		gs.CurrentPlayer = &gs.AllPlayers[(gs.CurrentPlayer.PlayerNumber+1)%TotalPlayersPlaying]
 		if gs.CurrentPlayer.Active == true {
 			break
 		}
 		fallthrough
 	case 3:
-		gs.CurrentPlayer = &gs.AllPlayers[(gs.CurrentPlayer.PlayerNumber+1)%totalPlayersPlaying]
+		gs.CurrentPlayer = &gs.AllPlayers[(gs.CurrentPlayer.PlayerNumber+1)%TotalPlayersPlaying]
 		if gs.CurrentPlayer.Active == true {
 			break
 		}
 		fallthrough
 	case 4:
-		gs.CurrentPlayer = &gs.AllPlayers[(gs.CurrentPlayer.PlayerNumber+1)%totalPlayersPlaying]
+		gs.CurrentPlayer = &gs.AllPlayers[(gs.CurrentPlayer.PlayerNumber+1)%TotalPlayersPlaying]
 		if gs.CurrentPlayer.Active == true {
 			break
 		}
 		fallthrough
 	case 5:
-		gs.CurrentPlayer = &gs.AllPlayers[(gs.CurrentPlayer.PlayerNumber+1)%totalPlayersPlaying]
+		gs.CurrentPlayer = &gs.AllPlayers[(gs.CurrentPlayer.PlayerNumber+1)%TotalPlayersPlaying]
 		if gs.CurrentPlayer.Active == true {
 			break
 		}
 		fallthrough
 	default:
-		gs.CurrentPlayer = &gs.AllPlayers[(gs.CurrentPlayer.PlayerNumber+1)%totalPlayersPlaying]
+		gs.CurrentPlayer = &gs.AllPlayers[(gs.CurrentPlayer.PlayerNumber+1)%TotalPlayersPlaying]
 		if gs.CurrentPlayer.Active == true {
 			break
 		}
 	}
 	fmt.Println(gs.CurrentPlayer.Name, "is now up")
+	fmt.Println("\n-------------------------------------------------------------------------------")
 
 	if countActive == 1 {
 		fmt.Println("Player", gs.CurrentPlayer.Name, "has won the game!")
@@ -153,7 +156,7 @@ func GetTheCurrentCard(board int, pc *PropertyCollection) (string, *PropertyDeed
 			}
 		}
 	}
-	return "", nil
+	return "(non-property square)", nil
 }
 
 // convenience if we just want the name, we can use directly in a fmt.println statement
