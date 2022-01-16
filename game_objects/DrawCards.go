@@ -37,7 +37,7 @@ func GenerateOrderForChanceCommunityChestCards() []int {
 	return cardsToDeal
 }
 
-func processDrawCard(card *DrawCard, gs *GameState, cc *CardCollection) {
+func processDrawCardInternal(card *DrawCard, gs *GameState, cc *CardCollection) {
 	if card.MoveToSpace != nil {
 		fmt.Println("Move to space")
 		if *card.MoveToSpace == 10 {
@@ -51,6 +51,7 @@ func processDrawCard(card *DrawCard, gs *GameState, cc *CardCollection) {
 		fmt.Println("Move to nearest type")
 		toPos := -1
 		if *card.NearestType == Station {
+			fmt.Println("Move to Train")
 			currentPos := gs.CurrentPlayer.PositionOnBoard
 			if gs.CurrentPlayer.PositionOnBoard == 36 {
 				toPos = 5
@@ -61,6 +62,7 @@ func processDrawCard(card *DrawCard, gs *GameState, cc *CardCollection) {
 				toPos = currentPos
 			}
 		} else if *card.NearestType == Utility {
+			fmt.Println("Move to Utility")
 			if gs.CurrentPlayer.PositionOnBoard > 12 && gs.CurrentPlayer.PositionOnBoard < 28 {
 				toPos = 28
 			} else {
@@ -87,7 +89,9 @@ func processDrawCard(card *DrawCard, gs *GameState, cc *CardCollection) {
 		for i, j := range gs.AllPlayers {
 			if j.PlayerNumber == gs.CurrentPlayer.PlayerNumber { // skip  ourself
 			} else {
-				card.PlayerPaysAll.Receiver = &gs.AllPlayers[i]
+				if j.Active == true {
+					card.PlayerPaysAll.Receiver = &gs.AllPlayers[i]
+				}
 			}
 		}
 		fmt.Println("Current player pays all other players")
@@ -97,9 +101,12 @@ func processDrawCard(card *DrawCard, gs *GameState, cc *CardCollection) {
 			if j.PlayerNumber == gs.CurrentPlayer.PlayerNumber {
 				continue
 			}
-			card.PlayerToPlayer.Sender = &gs.AllPlayers[i]
-			card.PlayerToPlayer.Receiver = gs.CurrentPlayer
-			card.PlayerToPlayer.TransactWithPlayer('x')
+			if gs.AllPlayers[i].Active == true {
+				fmt.Println("Player", i, gs.AllPlayers[i])
+				card.AllPaysPlayer.Sender = &gs.AllPlayers[i]
+				card.AllPaysPlayer.Receiver = gs.CurrentPlayer
+				card.AllPaysPlayer.TransactWithPlayer('x')
+			}
 		}
 	} else {
 		fmt.Println("More complex card processing", card.Content)

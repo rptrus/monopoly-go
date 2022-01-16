@@ -190,9 +190,11 @@ func (gs *GameState) ProcessNonPropertySquare(CurrentPlayer *Player, sqType int,
 	case Payment:
 		fmt.Println("Landed on GO!")
 	case Chance:
+		fmt.Println("Chance")
 		ofs := 0
 		gs.processDrawCard(ofs, cc)
 	case CommunityChest:
+		fmt.Println("Community Chest")
 		ofs := 16
 		gs.processDrawCard(ofs, cc)
 	default:
@@ -202,16 +204,17 @@ func (gs *GameState) ProcessNonPropertySquare(CurrentPlayer *Player, sqType int,
 
 func (gs *GameState) processDrawCard(offset int, cc *CardCollection) {
 	var card DrawCard
+	fmt.Println("Setting up draw card", offset)
 	if offset == 0 {
-		cc.CurrentCardH = (cc.CurrentCardH + 1) % 16
+		cc.CurrentCardH = (cc.CurrentCardH + 1) % len(cc.ShuffleOrderH)
 		card = cc.AllDrawCards[cc.ShuffleOrderH[cc.CurrentCardH]]
 	} else {
-		cc.CurrentCardO = (cc.CurrentCardO + 1) % 16
-		card = cc.AllDrawCards[cc.ShuffleOrderO[cc.CurrentCardO]]
+		cc.CurrentCardO = (cc.CurrentCardO + 1) % len(cc.ShuffleOrderO)
+		card = cc.AllDrawCards[offset+cc.ShuffleOrderO[cc.CurrentCardO]]
 	}
 	fmt.Println(card)
 	fmt.Println(card.Content)
-	processDrawCard(&card, gs, cc)
+	processDrawCardInternal(&card, gs, cc)
 }
 
 func (gs *GameState) GoToSquare(space int, paymentCheck bool) {
