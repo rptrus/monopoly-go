@@ -92,9 +92,9 @@ func (p *Player) pay200Dollars() {
 	t.BankCheque()
 }
 
-func (p *Player) PutUpHouses(pc *PropertyCollection) {
-	deeds := ShowPropertyDeedsOfPlayer(p.PlayerNumber, pc)
-	colour := ownsFullSet(deeds, pc)
+func (p *Player) PutUpHouses(gs *GameState) {
+	deeds := ShowPropertyDeedsOfPlayer(p.PlayerNumber, gs)
+	colour := ownsFullSet(deeds, gs.AllProperties)
 	// buy houses of these colours, 1 lot at a time
 	for _, aFullSetColour := range colour {
 		for _, deed := range deeds {
@@ -113,7 +113,7 @@ func (p *Player) PutUpHouses(pc *PropertyCollection) {
 					}
 					t.TransactWithBank()
 					deed.HousesOwned++
-					fmt.Println("House purchased for", GetTheCurrentCardName(deed.PositionOnBoard, pc), "by", p.Name, ". Total houses on this property are: ", deed.HousesOwned)
+					fmt.Println("House purchased for", GetTheCurrentCardName(deed.PositionOnBoard, gs), "by", p.Name, ". Total houses on this property are: ", deed.HousesOwned)
 				}
 			}
 		}
@@ -124,15 +124,15 @@ func (p *Player) PutUpHouses(pc *PropertyCollection) {
 func (p *Player) CheckToUnmortgage(player *Player, pc arrayOfPropertyDeed) {
 	for _, prop := range pc {
 		if player.CashAvailable > cashBufferThreshold {
-		}
-		if prop.Mortgaged == true {
-			t := Transaction{
-				Sender:   player,
-				Receiver: nil,
-				Amount:   int(float64(prop.PurchaseCost) * tenPercent),
+			if prop.Mortgaged == true {
+				t := Transaction{
+					Sender:   player,
+					Receiver: nil,
+					Amount:   int(float64(prop.PurchaseCost) * tenPercent),
+				}
+				prop.Mortgaged = false
+				t.TransactWithBank()
 			}
-			prop.Mortgaged = false
-			t.TransactWithBank()
 		}
 	}
 }

@@ -38,6 +38,17 @@ func GenerateOrderForChanceCommunityChestCards() []int {
 	return cardsToDeal
 }
 
+func drawCardType(cardType byte) string {
+	var cType string
+	switch cardType {
+	case 'H':
+		cType = "CHANCE"
+	case 'O':
+		cType = "COMMUNITY CHEST"
+	}
+	return cType
+}
+
 func processDrawCardInternal(card *DrawCard, gs *GameState, cc *CardCollection) {
 	if card.MoveToSpace != nil {
 		fmt.Println("Move to space")
@@ -121,7 +132,8 @@ func processDrawCardInternal(card *DrawCard, gs *GameState, cc *CardCollection) 
 		repairs := (card.Designator == 'O' && card.Id == 8) || (card.Designator == 'H' && card.Id == 6)
 		jailcard := (card.Designator == 'O' && card.Id == 11) || (card.Designator == 'H' && card.Id == 15)
 		if repairs {
-			deeds := ShowPropertyDeedsOfPlayer(gs.CurrentPlayer.PlayerNumber, gs.AllProperties)
+			fmt.Println("Street repairs")
+			deeds := ShowPropertyDeedsOfPlayer(gs.CurrentPlayer.PlayerNumber, gs)
 			switch card.Id {
 			case 8:
 				costHouseRepair = 40

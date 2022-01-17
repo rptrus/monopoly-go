@@ -27,6 +27,7 @@ type GameState struct {
 	allPropsSold          bool
 	AllPlayers            []Player
 	AllProperties         *PropertyCollection
+	Others                *OtherPropertyCollection
 }
 
 func RollToSeeWhoGoesFirst(AllPlayers []Player) (*Player, int) {
@@ -145,24 +146,34 @@ func (gs *GameState) NextPlayer() bool {
 }
 
 // board position to property[28]
-func GetTheCurrentCard(board int, pc *PropertyCollection) (string, *PropertyDeed) {
-	for _, card := range (*pc).AllProperty {
+func GetTheCurrentCard(board int, gs *GameState) (string, *PropertyDeed) {
+	for _, card := range gs.AllProperties.AllProperty {
 		// j is single entry map of name:Property
 		aSingularCardMap := card.Card
 		for n, v := range aSingularCardMap {
-			//fmt.Println(v)
 			if v.PositionOnBoard == board {
 				return n, v
 			}
 		}
 	}
-	return "(non-property square)", nil
+	return GetTheOtherPropertyName(board, gs.Others), nil
+}
+
+func GetTheOtherPropertyName(board int, oc *OtherPropertyCollection) string {
+	for _, card := range oc.AllProperty {
+		aSingularCardMap := card.Card
+		for n, v := range aSingularCardMap {
+			if v.PositionOnBoard == board {
+				return n
+			}
+		}
+	}
+	return "(unknown)"
 }
 
 // convenience if we just want the name, we can use directly in a fmt.println statement
-// TODO: display also if it's a non property card using our otherPropertyArray. LOW priority for now.
-func GetTheCurrentCardName(board int, pc *PropertyCollection) string {
-	name, _ := GetTheCurrentCard(board, pc)
+func GetTheCurrentCardName(board int, gs *GameState) string {
+	name, _ := GetTheCurrentCard(board, gs)
 	return name
 }
 
@@ -170,6 +181,7 @@ func (gs *GameState) ProcessNonPropertySquare(CurrentPlayer *Player, sqType int,
 	taxCollection := 0
 	switch sqType {
 	case Tax:
+		fmt.Println("Tax collection!")
 		taxCollection += tax
 		t := Transaction{
 			//gs: gs,
@@ -193,11 +205,9 @@ func (gs *GameState) ProcessNonPropertySquare(CurrentPlayer *Player, sqType int,
 	case Payment:
 		fmt.Println("Landed on GO!")
 	case Chance:
-		fmt.Println("Chance")
 		ofs := 0
 		gs.processDrawCard(ofs, cc)
 	case CommunityChest:
-		fmt.Println("Community Chest")
 		ofs := 16
 		gs.processDrawCard(ofs, cc)
 	default:
@@ -207,7 +217,6 @@ func (gs *GameState) ProcessNonPropertySquare(CurrentPlayer *Player, sqType int,
 
 func (gs *GameState) processDrawCard(offset int, cc *CardCollection) {
 	var card DrawCard
-	fmt.Println("Setting up draw card", offset)
 	if offset == 0 {
 		cc.CurrentCardH = (cc.CurrentCardH + 1) % len(cc.ShuffleOrderH)
 		card = cc.AllDrawCards[cc.ShuffleOrderH[cc.CurrentCardH]]
@@ -215,8 +224,7 @@ func (gs *GameState) processDrawCard(offset int, cc *CardCollection) {
 		cc.CurrentCardO = (cc.CurrentCardO + 1) % len(cc.ShuffleOrderO)
 		card = cc.AllDrawCards[offset+cc.ShuffleOrderO[cc.CurrentCardO]]
 	}
-	fmt.Println(card)
-	fmt.Println(card.Content)
+	fmt.Println(drawCardType(card.Designator), "Card", card.Id, "->", card.Content)
 	processDrawCardInternal(&card, gs, cc)
 }
 
@@ -227,7 +235,7 @@ func (gs *GameState) GoToSquare(space int, paymentCheck bool) {
 	}
 	prePosition := gs.CurrentPlayer.PositionOnBoard
 	gs.CurrentPlayer.PositionOnBoard = space
-	fmt.Println("Player has moved to space", space, GetTheCurrentCardName(space, gs.AllProperties))
+	fmt.Println("Player has moved to space", space, GetTheCurrentCardName(space, gs))
 	if gs.CurrentPlayer.PositionOnBoard < prePosition && paymentCheck == true {
 		gs.CurrentPlayer.pay200Dollars()
 	}

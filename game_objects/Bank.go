@@ -93,7 +93,7 @@ func (txn *Transaction) TransactWithPlayer(priority byte) (int, error) {
 func (txn *Transaction) sellDownHouses() bool {
 	// cycle through the properties of the debtor
 	// if they have houses, sell them down at half price first
-	props := ShowPropertyDeedsOfPlayer(txn.Sender.PlayerNumber, BankGameState.AllProperties)
+	props := ShowPropertyDeedsOfPlayer(txn.Sender.PlayerNumber, BankGameState)
 	// represents taking off 1 house from each of the properties.
 	var stillMoreHouses = true
 	var noHouseCounter = 0
@@ -132,7 +132,7 @@ func (txn *Transaction) sellDownHouses() bool {
 }
 
 func (txn *Transaction) mortgage() bool {
-	_, props := ShowPropertiesOfPlayer(txn.Sender.PlayerNumber, BankGameState.AllProperties)
+	_, props := ShowPropertiesOfPlayer(txn.Sender.PlayerNumber, BankGameState)
 	for _, prop := range props {
 		t := Transaction{
 			Sender:   nil,
@@ -141,7 +141,7 @@ func (txn *Transaction) mortgage() bool {
 		}
 		t.BankCheque()
 		prop.Mortgaged = true
-		fmt.Println("Mortgaged", GetTheCurrentCardName(prop.PositionOnBoard, BankGameState.AllProperties), "for", t.Amount)
+		fmt.Println("Mortgaged", GetTheCurrentCardName(prop.PositionOnBoard, BankGameState), "for", t.Amount)
 
 		if txn.Sender.CashAvailable >= txn.Amount {
 			fmt.Println("Debt can be paid off after mortgaging. Needed", txn.Amount, "have", txn.Sender.CashAvailable)

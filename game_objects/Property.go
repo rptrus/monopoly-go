@@ -65,7 +65,7 @@ type OtherPropertyCollection struct {
 
 func (pd *PropertyDeed) PayRent(from *Player, to *Player, board *Board, pc *PropertyCollection) (int, error) {
 	if !(pd.Set == "Train" || pd.Set == "Utility") && pd.HousesOwned > 0 {
-		fmt.Println("Cost of landing on builtup property:", GetTheCurrentCardName(pd.PositionOnBoard, pc), "is: $", pd.RentWithHouses[pd.HousesOwned-1])
+		fmt.Println("Cost of landing on builtup property:", GetTheCurrentCardName(pd.PositionOnBoard, BankGameState), "is: $", pd.RentWithHouses[pd.HousesOwned-1])
 	}
 	if pd.Mortgaged {
 		return 0, nil
@@ -120,7 +120,7 @@ func (pd *PropertyDeed) PayRent(from *Player, to *Player, board *Board, pc *Prop
 	if !(pd.Set == "Train" || pd.Set == "Utility") {
 		addition = "with " + strconv.Itoa(pd.HousesOwned) + " houses"
 	}
-	fmt.Println("Invoice for landing", GetTheCurrentCardName(pd.PositionOnBoard, pc), "is: $", t.Amount, addition)
+	fmt.Println("Invoice for landing", GetTheCurrentCardName(pd.PositionOnBoard, BankGameState), "is: $", t.Amount, addition)
 	if err == nil {
 		err = errors.New("Full-Payment")
 	} // not really an error, but more like a status
@@ -128,7 +128,7 @@ func (pd *PropertyDeed) PayRent(from *Player, to *Player, board *Board, pc *Prop
 }
 
 func swapPropertyBetweenPlayers(from *Player, to *Player, card *PropertyDeed, pc *PropertyCollection) {
-	fmt.Println("Player", from.Name, "Will give property", GetTheCurrentCardName(card.PositionOnBoard, pc), "to", to.Name)
+	fmt.Println("Player", from.Name, "Will give property", GetTheCurrentCardName(card.PositionOnBoard, BankGameState), "to", to.Name)
 	// since we will be swapping properties later, we don't need to adjust cash here
 	card.Owner = byte(to.PlayerNumber)
 	fmt.Println("Now assigned")
@@ -205,15 +205,15 @@ func ownersOfASet(setColour string, pc *PropertyCollection) ([]byte, bool) {
 
 // input: player number
 // output: properties owned
-func ShowPropertiesOfPlayer(playerNumber int, pc *PropertyCollection) ([]string, arrayOfPropertyDeed) {
+func ShowPropertiesOfPlayer(playerNumber int, gs *GameState) ([]string, arrayOfPropertyDeed) {
 	var M = ""
 	propsOwnedNameOnly := []string{}
 	propDeeds := []*PropertyDeed{}
-	for _, card := range pc.AllProperty {
+	for _, card := range gs.AllProperties.AllProperty {
 		aSingularCardMap := card.Card
 		for _, v := range aSingularCardMap {
 			if int(v.Owner) == playerNumber {
-				n, pd := GetTheCurrentCard(v.PositionOnBoard, pc)
+				n, pd := GetTheCurrentCard(v.PositionOnBoard, gs)
 				if pd.Mortgaged == true {
 					M = " (M)"
 				}
@@ -226,8 +226,8 @@ func ShowPropertiesOfPlayer(playerNumber int, pc *PropertyCollection) ([]string,
 }
 
 // convenience that we can use this in function calls without needing a preceeding variable first
-func ShowPropertyDeedsOfPlayer(playerNumber int, pc *PropertyCollection) arrayOfPropertyDeed {
-	_, properties := ShowPropertiesOfPlayer(playerNumber, pc)
+func ShowPropertyDeedsOfPlayer(playerNumber int, gs *GameState) arrayOfPropertyDeed {
+	_, properties := ShowPropertiesOfPlayer(playerNumber, gs)
 	return properties
 }
 
@@ -236,7 +236,7 @@ func (gs *GameState) UnownedProperties(pc *PropertyCollection) {
 	for _, props := range pc.AllProperty {
 		for _, k := range props.Card { // 1 element map
 			if k.Owner == 'u' {
-				propsSpare = append(propsSpare, GetTheCurrentCardName(k.PositionOnBoard, pc))
+				propsSpare = append(propsSpare, GetTheCurrentCardName(k.PositionOnBoard, gs))
 			}
 		}
 	}
@@ -263,11 +263,11 @@ func OtherOwnerOfSet(playerNum int, owners []byte) byte {
 }
 
 // we consider 2 of a 3-set or 1 of a 2-set to be the highest partially completed set
-func highestPartiallyCompleteSet(otherPlayer byte, AllPlayers []Player, pc *PropertyCollection) []*PropertyDeed {
+func highestPartiallyCompleteSet(otherPlayer byte, gs *GameState) []*PropertyDeed {
 	var setsWithMostPropertiesOwned []*PropertyDeed
-	_, deeds := ShowPropertiesOfPlayer(int(otherPlayer), pc)
+	_, deeds := ShowPropertiesOfPlayer(int(otherPlayer), gs)
 	for _, pd := range deeds {
-		owned, totalInSet := propsOwnedByPlayerInASet(pd, pc)
+		owned, totalInSet := propsOwnedByPlayerInASet(pd, gs.AllProperties)
 		if len(owned) == 2 && totalInSet == 3 || len(owned) == 1 && totalInSet == 2 {
 			setsWithMostPropertiesOwned = append(setsWithMostPropertiesOwned, pd)
 		}
@@ -309,10 +309,10 @@ func removeProperties(setColor string, propertiesToGiveOut []*PropertyDeed) arra
 }
 
 func AcquireAllMortgagedProperties(playerToAcquire *Player, playerToRecoverFrom *Player) {
-	_, props := ShowPropertiesOfPlayer(playerToRecoverFrom.PlayerNumber, BankGameState.AllProperties)
+	_, props := ShowPropertiesOfPlayer(playerToRecoverFrom.PlayerNumber, BankGameState)
 	// everything should be mortgaged at this point since we tried to mortgage everything prior to paying debts
 	for _, prop := range props {
-		fmt.Println("Player", playerToAcquire.Name, "has just acquired", GetTheCurrentCardName(prop.PositionOnBoard, BankGameState.AllProperties)+" (", prop.Set, ") ")
+		fmt.Println("Player", playerToAcquire.Name, "has just acquired", GetTheCurrentCardName(prop.PositionOnBoard, BankGameState)+" (", prop.Set, ") ")
 		//unMortgageOptions(playerToAcquire, prop)
 		if playerToAcquire.CashAvailable >= 600 { // 600 just an aribtrary chosen buffer of cash to keep
 			unMortgageCost := int(float64(prop.PurchaseCost) * half * (1 + tenPercent))
