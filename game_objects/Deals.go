@@ -9,22 +9,8 @@ import (
 )
 
 func (gs *GameState) DoDeals(pc *PropertyCollection) {
-	// Show some helpful logging so we know the state of play
-	fmt.Println("These other players own the following properties:")
-	for i, j := range gs.AllPlayers {
-		propNamesOwned, propDeeds := ShowPropertiesOfPlayer(j.PlayerNumber, gs)
-		fullSetters := strings.Join(ownsFullSet(propDeeds, pc), " ")
-		if j.PlayerNumber != gs.CurrentPlayer.PlayerNumber {
-			if j.Active {
-				fmt.Print("[", j.Name, " (", i, ")-> \"", strings.Join(propNamesOwned, "\",\""), "\"] Fullsets: "+fullSetters+" CASH: $", gs.AllPlayers[i].CashAvailable, gs.CurrentPlayer.Active, "\n")
-			}
-		} else {
-			//if gs.CurrentPlayer.Active {
-			fmt.Print("THIS TURN: [", j.Name, " (", i, ")-> \"", strings.Join(propNamesOwned, "\",\""), "\"] Fullsets: "+fullSetters+" CASH: $", gs.AllPlayers[i].CashAvailable, "\n")
-			//}
-		}
-	}
-	gs.UnownedProperties(pc) // needs to set AllPropsSold when applicable
+	fmt.Println("2. Do deals with other players if possible")
+	//gs.UnownedProperties(pc) // needs to set AllPropsSold when applicable
 	// work out if we have anything that we (the current player) have anything viable to trade to the player we just got our card from
 	propertyDeeds := ShowPropertyDeedsOfPlayer(gs.CurrentPlayer.PlayerNumber, gs)
 	for _, pd := range propertyDeeds {
@@ -125,6 +111,24 @@ func (gs *GameState) DoDeals(pc *PropertyCollection) {
 					// if we don't have the money for this, we are out
 				}
 			}
+		}
+	}
+}
+
+func LogPropertiesByPlayer(gs *GameState) {
+	// Show some helpful logging so we know the state of play
+	fmt.Println("These other players own the following properties:")
+	for i, j := range gs.AllPlayers {
+		propNamesOwned, propDeeds := ShowPropertiesOfPlayer(j.PlayerNumber, gs)
+		fullSetters := strings.Join(ownsFullSet(propDeeds, gs.AllProperties), " ")
+		if j.PlayerNumber != gs.CurrentPlayer.PlayerNumber {
+			if j.Active {
+				fmt.Print("[", j.Name, " (", i, ")-> \"", strings.Join(propNamesOwned, "\",\""), "\"] Fullsets: "+fullSetters+" CASH: $", gs.AllPlayers[i].CashAvailable, gs.CurrentPlayer.Active, "\n")
+			}
+		} else {
+			//if gs.CurrentPlayer.Active {
+			fmt.Print("CURRENT DICE ROLLER: [", j.Name, " (", i, ")-> \"", strings.Join(propNamesOwned, "\",\""), "\"] Fullsets: "+fullSetters+" CASH: $", gs.AllPlayers[i].CashAvailable, "\n")
+			//}
 		}
 	}
 }

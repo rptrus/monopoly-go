@@ -58,6 +58,7 @@ func (p *Player) AdvancePlayer(steps int, cc *CardCollection) int {
 			} else {
 				p.JailTurns--
 				p.PositionOnBoard += 0
+				fmt.Println("Rolled a ", firstRoll, "and", secondRoll, ". Not succesful.", p.JailTurns, "more tries available")
 			}
 		}
 	}
@@ -70,6 +71,7 @@ func (p *Player) AdvancePlayer(steps int, cc *CardCollection) int {
 }
 
 func (p *Player) BuyProperty(pd *PropertyDeed) (int, error) {
+	fmt.Println("5. Buy property if available")
 	if p.CashAvailable-pd.PurchaseCost < 0 {
 		return 0, errors.New("Cannot afford property!")
 	}
@@ -93,6 +95,7 @@ func (p *Player) pay200Dollars() {
 }
 
 func (p *Player) PutUpHouses(gs *GameState) {
+	fmt.Println("3. Put up houses if possible")
 	deeds := ShowPropertyDeedsOfPlayer(p.PlayerNumber, gs)
 	colour := ownsFullSet(deeds, gs.AllProperties)
 	// buy houses of these colours, 1 lot at a time
@@ -125,12 +128,14 @@ func (p *Player) CheckToUnmortgage(player *Player, pc arrayOfPropertyDeed) {
 	for _, prop := range pc {
 		if player.CashAvailable > cashBufferThreshold {
 			if prop.Mortgaged == true {
+				fmt.Println("1. Unmortgage check")
 				t := Transaction{
 					Sender:   player,
 					Receiver: nil,
 					Amount:   int(float64(prop.PurchaseCost) * tenPercent),
 				}
 				prop.Mortgaged = false
+				fmt.Println("Unmortgaged: ", GetTheCurrentCardName(prop.PositionOnBoard, BankGameState))
 				t.TransactWithBank()
 			}
 		}
