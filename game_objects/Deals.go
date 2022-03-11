@@ -123,11 +123,11 @@ func LogPropertiesByPlayer(gs *GameState) {
 		fullSetters := strings.Join(ownsFullSet(propDeeds, gs.AllProperties), " ")
 		if j.PlayerNumber != gs.CurrentPlayer.PlayerNumber {
 			if j.Active {
-				fmt.Print("[", j.Name, " (", i, ")-> \"", strings.Join(propNamesOwned, "\",\""), "\"] Fullsets: "+fullSetters+" CASH: $", gs.AllPlayers[i].CashAvailable, gs.CurrentPlayer.Active, "\n")
+				fmt.Print("\t[", j.Name, " (", i, ")-> \"", strings.Join(propNamesOwned, "\",\""), "\"] Fullsets: "+fullSetters+" CASH: $", gs.AllPlayers[i].CashAvailable, gs.CurrentPlayer.Active, "\n")
 			}
 		} else {
 			//if gs.CurrentPlayer.Active {
-			fmt.Print("CURRENT DICE ROLLER: [", j.Name, " (", i, ")-> \"", strings.Join(propNamesOwned, "\",\""), "\"] Fullsets: "+fullSetters+" CASH: $", gs.AllPlayers[i].CashAvailable, "\n")
+			fmt.Print("\tCURRENT DICE ROLLER: [", j.Name, " (", i, ")-> \"", strings.Join(propNamesOwned, "\",\""), "\"] Fullsets: "+fullSetters+" CASH: $", gs.AllPlayers[i].CashAvailable, "\n")
 			//}
 		}
 	}

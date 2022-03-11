@@ -64,6 +64,7 @@ type OtherPropertyCollection struct {
 }
 
 func (pd *PropertyDeed) PayRent(from *Player, to *Player, board *Board, pc *PropertyCollection) (int, error) {
+	fmt.Println("6. Charge rent if applicable")
 	if !(pd.Set == "Train" || pd.Set == "Utility") && pd.HousesOwned > 0 {
 		fmt.Println("Cost of landing on builtup property:", GetTheCurrentCardName(pd.PositionOnBoard, BankGameState), "is: $", pd.RentWithHouses[pd.HousesOwned-1])
 	}

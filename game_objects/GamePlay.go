@@ -86,6 +86,7 @@ func rollToGetOutOfJail() (int, int) {
 func (gs *GameState) RollDice() {
 	gs.GlobalTurnsMade++
 	gs.CurrentDiceRoll = rollDice()
+	fmt.Println("4. Roll dice")
 }
 
 // true: if game has been won by a player

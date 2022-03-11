@@ -6,7 +6,6 @@ import (
 	"github.com/rptrus/monopoly-go/setup"
 	"os"
 	"strconv"
-	"strings"
 )
 
 const (
@@ -78,7 +77,6 @@ func main() {
 				names = append(names, "none")
 			}
 			game_objects.LogPropertiesByPlayer(&gameState)
-			fmt.Println("\n"+allPlayers[gameState.CurrentPlayer.PlayerNumber].Name, "owns the following properties:", "[ \""+strings.Join(names, "\",\"")+"\" ]\n")
 		} else {
 			sqType := board.MonopolySpace[gameState.CurrentPlayer.PositionOnBoard].SquareType
 			fmt.Println("Landed on a non property square!", gameState.CurrentPlayer.PositionOnBoard, game_objects.GetPropertyType(sqType))
