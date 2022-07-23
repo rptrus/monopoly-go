@@ -12,6 +12,7 @@ const (
 	maxdicehigh        int = 6
 	placesonboard      int = 40
 	minThresholdHouses int = 500
+	formattingHashes   int = 28
 )
 
 var (
@@ -61,7 +62,7 @@ func RollToSeeWhoGoesFirst(AllPlayers []Player) (*Player, int) {
 			}
 		}
 	}
-	fmt.Println(highestSoFarPlayer, " wins the toss")
+	fmt.Println(AllPlayers[highestSoFarPlayer].Name, AllPlayers[highestSoFarPlayer].Token, highestSoFarPlayer, " wins the toss")
 	return &AllPlayers[highestSoFarPlayer], highestSoFarScore
 }
 
@@ -86,7 +87,7 @@ func rollToGetOutOfJail() (int, int) {
 func (gs *GameState) RollDice() {
 	gs.GlobalTurnsMade++
 	gs.CurrentDiceRoll = rollDice()
-	fmt.Println("4. Roll dice")
+	fmt.Println("4. Roll dice -> outcome: ", gs.CurrentDiceRoll)
 }
 
 // true: if game has been won by a player
@@ -137,10 +138,18 @@ func (gs *GameState) NextPlayer() bool {
 		}
 	}
 	fmt.Println(gs.CurrentPlayer.Name, "is now up")
-	fmt.Println("\n-------------------------------------------------------------------------------")
+	fmt.Println("\n------------------------------------------------------------------------------------------------")
 
 	if countActive == 1 {
-		fmt.Println("Player", gs.CurrentPlayer.Name, "has won the game!")
+		namelen := len(gs.CurrentPlayer.Name)
+		for i := 0; i < namelen+formattingHashes; i++ {
+			fmt.Print("#")
+		}
+		fmt.Println("\n🏆 Player", gs.CurrentPlayer.Name, "has won the game!")
+		for i := 0; i < namelen+formattingHashes; i++ {
+			fmt.Print("#")
+		}
+		fmt.Println()
 		return true
 	}
 	return false
@@ -201,7 +210,7 @@ func (gs *GameState) ProcessNonPropertySquare(CurrentPlayer *Player, sqType int,
 			CurrentPlayer.PositionOnBoard = 10
 			CurrentPlayer.JailTurns = 3
 		}
-	case NoAction:
+	case JustVisiting, FreeParking:
 		fmt.Println("Have a rest!")
 	case Payment:
 		fmt.Println("Landed on GO!")

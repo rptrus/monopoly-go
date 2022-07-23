@@ -6,7 +6,20 @@ import (
 )
 
 func InitializeBoard() *game_objects.Board {
-	fmt.Println("Calling initialize")
+	fmt.Println("Initialize Game board....")
+	board := `
+	20 21 22 23 24 25 26 27 28 29 30
+	19			                  31
+	18                            32
+	17                            33
+	16                            34
+	15                            35
+	14                            36
+	13                            37
+	12                            38
+	11                            39
+	10 9  8  7  6  5  4  3  2  1  G0 `
+	fmt.Println(board)
 	brd := game_objects.Board{}
 	// side 1
 	brd.MonopolySpace[0].SquareType = game_objects.Payment
@@ -20,7 +33,7 @@ func InitializeBoard() *game_objects.Board {
 	brd.MonopolySpace[8].SquareType = game_objects.BuildableProperty
 	brd.MonopolySpace[9].SquareType = game_objects.BuildableProperty
 	// side 2
-	brd.MonopolySpace[10].SquareType = game_objects.NoAction
+	brd.MonopolySpace[10].SquareType = game_objects.FreeParking
 	brd.MonopolySpace[11].SquareType = game_objects.BuildableProperty
 	brd.MonopolySpace[12].SquareType = game_objects.Utility
 	brd.MonopolySpace[13].SquareType = game_objects.BuildableProperty
@@ -31,7 +44,7 @@ func InitializeBoard() *game_objects.Board {
 	brd.MonopolySpace[18].SquareType = game_objects.BuildableProperty
 	brd.MonopolySpace[19].SquareType = game_objects.BuildableProperty
 	// side 3
-	brd.MonopolySpace[20].SquareType = game_objects.NoAction
+	brd.MonopolySpace[20].SquareType = game_objects.JustVisiting
 	brd.MonopolySpace[21].SquareType = game_objects.BuildableProperty
 	brd.MonopolySpace[22].SquareType = game_objects.Chance
 	brd.MonopolySpace[23].SquareType = game_objects.BuildableProperty
@@ -73,6 +86,7 @@ func InitializePlayers(numberOfPlayers int) []game_objects.Player {
 			CashAvailable:   1500,
 			PositionOnBoard: 0,
 			Active:          true,
+			Turns:           1,
 		}
 		// using new is probably not idiomatic Go, but is still available to use. Must deref though.
 		q := new(game_objects.Player)

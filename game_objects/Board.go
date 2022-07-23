@@ -14,10 +14,11 @@ const (
 	Chance
 	Tax
 	Station
-	NoAction
+	JustVisiting
 	Utility
 	Jail
 	Payment
+	FreeParking
 )
 
 func GetPropertyType(number int) string {
@@ -33,8 +34,10 @@ func GetPropertyType(number int) string {
 		propType = "Tax collection"
 	case Station:
 		propType = "Station"
-	case NoAction:
-		propType = "Nothing"
+	case JustVisiting:
+		propType = "Just Visiting"
+	case FreeParking:
+		propType = "Free Parking"
 	case Utility:
 		propType = "Utility"
 	case Jail:

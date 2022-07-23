@@ -18,6 +18,7 @@ type Player struct {
 	CashAvailable   int
 	PositionOnBoard int
 	Active          bool
+	Turns           int
 	JailTurns       int
 	JailCards       []byte
 	Token           string
@@ -25,6 +26,7 @@ type Player struct {
 
 // return reward if GO is passed, 0 otherwise. If return results need to be augmented will create a struct in future
 func (p *Player) AdvancePlayer(steps int, cc *CardCollection) int {
+	p.Turns++
 	prePosition := p.PositionOnBoard
 	if p.JailTurns == 0 {
 		p.PositionOnBoard += steps
@@ -99,27 +101,40 @@ func (p *Player) PutUpHouses(gs *GameState) {
 	deeds := ShowPropertyDeedsOfPlayer(p.PlayerNumber, gs)
 	colour := ownsFullSet(deeds, gs.AllProperties)
 	// buy houses of these colours, 1 lot at a time
+	maxSoFar := 5 // start with MAX:5 (hotel assumption) and work down to the lowest housed property
+	nextPropertyToBuildInColourSet := -1
 	for _, aFullSetColour := range colour {
 		for _, deed := range deeds {
 			if deed.Set == aFullSetColour {
 				if deed.Set == "Utility" || deed.Set == "Train" {
 					continue
 				} // no houses for these
-				if p.CashAvailable > minThresholdHouses {
-					if deed.HousesOwned >= 5 {
-						break
-					}
-					t := Transaction{
-						Sender:   p,
-						Receiver: nil,
-						Amount:   deed.HouseCost,
-					}
-					t.TransactWithBank()
-					deed.HousesOwned++
-					fmt.Println("House purchased for", GetTheCurrentCardName(deed.PositionOnBoard, gs), "by", p.Name, ". Total houses on this property are: ", deed.HousesOwned)
+				if deed.HousesOwned >= 5 {
+					continue
+				}
+				if deed.HousesOwned < maxSoFar {
+					nextPropertyToBuildInColourSet = deed.PositionOnBoard
+					maxSoFar = deed.HousesOwned
 				}
 			}
 		}
+	}
+	if p.CashAvailable > minThresholdHouses && nextPropertyToBuildInColourSet != -1 {
+		_, deed := GetTheCurrentCard(nextPropertyToBuildInColourSet, gs)
+		t := Transaction{
+			Sender:   p,
+			Receiver: nil,
+			Amount:   deed.HouseCost,
+		}
+		t.TransactWithBank()
+		deed.HousesOwned++
+		structureType := "House/s"
+		structures := deed.HousesOwned
+		if deed.HousesOwned == 5 {
+			structureType = "Hotel"
+			structures = 1
+		}
+		fmt.Println(structureType, "purchased for", GetTheCurrentCardName(deed.PositionOnBoard, gs), "by", p.Name, ". ", structureType, "on this property are: ", structures)
 	}
 }
 
