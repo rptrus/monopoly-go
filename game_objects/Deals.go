@@ -61,7 +61,7 @@ func (gs *GameState) DoDeals(pc *PropertyCollection) {
 				}
 				// We can't give them the property they need. Will need to contend with giving them 2 of ours. One should be high value property.
 				if !dealDone {
-					fmt.Println("Will do another deal. TBD.")
+					fmt.Println("Will do another deal.")
 					_, propertiesToGiveOut := ShowPropertiesOfPlayer(gs.CurrentPlayer.PlayerNumber, gs)
 					// take out any full sets, we don't give those away
 					fullSetsToTakeOut := ownsFullSet(propertiesToGiveOut, pc)
@@ -123,12 +123,10 @@ func LogPropertiesByPlayer(gs *GameState) {
 		fullSetters := strings.Join(ownsFullSet(propDeeds, gs.AllProperties), " ")
 		if j.PlayerNumber != gs.CurrentPlayer.PlayerNumber {
 			if j.Active {
-				fmt.Print("\t[", j.Name, " (", i, ")-> \"", strings.Join(propNamesOwned, "\",\""), "\"] Fullsets: "+fullSetters+" CASH: $", gs.AllPlayers[i].CashAvailable, gs.CurrentPlayer.Active, "\n")
+				fmt.Print("\t[", j.Name, " (", i, ")-> \"", strings.Join(propNamesOwned, "\",\""), "\"] Fullsets: "+fullSetters+" CASH: $", gs.AllPlayers[i].CashAvailable, "\n")
 			}
 		} else {
-			//if gs.CurrentPlayer.Active {
 			fmt.Print("\tCURRENT DICE ROLLER: [", j.Name, " (", i, ")-> \"", strings.Join(propNamesOwned, "\",\""), "\"] Fullsets: "+fullSetters+" CASH: $", gs.AllPlayers[i].CashAvailable, "\n")
-			//}
 		}
 	}
 }

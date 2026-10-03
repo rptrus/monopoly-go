@@ -132,7 +132,7 @@ func swapPropertyBetweenPlayers(from *Player, to *Player, card *PropertyDeed, pc
 	fmt.Println("Player", from.Name, "Will give property", GetTheCurrentCardName(card.PositionOnBoard, BankGameState), "to", to.Name)
 	// since we will be swapping properties later, we don't need to adjust cash here
 	card.Owner = byte(to.PlayerNumber)
-	fmt.Println("Now assigned")
+	fmt.Println("Now assigned to ", to.Name)
 }
 
 // Given a square of a particular type, find all the others of that type

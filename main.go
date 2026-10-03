@@ -28,12 +28,14 @@ func main() {
 	propertyCardCollection := setup.InitializePropertyCards()
 	otherCardCollection := setup.InitializeNonPropertyCards()
 	drawCards := setup.InitializeDrawCards()
-	allPlayers := setup.InitializePlayers(numberOfPlayers)
-	firstUp, score := game_objects.RollToSeeWhoGoesFirst(allPlayers)
+	globalToken := "Canon"
+	allPlayers := setup.InitializePlayers(numberOfPlayers, globalToken)
+	firstUp, score := game_objects.RollToSeeWhoGoesFirst(allPlayers, globalToken)
 	println(firstUp.Name, " is going first with score", score, "...")
 	gameState := game_objects.GameState{
 		CurrentPlayer:   firstUp,
 		GlobalTurnsMade: 1,
+		GlobalToken:     globalToken,
 		AllPlayers:      allPlayers,
 		AllProperties:   propertyCardCollection,
 		Others:          otherCardCollection,
@@ -49,9 +51,9 @@ func main() {
 		gameState.CurrentPlayer.PutUpHouses(&gameState)
 		gameState.RollDice()
 		prePosition := gameState.CurrentPlayer.PositionOnBoard // place before we advance to our roll
-		passGoPayment := gameState.CurrentPlayer.AdvancePlayer(gameState.CurrentDiceRoll, drawCards)
+		passGoPayment := gameState.CurrentPlayer.AdvancePlayer(&gameState, gameState.CurrentDiceRoll, drawCards)
 		if passGoPayment > 0 {
-			fmt.Println("BANK PAYS PLAYER $", passGoPayment)
+			fmt.Println("BANK PAYS PLAYER $", gameState.CurrentPlayer.Name, passGoPayment)
 		}
 		thePropertyName, theDeed := game_objects.GetTheCurrentCard(gameState.CurrentPlayer.PositionOnBoard, &gameState)
 		if theDeed != nil {

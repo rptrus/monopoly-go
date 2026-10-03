@@ -24,6 +24,8 @@ type GameState struct {
 	CurrentPlayer         *Player
 	CurrentPropertyOfTurn *Property
 	CurrentDiceRoll       int
+	CurrentGlobalPosition int
+	GlobalToken           string
 	GlobalTurnsMade       int
 	allPropsSold          bool
 	AllPlayers            []Player
@@ -31,7 +33,7 @@ type GameState struct {
 	Others                *OtherPropertyCollection
 }
 
-func RollToSeeWhoGoesFirst(AllPlayers []Player) (*Player, int) {
+func RollToSeeWhoGoesFirst(AllPlayers []Player, globalToken string) (*Player, int) {
 	var (
 		highestSoFarPlayer int = 0
 		highestSoFarScore  int = 0
@@ -62,7 +64,7 @@ func RollToSeeWhoGoesFirst(AllPlayers []Player) (*Player, int) {
 			}
 		}
 	}
-	fmt.Println(AllPlayers[highestSoFarPlayer].Name, AllPlayers[highestSoFarPlayer].Token, highestSoFarPlayer, " wins the toss")
+	fmt.Println(AllPlayers[highestSoFarPlayer].Name, globalToken, highestSoFarPlayer, " wins the toss")
 	return &AllPlayers[highestSoFarPlayer], highestSoFarScore
 }
 
@@ -137,7 +139,8 @@ func (gs *GameState) NextPlayer() bool {
 			break
 		}
 	}
-	fmt.Println(gs.CurrentPlayer.Name, "is now up")
+	gs.CurrentPlayer.PositionOnBoard = gs.CurrentGlobalPosition // will read from the last player
+	fmt.Println(gs.CurrentPlayer.Name, "is now up (starting at position ", gs.CurrentGlobalPosition, " set from the last player")
 	fmt.Println("\n------------------------------------------------------------------------------------------------")
 
 	if countActive == 1 {
@@ -241,7 +244,8 @@ func (gs *GameState) processDrawCard(offset int, cc *CardCollection) {
 func (gs *GameState) GoToSquare(space int, paymentCheck bool) {
 
 	if space < 0 || space > 39 {
-		panic("We are attempting to move to a board space out of range: " + strconv.Itoa(space))
+		var outOfRange interface{} = "We are attempting to move to a board space out of range: " + strconv.Itoa(space)
+		panic(outOfRange)
 	}
 	prePosition := gs.CurrentPlayer.PositionOnBoard
 	gs.CurrentPlayer.PositionOnBoard = space
@@ -252,11 +256,10 @@ func (gs *GameState) GoToSquare(space int, paymentCheck bool) {
 }
 
 func (gs *GameState) RemoveToken(playerToRemove *Player) {
-	fmt.Println("Removing token", playerToRemove.Token, "played by", playerToRemove.Name)
+	fmt.Println("Removing player", playerToRemove.Name)
 	//var playerToExterminate int
 	for _, j := range gs.AllPlayers {
 		if j.PlayerNumber == playerToRemove.PlayerNumber {
-			//playerToExterminate = i
 			j.Active = false
 			break
 		}

@@ -28,13 +28,15 @@ type CardCollection struct {
 	CurrentCardO  int // Current card in Community Chest
 }
 
-func GenerateOrderForChanceCommunityChestCards() []int {
+func GenerateOrderForChanceCommunityChestCards(randomCardPileType string) []int {
 	cardsToDeal := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+	fmt.Println("Randomising", randomCardPileType, "card order")
 	fmt.Println(cardsToDeal)
 	rand.Seed(time.Now().UnixNano())
 	time.Sleep(200)
 	rand.Shuffle(len(cardsToDeal), func(i, j int) { cardsToDeal[i], cardsToDeal[j] = cardsToDeal[j], cardsToDeal[i] })
 	fmt.Println(cardsToDeal)
+	fmt.Println()
 	return cardsToDeal
 }
 

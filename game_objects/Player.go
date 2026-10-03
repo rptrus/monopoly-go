@@ -21,13 +21,13 @@ type Player struct {
 	Turns           int
 	JailTurns       int
 	JailCards       []byte
-	Token           string
 }
 
 // return reward if GO is passed, 0 otherwise. If return results need to be augmented will create a struct in future
-func (p *Player) AdvancePlayer(steps int, cc *CardCollection) int {
+// Player takes the current Global position, works with it, then stores their current position back into Global position
+func (p *Player) AdvancePlayer(gs *GameState, steps int, cc *CardCollection) int {
 	p.Turns++
-	prePosition := p.PositionOnBoard
+	prePosition := gs.CurrentGlobalPosition
 	if p.JailTurns == 0 {
 		p.PositionOnBoard += steps
 	} else if p.JailTurns > 0 && len(p.JailCards) > 0 {
@@ -65,6 +65,7 @@ func (p *Player) AdvancePlayer(steps int, cc *CardCollection) int {
 		}
 	}
 	p.PositionOnBoard = p.PositionOnBoard % placesonboard
+	gs.CurrentGlobalPosition = p.PositionOnBoard
 	if p.PositionOnBoard < prePosition && p.JailTurns == 0 {
 		p.pay200Dollars()
 		return roundTripPayment

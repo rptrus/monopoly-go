@@ -360,8 +360,8 @@ func InitializeDrawCards() *game_objects.CardCollection {
 	}
 	CardCollection.AllDrawCards[CC+15] = card
 
-	CardCollection.ShuffleOrderH = game_objects.GenerateOrderForChanceCommunityChestCards()
-	CardCollection.ShuffleOrderO = game_objects.GenerateOrderForChanceCommunityChestCards()
+	CardCollection.ShuffleOrderH = game_objects.GenerateOrderForChanceCommunityChestCards("Chance")
+	CardCollection.ShuffleOrderO = game_objects.GenerateOrderForChanceCommunityChestCards("Community Chest")
 
 	return CardCollection
 }

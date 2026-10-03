@@ -76,7 +76,7 @@ func InitializeBank() *game_objects.Bank {
 	return bk
 }
 
-func InitializePlayers(numberOfPlayers int) []game_objects.Player {
+func InitializePlayers(numberOfPlayers int, token string) []game_objects.Player {
 
 	var AllPlayers []game_objects.Player
 
@@ -96,29 +96,23 @@ func InitializePlayers(numberOfPlayers int) []game_objects.Player {
 	}
 	// give some names to the players, make it less boring
 	AllPlayers[0].Name = "Fred"
-	AllPlayers[0].Token = "Wheelbarrow"
 	AllPlayers[1].Name = "Mary"
-	AllPlayers[1].Token = "Racing car"
 	switch len(AllPlayers) {
 	case 6:
 		AllPlayers[5].Name = "Indigo"
-		AllPlayers[5].Token = "Thimble"
 		fallthrough
 	case 5:
 		AllPlayers[4].Name = "Bradley"
-		AllPlayers[4].Token = "Boot"
 		fallthrough
 	case 4:
 		AllPlayers[3].Name = "Sally"
-		AllPlayers[3].Token = "Cat"
 		fallthrough
 	case 3:
 		AllPlayers[2].Name = "Jason"
-		AllPlayers[2].Token = "Top Hat"
 	}
 
 	for a, b := range AllPlayers {
-		fmt.Println("Player", a, ":", b.Name, b.Token, "$", b.CashAvailable)
+		fmt.Println("Player", a, ":", b.Name, token, "$", b.CashAvailable)
 	}
 	game_objects.TotalPlayersPlaying = len(AllPlayers)
 	return AllPlayers
