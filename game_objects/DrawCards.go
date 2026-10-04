@@ -55,7 +55,7 @@ func processDrawCardInternal(card *DrawCard, gs *GameState, cc *CardCollection) 
 	if card.MoveToSpace != nil {
 		fmt.Println("Move to space")
 		if *card.MoveToSpace == 10 {
-			gs.CurrentPlayer.JailTurns = 3
+			gs.Globals.GlobalJailTurns = 3
 		} // special case
 		gs.GoToSquare(*card.MoveToSpace, true)
 	} else if card.RelativeMove != nil {

@@ -30,20 +30,13 @@ func main() {
 	drawCards := setup.InitializeDrawCards()
 	globalToken := "Canon"
 	allPlayers := setup.InitializePlayers(numberOfPlayers, globalToken)
-	firstUp, score := game_objects.RollToSeeWhoGoesFirst(allPlayers, globalToken)
-	println(firstUp.Name, " is going first with score", score, "...")
-	gameState := game_objects.GameState{
-		CurrentPlayer:   firstUp,
-		GlobalTurnsMade: 1,
-		GlobalToken:     globalToken,
-		AllPlayers:      allPlayers,
-		AllProperties:   propertyCardCollection,
-		Others:          otherCardCollection,
-	}
+	firstUp, _ := game_objects.RollToSeeWhoGoesFirst(allPlayers, globalToken)
+	globState := setup.InitGlobalState(globalToken)
+	gameState := setup.InitGameState(firstUp, globState, allPlayers, propertyCardCollection, otherCardCollection)
 	game_objects.BankGameState = &gameState
 	for {
 		fmt.Println("\n================================================================================================"+
-			"\n[ COUNTER:", gameState.GlobalTurnsMade, "] Turn:", gameState.CurrentPlayer.Turns, "for Current Player", gameState.CurrentPlayer.PlayerNumber, "(", gameState.CurrentPlayer.Name, ") currently on", game_objects.GetTheCurrentCardName(gameState.CurrentPlayer.PositionOnBoard, &gameState),
+			"\n[ COUNTER:", gameState.Globals.GlobalTurnsMade, "] Turn:", gameState.CurrentPlayer.Turns, "for Current Player", gameState.CurrentPlayer.PlayerNumber, "(", gameState.CurrentPlayer.Name, ") currently on", game_objects.GetTheCurrentCardName(gameState.CurrentPlayer.PositionOnBoard, &gameState),
 			"\n================================================================================================")
 		deedsOwned := game_objects.ShowPropertyDeedsOfPlayer(gameState.CurrentPlayer.PlayerNumber, &gameState)
 		gameState.CurrentPlayer.CheckToUnmortgage(gameState.CurrentPlayer, deedsOwned)
@@ -51,10 +44,7 @@ func main() {
 		gameState.CurrentPlayer.PutUpHouses(&gameState)
 		gameState.RollDice()
 		prePosition := gameState.CurrentPlayer.PositionOnBoard // place before we advance to our roll
-		passGoPayment := gameState.CurrentPlayer.AdvancePlayer(&gameState, gameState.CurrentDiceRoll, drawCards)
-		if passGoPayment > 0 {
-			fmt.Println("BANK PAYS PLAYER $", gameState.CurrentPlayer.Name, passGoPayment)
-		}
+		gameState.CurrentPlayer.AdvancePlayer(&gameState, gameState.CurrentDiceRoll, drawCards)
 		thePropertyName, theDeed := game_objects.GetTheCurrentCard(gameState.CurrentPlayer.PositionOnBoard, &gameState)
 		if theDeed != nil {
 			preName, _ := game_objects.GetTheCurrentCard(prePosition, &gameState)
@@ -70,13 +60,9 @@ func main() {
 				fmt.Println(movedToStr+"Player", int(theDeed.Owner), "(", allPlayers[theDeed.Owner].Name, ") <===")
 				rent, err := theDeed.PayRent(&allPlayers[gameState.CurrentPlayer.PlayerNumber], &allPlayers[int(theDeed.Owner)], board, gameState.AllProperties)
 				if err != game_objects.ErrR2O { // suppress rent to ourself messages
-					fmt.Println(allPlayers[gameState.CurrentPlayer.PlayerNumber].Name, gameState.CurrentPlayer.PlayerNumber, "paid $", rent, "rent to Player", allPlayers[int(theDeed.Owner)].Name, int(theDeed.Owner), "(", err, ")")
+					fmt.Println(allPlayers[gameState.CurrentPlayer.PlayerNumber].Name, "(player", gameState.CurrentPlayer.PlayerNumber, ")", "paid $", rent, "rent to Player", allPlayers[int(theDeed.Owner)].Name, "(player", int(theDeed.Owner), ")", "(", err, ")")
 					fmt.Println(allPlayers[gameState.CurrentPlayer.PlayerNumber].Name, "now has $", allPlayers[gameState.CurrentPlayer.PlayerNumber].CashAvailable, "and", allPlayers[int(theDeed.Owner)].Name, "has $", allPlayers[int(theDeed.Owner)].CashAvailable)
 				}
-			}
-			names, _ := game_objects.ShowPropertiesOfPlayer(gameState.CurrentPlayer.PlayerNumber, &gameState)
-			if names != nil && len(names) == 0 {
-				names = append(names, "none")
 			}
 			game_objects.LogPropertiesByPlayer(&gameState)
 		} else {
@@ -86,7 +72,7 @@ func main() {
 		}
 		gameState.UnownedProperties(gameState.AllProperties) // needs to set AllPropsSold when applicable
 		gameWon := gameState.NextPlayer()
-		if gameWon == true || gameState.GlobalTurnsMade == numberOfTurns {
+		if gameWon == true || gameState.Globals.GlobalTurnsMade == numberOfTurns {
 			break
 		}
 	}

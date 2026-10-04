@@ -20,13 +20,18 @@ var (
 	TotalPlayersPlaying int = 6
 )
 
+type GlobalState struct {
+	CurrentGlobalPosition int
+	GlobalToken           string
+	GlobalJailTurns       int
+	GlobalTurnsMade       int
+}
+
 type GameState struct {
 	CurrentPlayer         *Player
 	CurrentPropertyOfTurn *Property
 	CurrentDiceRoll       int
-	CurrentGlobalPosition int
-	GlobalToken           string
-	GlobalTurnsMade       int
+	Globals               *GlobalState
 	allPropsSold          bool
 	AllPlayers            []Player
 	AllProperties         *PropertyCollection
@@ -65,6 +70,8 @@ func RollToSeeWhoGoesFirst(AllPlayers []Player, globalToken string) (*Player, in
 		}
 	}
 	fmt.Println(AllPlayers[highestSoFarPlayer].Name, globalToken, highestSoFarPlayer, " wins the toss")
+	fmt.Println("All players will be using the token", globalToken)
+	println(AllPlayers[highestSoFarPlayer].Name, " is going first with score", highestSoFarScore, "...")
 	return &AllPlayers[highestSoFarPlayer], highestSoFarScore
 }
 
@@ -87,7 +94,7 @@ func rollToGetOutOfJail() (int, int) {
 }
 
 func (gs *GameState) RollDice() {
-	gs.GlobalTurnsMade++
+	gs.Globals.GlobalTurnsMade++
 	gs.CurrentDiceRoll = rollDice()
 	fmt.Println("4. Roll dice -> outcome: ", gs.CurrentDiceRoll)
 }
@@ -139,8 +146,8 @@ func (gs *GameState) NextPlayer() bool {
 			break
 		}
 	}
-	gs.CurrentPlayer.PositionOnBoard = gs.CurrentGlobalPosition // will read from the last player
-	fmt.Println(gs.CurrentPlayer.Name, "is now up (starting at position ", gs.CurrentGlobalPosition, " set from the last player")
+	gs.CurrentPlayer.PositionOnBoard = gs.Globals.CurrentGlobalPosition // will read from the last player
+	fmt.Println(gs.CurrentPlayer.Name, "is now up (starting at position ", gs.Globals.CurrentGlobalPosition, ") set from the last player")
 	fmt.Println("\n------------------------------------------------------------------------------------------------")
 
 	if countActive == 1 {
@@ -210,8 +217,8 @@ func (gs *GameState) ProcessNonPropertySquare(CurrentPlayer *Player, sqType int,
 		fmt.Println("Collected Tax: $", t.Amount)
 	case Jail:
 		if CurrentPlayer.PositionOnBoard == 30 {
-			CurrentPlayer.PositionOnBoard = 10
-			CurrentPlayer.JailTurns = 3
+			gs.Globals.CurrentGlobalPosition = 10
+			gs.Globals.GlobalJailTurns = 3
 		}
 	case JustVisiting, FreeParking:
 		fmt.Println("Have a rest!")
@@ -244,8 +251,7 @@ func (gs *GameState) processDrawCard(offset int, cc *CardCollection) {
 func (gs *GameState) GoToSquare(space int, paymentCheck bool) {
 
 	if space < 0 || space > 39 {
-		var outOfRange interface{} = "We are attempting to move to a board space out of range: " + strconv.Itoa(space)
-		panic(outOfRange)
+		panic(interface{}("We are attempting to move to a board space out of range: " + strconv.Itoa(space)))
 	}
 	prePosition := gs.CurrentPlayer.PositionOnBoard
 	gs.CurrentPlayer.PositionOnBoard = space

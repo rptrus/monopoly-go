@@ -18,8 +18,10 @@ func InitializeBoard() *game_objects.Board {
 	13                            37
 	12                            38
 	11                            39
-	10 9  8  7  6  5  4  3  2  1  G0 `
+	10 9  8  7  6  5  4  3  2  1  G0 
+	`
 	fmt.Println(board)
+	displayBoardPlaceNames()
 	brd := game_objects.Board{}
 	// side 1
 	brd.MonopolySpace[0].SquareType = game_objects.Payment
@@ -66,6 +68,50 @@ func InitializeBoard() *game_objects.Board {
 	brd.MonopolySpace[38].SquareType = game_objects.Tax
 	brd.MonopolySpace[39].SquareType = game_objects.BuildableProperty
 	return &brd
+}
+
+func displayBoardPlaceNames() {
+	fmt.Println("0 -> Go")
+	fmt.Println("1 -> Old Kent Road")
+	fmt.Println("2 -> Commnunity Chest")
+	fmt.Println("3 -> WhiteChappel road")
+	fmt.Println("4 -> Income Tax")
+	fmt.Println("5 -> Kings Cross Station")
+	fmt.Println("6 -> Angel Islington")
+	fmt.Println("7 -> Chance")
+	fmt.Println("8 -> Euston Road")
+	fmt.Println("9 -> Pentonville Road")
+	fmt.Println("10 -> Just Visiting")
+	fmt.Println("11 -> Pall Mall")
+	fmt.Println("12 -> Electric Company")
+	fmt.Println("13 -> Whitehall")
+	fmt.Println("14 -> Northumberland Ave")
+	fmt.Println("15 -> Marleybone Station")
+	fmt.Println("16 -> Bow Street")
+	fmt.Println("17 -> Communinity Chest")
+	fmt.Println("18 -> Marlborough Street")
+	fmt.Println("19 -> Vine Street")
+	fmt.Println("20 -> Free Parking")
+	fmt.Println("21 -> Strand")
+	fmt.Println("22 -> Chance")
+	fmt.Println("23 -> Fleet Street")
+	fmt.Println("24 -> Trafalgar Square")
+	fmt.Println("25 -> Fenchurch Street Station")
+	fmt.Println("26 -> Leicester Square")
+	fmt.Println("27 -> Coventry Street")
+	fmt.Println("28 -> Water Works")
+	fmt.Println("29 -> Picadilly")
+	fmt.Println("30 -> Go to Jail")
+	fmt.Println("31 -> Regent Street")
+	fmt.Println("32 -> Oxford Street")
+	fmt.Println("33 -> Community Chest")
+	fmt.Println("34 -> Bond Street")
+	fmt.Println("35 -> Liverpool St Station")
+	fmt.Println("36 -> Chance")
+	fmt.Println("37 -> Park Lane")
+	fmt.Println("38 -> Super Tax")
+	fmt.Println("39 -> Mayfair")
+	fmt.Println()
 }
 
 func InitializeBank() *game_objects.Bank {
@@ -116,4 +162,25 @@ func InitializePlayers(numberOfPlayers int, token string) []game_objects.Player 
 	}
 	game_objects.TotalPlayersPlaying = len(AllPlayers)
 	return AllPlayers
+}
+
+func InitGameState(firstUp *game_objects.Player, globState game_objects.GlobalState, allPlayers []game_objects.Player, propertyCardCollection *game_objects.PropertyCollection, otherCardCollection *game_objects.OtherPropertyCollection) game_objects.GameState {
+	gameState := game_objects.GameState{
+		CurrentPlayer: firstUp,
+		Globals:       &globState,
+		AllPlayers:    allPlayers,
+		AllProperties: propertyCardCollection,
+		Others:        otherCardCollection,
+	}
+	return gameState
+}
+
+func InitGlobalState(globalToken string) game_objects.GlobalState {
+	globState := game_objects.GlobalState{
+		CurrentGlobalPosition: 0,
+		GlobalToken:           globalToken,
+		GlobalJailTurns:       0,
+		GlobalTurnsMade:       0,
+	}
+	return globState
 }

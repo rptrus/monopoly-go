@@ -49,7 +49,7 @@ func (txn *Transaction) BankCheque() {
 		fmt.Errorf("Cannot set the receiver when doing a bank cheque!")
 	}
 	if TheBank.CashReservesInDollars <= 0 {
-		panic("The bank has gone bankrupt! Game is over")
+		panic(interface{}("The bank has gone bankrupt! Game is over"))
 	}
 	TheBank.TransactionLedger = append(TheBank.TransactionLedger, *txn)
 }

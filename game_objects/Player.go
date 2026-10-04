@@ -19,19 +19,18 @@ type Player struct {
 	PositionOnBoard int
 	Active          bool
 	Turns           int
-	JailTurns       int
 	JailCards       []byte
 }
 
 // return reward if GO is passed, 0 otherwise. If return results need to be augmented will create a struct in future
 // Player takes the current Global position, works with it, then stores their current position back into Global position
-func (p *Player) AdvancePlayer(gs *GameState, steps int, cc *CardCollection) int {
+func (p *Player) AdvancePlayer(gs *GameState, steps int, cc *CardCollection) {
 	p.Turns++
-	prePosition := gs.CurrentGlobalPosition
-	if p.JailTurns == 0 {
+	prePosition := gs.Globals.CurrentGlobalPosition
+	if gs.Globals.GlobalJailTurns == 0 {
 		p.PositionOnBoard += steps
-	} else if p.JailTurns > 0 && len(p.JailCards) > 0 {
-		p.JailTurns = 0
+	} else if gs.Globals.GlobalJailTurns > 0 && len(p.JailCards) > 0 {
+		gs.Globals.GlobalJailTurns = 0
 		backIntoStack := p.JailCards[0]
 		if backIntoStack == 'H' {
 			cc.ShuffleOrderH = append(cc.ShuffleOrderH, 15) // 15 is chance card for jail free
@@ -44,10 +43,10 @@ func (p *Player) AdvancePlayer(gs *GameState, steps int, cc *CardCollection) int
 		firstRoll, secondRoll := rollToGetOutOfJail()
 		if firstRoll == secondRoll {
 			fmt.Println("Rolled a double! lets get out of Jail")
-			p.JailTurns = 0
+			gs.Globals.GlobalJailTurns = 0
 			p.PositionOnBoard += firstRoll + secondRoll
 		} else {
-			if p.JailTurns == 1 {
+			if gs.Globals.GlobalJailTurns == 1 {
 				fmt.Println("Exhausted all rolls, pay $50 to get out and roll", firstRoll+secondRoll, "spaces")
 				t := Transaction{
 					Sender:   p,
@@ -55,22 +54,21 @@ func (p *Player) AdvancePlayer(gs *GameState, steps int, cc *CardCollection) int
 					Amount:   50,
 				}
 				t.TransactWithBank()
-				p.JailTurns = 0
+				gs.Globals.GlobalJailTurns = 0
 				p.PositionOnBoard += firstRoll + secondRoll
 			} else {
-				p.JailTurns--
+				gs.Globals.GlobalJailTurns--
 				p.PositionOnBoard += 0
-				fmt.Println("Rolled a ", firstRoll, "and", secondRoll, ". Not succesful.", p.JailTurns, "more tries available")
+				fmt.Println("Rolled a ", firstRoll, "and", secondRoll, ". Not succesful.", gs.Globals.GlobalJailTurns, "more tries available")
 			}
 		}
 	}
 	p.PositionOnBoard = p.PositionOnBoard % placesonboard
-	gs.CurrentGlobalPosition = p.PositionOnBoard
-	if p.PositionOnBoard < prePosition && p.JailTurns == 0 {
+	gs.Globals.CurrentGlobalPosition = p.PositionOnBoard
+	if p.PositionOnBoard < prePosition && gs.Globals.GlobalJailTurns == 0 {
+		fmt.Println("BANK PAYS PLAYER", p.Name, "$", roundTripPayment)
 		p.pay200Dollars()
-		return roundTripPayment
 	}
-	return 0
 }
 
 func (p *Player) BuyProperty(pd *PropertyDeed) (int, error) {
