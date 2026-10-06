@@ -9,7 +9,7 @@ func InitializeBoard() *game_objects.Board {
 	fmt.Println("Initialize Game board....")
 	board := `
 	20 21 22 23 24 25 26 27 28 29 30
-	19			                  31
+	19                            31
 	18                            32
 	17                            33
 	16                            34
@@ -35,7 +35,7 @@ func InitializeBoard() *game_objects.Board {
 	brd.MonopolySpace[8].SquareType = game_objects.BuildableProperty
 	brd.MonopolySpace[9].SquareType = game_objects.BuildableProperty
 	// side 2
-	brd.MonopolySpace[10].SquareType = game_objects.FreeParking
+	brd.MonopolySpace[10].SquareType = game_objects.JustVisiting // or Jail
 	brd.MonopolySpace[11].SquareType = game_objects.BuildableProperty
 	brd.MonopolySpace[12].SquareType = game_objects.Utility
 	brd.MonopolySpace[13].SquareType = game_objects.BuildableProperty
@@ -46,7 +46,7 @@ func InitializeBoard() *game_objects.Board {
 	brd.MonopolySpace[18].SquareType = game_objects.BuildableProperty
 	brd.MonopolySpace[19].SquareType = game_objects.BuildableProperty
 	// side 3
-	brd.MonopolySpace[20].SquareType = game_objects.JustVisiting
+	brd.MonopolySpace[20].SquareType = game_objects.FreeParking
 	brd.MonopolySpace[21].SquareType = game_objects.BuildableProperty
 	brd.MonopolySpace[22].SquareType = game_objects.Chance
 	brd.MonopolySpace[23].SquareType = game_objects.BuildableProperty

@@ -42,11 +42,11 @@ func (p *Player) AdvancePlayer(gs *GameState, steps int, cc *CardCollection) {
 	} else {
 		firstRoll, secondRoll := rollToGetOutOfJail()
 		if firstRoll == secondRoll {
-			fmt.Println("Rolled a double! lets get out of Jail")
+			fmt.Println("Rolled a double!", firstRoll, secondRoll, "lets get out of Jail")
 			gs.Globals.GlobalJailTurns = 0
 			p.PositionOnBoard += firstRoll + secondRoll
 		} else {
-			if gs.Globals.GlobalJailTurns == 1 {
+			if gs.Globals.GlobalJailTurns == 1 { // last roll
 				fmt.Println("Exhausted all rolls, pay $50 to get out and roll", firstRoll+secondRoll, "spaces")
 				t := Transaction{
 					Sender:   p,
@@ -56,7 +56,7 @@ func (p *Player) AdvancePlayer(gs *GameState, steps int, cc *CardCollection) {
 				t.TransactWithBank()
 				gs.Globals.GlobalJailTurns = 0
 				p.PositionOnBoard += firstRoll + secondRoll
-			} else {
+			} else { // roll 1 or roll 2
 				gs.Globals.GlobalJailTurns--
 				p.PositionOnBoard += 0
 				fmt.Println("Rolled a ", firstRoll, "and", secondRoll, ". Not succesful.", gs.Globals.GlobalJailTurns, "more tries available")
@@ -139,10 +139,14 @@ func (p *Player) PutUpHouses(gs *GameState) {
 
 // if we have mortgaged properties and the requisite cash, we can umortgage them and make them productive!
 func (p *Player) CheckToUnmortgage(player *Player, pc arrayOfPropertyDeed) {
+	var onceOnly = true
 	for _, prop := range pc {
 		if player.CashAvailable > cashBufferThreshold {
 			if prop.Mortgaged == true {
-				fmt.Println("1. Unmortgage check")
+				if onceOnly == true {
+					fmt.Println("1. Unmortgage check")
+					onceOnly = false
+				}
 				t := Transaction{
 					Sender:   player,
 					Receiver: nil,

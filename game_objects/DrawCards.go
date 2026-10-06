@@ -54,10 +54,13 @@ func drawCardType(cardType byte) string {
 func processDrawCardInternal(card *DrawCard, gs *GameState, cc *CardCollection) {
 	if card.MoveToSpace != nil {
 		fmt.Println("Move to space")
-		if *card.MoveToSpace == 10 {
+		var jail = 10
+		if *card.MoveToSpace == jail {
 			gs.Globals.GlobalJailTurns = 3
-		} // special case
-		gs.GoToSquare(*card.MoveToSpace, true)
+			gs.GoToSquare(jail, false)
+		} else {
+			gs.GoToSquare(*card.MoveToSpace, true)
+		}
 	} else if card.RelativeMove != nil {
 		fmt.Println("Relative move")
 		gs.GoToSquare(gs.CurrentPlayer.PositionOnBoard-3, false)

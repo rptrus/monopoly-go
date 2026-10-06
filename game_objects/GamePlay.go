@@ -255,6 +255,7 @@ func (gs *GameState) GoToSquare(space int, paymentCheck bool) {
 	}
 	prePosition := gs.CurrentPlayer.PositionOnBoard
 	gs.CurrentPlayer.PositionOnBoard = space
+	gs.Globals.CurrentGlobalPosition = space
 	fmt.Println("Player has moved to space", space, GetTheCurrentCardName(space, gs))
 	if gs.CurrentPlayer.PositionOnBoard < prePosition && paymentCheck == true {
 		gs.CurrentPlayer.pay200Dollars()

@@ -119,7 +119,13 @@ func (pd *PropertyDeed) PayRent(from *Player, to *Player, board *Board, pc *Prop
 	}
 	var addition = ""
 	if !(pd.Set == "Train" || pd.Set == "Utility") {
-		addition = "with " + strconv.Itoa(pd.HousesOwned) + " houses"
+		var improvements = ""
+		if pd.HousesOwned == 5 {
+			improvements = "hotel"
+		} else {
+			improvements = strconv.Itoa(pd.HousesOwned) + " houses"
+		}
+		addition = "with " + improvements
 	}
 	fmt.Println("Invoice for landing", GetTheCurrentCardName(pd.PositionOnBoard, BankGameState), "is: $", t.Amount, addition)
 	if err == nil {

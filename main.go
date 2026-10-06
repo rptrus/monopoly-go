@@ -35,17 +35,18 @@ func main() {
 	gameState := setup.InitGameState(firstUp, globState, allPlayers, propertyCardCollection, otherCardCollection)
 	game_objects.BankGameState = &gameState
 	for {
-		fmt.Println("\n================================================================================================"+
-			"\n[ COUNTER:", gameState.Globals.GlobalTurnsMade, "] Turn:", gameState.CurrentPlayer.Turns, "for Current Player", gameState.CurrentPlayer.PlayerNumber, "(", gameState.CurrentPlayer.Name, ") currently on", game_objects.GetTheCurrentCardName(gameState.CurrentPlayer.PositionOnBoard, &gameState),
-			"\n================================================================================================")
+		turnBanner(gameState)
 		deedsOwned := game_objects.ShowPropertyDeedsOfPlayer(gameState.CurrentPlayer.PlayerNumber, &gameState)
 		gameState.CurrentPlayer.CheckToUnmortgage(gameState.CurrentPlayer, deedsOwned)
 		gameState.DoDeals(gameState.AllProperties)
 		gameState.CurrentPlayer.PutUpHouses(&gameState)
-		gameState.RollDice()
+		var notInJail = gameState.Globals.GlobalJailTurns == 0
+		if notInJail {
+			gameState.RollDice()
+		}
 		prePosition := gameState.CurrentPlayer.PositionOnBoard // place before we advance to our roll
 		gameState.CurrentPlayer.AdvancePlayer(&gameState, gameState.CurrentDiceRoll, drawCards)
-		thePropertyName, theDeed := game_objects.GetTheCurrentCard(gameState.CurrentPlayer.PositionOnBoard, &gameState)
+		thePropertyName, theDeed := game_objects.GetTheCurrentCard(gameState.Globals.CurrentGlobalPosition, &gameState)
 		if theDeed != nil {
 			preName, _ := game_objects.GetTheCurrentCard(prePosition, &gameState)
 			movedToStr := "===> Moved from space " + strconv.Itoa(prePosition) + " " + preName + " and Landed on space " + strconv.Itoa(gameState.CurrentPlayer.PositionOnBoard) + " " + string(thePropertyName) + " owned by "
@@ -67,8 +68,13 @@ func main() {
 			game_objects.LogPropertiesByPlayer(&gameState)
 		} else {
 			sqType := board.MonopolySpace[gameState.CurrentPlayer.PositionOnBoard].SquareType
-			fmt.Println("Landed on a non property square!", gameState.CurrentPlayer.PositionOnBoard, game_objects.GetPropertyType(sqType))
-			gameState.ProcessNonPropertySquare(gameState.CurrentPlayer, sqType, tax, drawCards)
+			if gameState.Globals.GlobalJailTurns > 0 && sqType == game_objects.JustVisiting { // special case
+				sqType = game_objects.Jail
+				fmt.Println("Staying in Jail...")
+			} else {
+				fmt.Println("Landed on a non property square!", gameState.CurrentPlayer.PositionOnBoard, game_objects.GetPropertyType(sqType))
+				gameState.ProcessNonPropertySquare(gameState.CurrentPlayer, sqType, tax, drawCards)
+			}
 		}
 		gameState.UnownedProperties(gameState.AllProperties) // needs to set AllPropsSold when applicable
 		gameWon := gameState.NextPlayer()
@@ -76,4 +82,10 @@ func main() {
 			break
 		}
 	}
+}
+
+func turnBanner(gameState game_objects.GameState) {
+	fmt.Println("\n================================================================================================"+
+		"\n[ COUNTER:", gameState.Globals.GlobalTurnsMade, "] Turn:", gameState.CurrentPlayer.Turns, "for Current Player", gameState.CurrentPlayer.PlayerNumber, "(", gameState.CurrentPlayer.Name, ") currently on", game_objects.GetTheCurrentCardName(gameState.CurrentPlayer.PositionOnBoard, &gameState),
+		"\n================================================================================================")
 }
