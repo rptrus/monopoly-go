@@ -53,7 +53,7 @@ func drawCardType(cardType byte) string {
 
 func processDrawCardInternal(card *DrawCard, gs *GameState, cc *CardCollection) {
 	if card.MoveToSpace != nil {
-		fmt.Println("Move to space")
+		fmt.Println("Card moves player")
 		var jail = 10
 		if *card.MoveToSpace == jail {
 			gs.Globals.GlobalJailTurns = 3

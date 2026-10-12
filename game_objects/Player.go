@@ -19,56 +19,86 @@ type Player struct {
 	PositionOnBoard int
 	Active          bool
 	Turns           int
+	DiceRollA       int
+	DiceRollB       int
+	Doubles         int
+	JailTurns       int
+	ThrownInJail    bool
 	JailCards       []byte
 }
 
 // return reward if GO is passed, 0 otherwise. If return results need to be augmented will create a struct in future
 // Player takes the current Global position, works with it, then stores their current position back into Global position
-func (p *Player) AdvancePlayer(gs *GameState, steps int, cc *CardCollection) {
+// 10/10 Making steps to make it player centric and update globals afterwards, for easier porting to 'main' branch
+func (p *Player) AdvancePlayer(gs *GameState, cc *CardCollection) {
 	p.Turns++
-	prePosition := gs.Globals.CurrentGlobalPosition
-	if gs.Globals.GlobalJailTurns == 0 {
+	// copy global to player
+	p.ThrownInJail = gs.Globals.GlobalThrownInJail
+	p.JailTurns = gs.Globals.GlobalJailTurns
+	p.PositionOnBoard = gs.Globals.CurrentGlobalPosition
+	//
+	steps := gs.CurrentPlayer.DiceRollA + gs.CurrentPlayer.DiceRollB // logic here must be ported to per player on 'main' branch
+	prePosition := p.PositionOnBoard
+	if p.ThrownInJail { // can't rely on JailTurns as a Go To Jail will throw the player into jail and next time around, THEN we get 3 turns
+		// need to skip this players turn
+		p.ThrownInJail = false
+		fmt.Println("Skipping to next player")
+		copyGlobals(gs, p)
+		return
+	}
+	if p.JailTurns == 0 {
 		p.PositionOnBoard += steps
-	} else if gs.Globals.GlobalJailTurns > 0 && len(p.JailCards) > 0 {
-		gs.Globals.GlobalJailTurns = 0
+	} else if gs.CurrentPlayer.JailTurns > 0 && len(p.JailCards) > 0 {
+		p.JailTurns = 0
 		backIntoStack := p.JailCards[0]
 		if backIntoStack == 'H' {
 			cc.ShuffleOrderH = append(cc.ShuffleOrderH, 15) // 15 is chance card for jail free
+			fmt.Println("Using a Chance Jail Card to get out of Jail!")
 		} else {
 			cc.ShuffleOrderO = append(cc.ShuffleOrderO, 11) // 11 is community chest card for jail free
+			fmt.Println("Using a Community Chest Jail Card to get out of Jail!")
 		}
-		p.JailCards = p.JailCards[1:]
+		p.JailCards = p.JailCards[1:] // cutting off the very first element of the existing slice or array
 		p.PositionOnBoard += steps
-	} else {
-		firstRoll, secondRoll := rollToGetOutOfJail()
+	} else if p.JailTurns > 0 {
+		firstRoll, secondRoll := rollDice()
 		if firstRoll == secondRoll {
 			fmt.Println("Rolled a double!", firstRoll, secondRoll, "lets get out of Jail")
-			gs.Globals.GlobalJailTurns = 0
+			p.JailTurns = 0
 			p.PositionOnBoard += firstRoll + secondRoll
 		} else {
-			if gs.Globals.GlobalJailTurns == 1 { // last roll
-				fmt.Println("Exhausted all rolls, pay $50 to get out and roll", firstRoll+secondRoll, "spaces")
+			if p.JailTurns == 1 { // last roll
+				fmt.Println("Exhausted all rolls, pay $50 to get out and rolled", firstRoll, ",", secondRoll, "moving", firstRoll+secondRoll, "spaces")
 				t := Transaction{
 					Sender:   p,
 					Receiver: nil,
 					Amount:   50,
 				}
 				t.TransactWithBank()
-				gs.Globals.GlobalJailTurns = 0
+				p.JailTurns = 0
 				p.PositionOnBoard += firstRoll + secondRoll
 			} else { // roll 1 or roll 2
-				gs.Globals.GlobalJailTurns--
+				p.JailTurns--
 				p.PositionOnBoard += 0
-				fmt.Println("Rolled a ", firstRoll, "and", secondRoll, ". Not succesful.", gs.Globals.GlobalJailTurns, "more tries available")
+				fmt.Println("Rolled a ", firstRoll, "and", secondRoll, ". Not succesful.", p.JailTurns, "more tries available")
 			}
 		}
 	}
 	p.PositionOnBoard = p.PositionOnBoard % placesonboard
-	gs.Globals.CurrentGlobalPosition = p.PositionOnBoard
-	if p.PositionOnBoard < prePosition && gs.Globals.GlobalJailTurns == 0 {
+	if p.PositionOnBoard < prePosition && p.JailTurns == 0 {
 		fmt.Println("BANK PAYS PLAYER", p.Name, "$", roundTripPayment)
 		p.pay200Dollars()
 	}
+	// copy over to global
+	copyGlobals(gs, p)
+	//
+}
+
+// not needed for main branch
+func copyGlobals(gs *GameState, p *Player) {
+	gs.Globals.CurrentGlobalPosition = p.PositionOnBoard
+	gs.Globals.GlobalJailTurns = p.JailTurns
+	gs.Globals.GlobalThrownInJail = p.ThrownInJail
 }
 
 func (p *Player) BuyProperty(pd *PropertyDeed) (int, error) {

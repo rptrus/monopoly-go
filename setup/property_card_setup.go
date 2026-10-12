@@ -426,7 +426,7 @@ func InitializeNonPropertyCards() *game_objects.OtherPropertyCollection {
 
 	nonprop = new(game_objects.OtherProperty) // pointer to instance
 	nonprop.Card = make(map[string]*game_objects.OtherPropertyDetail)
-	(*nonprop).Card["Just Visiting"] = &game_objects.OtherPropertyDetail{
+	(*nonprop).Card["Just Visiting (Jail)"] = &game_objects.OtherPropertyDetail{
 		PositionOnBoard: 10,
 		PlayerTax:       0,
 	}

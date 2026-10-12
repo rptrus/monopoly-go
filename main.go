@@ -41,11 +41,13 @@ func main() {
 		gameState.DoDeals(gameState.AllProperties)
 		gameState.CurrentPlayer.PutUpHouses(&gameState)
 		var notInJail = gameState.Globals.GlobalJailTurns == 0
+		//var notInJail = gameState.CurrentPlayer.JailTurns == 0
 		if notInJail {
 			gameState.RollDice()
 		}
+		playerRolledDoubles := gameState.CheckForDouble()
 		prePosition := gameState.CurrentPlayer.PositionOnBoard // place before we advance to our roll
-		gameState.CurrentPlayer.AdvancePlayer(&gameState, gameState.CurrentDiceRoll, drawCards)
+		gameState.CurrentPlayer.AdvancePlayer(&gameState, drawCards)
 		thePropertyName, theDeed := game_objects.GetTheCurrentCard(gameState.Globals.CurrentGlobalPosition, &gameState)
 		if theDeed != nil {
 			preName, _ := game_objects.GetTheCurrentCard(prePosition, &gameState)
@@ -68,7 +70,7 @@ func main() {
 			game_objects.LogPropertiesByPlayer(&gameState)
 		} else {
 			sqType := board.MonopolySpace[gameState.CurrentPlayer.PositionOnBoard].SquareType
-			if gameState.Globals.GlobalJailTurns > 0 && sqType == game_objects.JustVisiting { // special case
+			if gameState.Globals.GlobalJailTurns > 0 && sqType == game_objects.JustVisiting && gameState.Globals.GlobalThrownInJail { // special case
 				sqType = game_objects.Jail
 				fmt.Println("Staying in Jail...")
 			} else {
@@ -77,9 +79,11 @@ func main() {
 			}
 		}
 		gameState.UnownedProperties(gameState.AllProperties) // needs to set AllPropsSold when applicable
-		gameWon := gameState.NextPlayer()
-		if gameWon == true || gameState.Globals.GlobalTurnsMade == numberOfTurns {
-			break
+		if !playerRolledDoubles {
+			gameWon := gameState.NextPlayer()
+			if gameWon == true || gameState.Globals.GlobalTurnsMade == numberOfTurns {
+				break
+			}
 		}
 	}
 }

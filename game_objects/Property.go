@@ -87,7 +87,8 @@ func (pd *PropertyDeed) PayRent(from *Player, to *Player, board *Board, pc *Prop
 	switch board.MonopolySpace[from.PositionOnBoard].SquareType {
 	case Utility:
 		ownsBoth := len(findSameType(board, pd, pc)) == 2
-		roll := rollDice()
+		first, second := rollDice()
+		roll := first + second
 		fmt.Println("Utility re-roll of", roll)
 		if ownsBoth {
 			pd.Rent = 10 * roll
@@ -241,9 +242,9 @@ func ShowPropertyDeedsOfPlayer(playerNumber int, gs *GameState) arrayOfPropertyD
 func (gs *GameState) UnownedProperties(pc *PropertyCollection) {
 	var propsSpare []string
 	for _, props := range pc.AllProperty {
-		for _, k := range props.Card { // 1 element map
-			if k.Owner == 'u' {
-				propsSpare = append(propsSpare, GetTheCurrentCardName(k.PositionOnBoard, gs))
+		for _, v := range props.Card { // 1 element map
+			if v.Owner == 'u' {
+				propsSpare = append(propsSpare, GetTheCurrentCardName(v.PositionOnBoard, gs))
 			}
 		}
 	}
@@ -251,10 +252,7 @@ func (gs *GameState) UnownedProperties(pc *PropertyCollection) {
 		fmt.Println("Outstanding properties to be purchased:")
 		fmt.Print(len(propsSpare), ") -> \"", strings.Join(propsSpare, "\",\""), "\" \n")
 	} else {
-		if gs.allPropsSold == false {
-			fmt.Println("* ALL PROPERTIES HAVE NOW SOLD! *")
-			gs.allPropsSold = true
-		}
+		fmt.Println("* ALL PROPERTIES HAVE NOW SOLD! *")
 	}
 }
 

@@ -9,7 +9,7 @@ import (
 
 const (
 	maxdicelow         int = 1
-	maxdicehigh        int = 6
+	maxdicehigh        int = 3
 	placesonboard      int = 40
 	minThresholdHouses int = 500
 	formattingHashes   int = 28
@@ -23,16 +23,18 @@ var (
 type GlobalState struct {
 	CurrentGlobalPosition int
 	GlobalToken           string
+	CurrentDiceRollA      int
+	CurrentDiceRollB      int
+	GlobalDoubles         int
 	GlobalJailTurns       int
+	GlobalThrownInJail    bool
 	GlobalTurnsMade       int
 }
 
 type GameState struct {
 	CurrentPlayer         *Player
 	CurrentPropertyOfTurn *Property
-	CurrentDiceRoll       int
 	Globals               *GlobalState
-	allPropsSold          bool
 	AllPlayers            []Player
 	AllProperties         *PropertyCollection
 	Others                *OtherPropertyCollection
@@ -46,9 +48,10 @@ func RollToSeeWhoGoesFirst(AllPlayers []Player, globalToken string) (*Player, in
 	)
 
 	for i, _ := range AllPlayers {
-		total := rollDice()
+		first, second := rollDice()
+		total := first + second
 		if total > highestSoFarScore {
-			rollOffPlayer = rollOffPlayer[:0]
+			rollOffPlayer = rollOffPlayer[:0] // array reset
 			highestSoFarScore = total
 			highestSoFarPlayer = i
 		}
@@ -62,7 +65,8 @@ func RollToSeeWhoGoesFirst(AllPlayers []Player, globalToken string) (*Player, in
 		highestSoFarPlayer = 0
 		highestSoFarScore = 0
 		for i, _ := range rollOffPlayer {
-			total := rollDice()
+			first, second := rollDice()
+			total := first + second
 			if total > highestSoFarScore {
 				highestSoFarScore = total
 				highestSoFarPlayer = rollOffPlayer[i]
@@ -75,17 +79,7 @@ func RollToSeeWhoGoesFirst(AllPlayers []Player, globalToken string) (*Player, in
 	return &AllPlayers[highestSoFarPlayer], highestSoFarScore
 }
 
-func rollDice() int {
-	time.Sleep(1 * time.Millisecond)
-	rand.Seed(time.Now().UnixNano())
-	first := maxdicelow + rand.Intn(maxdicehigh-maxdicelow+1)
-	second := maxdicelow + rand.Intn(maxdicehigh-maxdicelow+1)
-	total := first + second
-	return total
-}
-
-// substantially similar code reuse (I know) but I'd rather keep both for convenience, mmkay?
-func rollToGetOutOfJail() (int, int) {
+func rollDice() (int, int) {
 	time.Sleep(1 * time.Millisecond)
 	rand.Seed(time.Now().UnixNano())
 	first := maxdicelow + rand.Intn(maxdicehigh-maxdicelow+1)
@@ -95,8 +89,15 @@ func rollToGetOutOfJail() (int, int) {
 
 func (gs *GameState) RollDice() {
 	gs.Globals.GlobalTurnsMade++
-	gs.CurrentDiceRoll = rollDice()
-	fmt.Println("4. Roll dice -> outcome: ", gs.CurrentDiceRoll)
+	first, second := rollDice()
+	gs.CurrentPlayer.DiceRollA = first
+	gs.CurrentPlayer.DiceRollB = second
+	gs.Globals.CurrentDiceRollA = first
+	gs.Globals.CurrentDiceRollB = second
+	fmt.Println("4. Roll dice.\nDice 1:", gs.Globals.CurrentDiceRollA, "\nDice 2:", gs.Globals.CurrentDiceRollB)
+	if first == second {
+		fmt.Println("Double rolled!")
+	}
 }
 
 // true: if game has been won by a player
@@ -221,7 +222,7 @@ func (gs *GameState) ProcessNonPropertySquare(CurrentPlayer *Player, sqType int,
 			gs.Globals.GlobalJailTurns = 3
 		}
 	case JustVisiting, FreeParking:
-		fmt.Println("Have a rest!")
+		fmt.Println("Have a rest! (or Stay in Jail!)")
 	case Payment:
 		fmt.Println("Landed on GO!")
 	case Chance:
@@ -256,10 +257,20 @@ func (gs *GameState) GoToSquare(space int, paymentCheck bool) {
 	prePosition := gs.CurrentPlayer.PositionOnBoard
 	gs.CurrentPlayer.PositionOnBoard = space
 	gs.Globals.CurrentGlobalPosition = space
-	fmt.Println("Player has moved to space", space, GetTheCurrentCardName(space, gs))
+	if gs.CurrentPlayer.JailTurns == 0 {
+		fmt.Println("Player has moved to space", space, GetTheCurrentCardName(space, gs))
+	}
 	if gs.CurrentPlayer.PositionOnBoard < prePosition && paymentCheck == true {
 		gs.CurrentPlayer.pay200Dollars()
 	}
+}
+
+func (gs *GameState) GoToJail() {
+	gs.CurrentPlayer.JailTurns = 3
+	gs.CurrentPlayer.ThrownInJail = true
+	gs.Globals.GlobalJailTurns = 3
+	gs.Globals.GlobalThrownInJail = true
+	gs.GoToSquare(10, false)
 }
 
 func (gs *GameState) RemoveToken(playerToRemove *Player) {
@@ -271,4 +282,45 @@ func (gs *GameState) RemoveToken(playerToRemove *Player) {
 			break
 		}
 	}
+}
+
+// true = doubles = next turn is the same player
+func (gs *GameState) CheckForDouble() bool {
+	// Per player
+	if false { // enable for main branch
+		var notInJail = gs.CurrentPlayer.JailTurns == 0
+		if gs.CurrentPlayer.DiceRollA == gs.CurrentPlayer.DiceRollB && notInJail {
+			gs.CurrentPlayer.Doubles++
+			if gs.CurrentPlayer.Doubles < 3 {
+				return true
+			} else if gs.CurrentPlayer.Doubles == 3 {
+				// go to jail
+				fmt.Println("Player is going to Jail!")
+				gs.GoToJail()
+			} else {
+				fmt.Errorf("Unexpected state:", gs.CurrentPlayer.Doubles)
+			}
+		} else {
+			gs.CurrentPlayer.Doubles = 0
+		}
+	}
+
+	// Globally (to be removed from 'main' branch)
+	var notInJail = gs.Globals.GlobalJailTurns == 0
+	if gs.Globals.CurrentDiceRollA == gs.Globals.CurrentDiceRollB && notInJail {
+		gs.Globals.GlobalDoubles++
+		if gs.Globals.GlobalDoubles < 3 {
+			fmt.Println("Player has rolled", gs.Globals.GlobalDoubles, "doubles so far")
+			return true
+		} else if gs.Globals.GlobalDoubles == 3 {
+			// go to jail
+			fmt.Println("Player is going to Jail!")
+			gs.GoToJail()
+		} else {
+			fmt.Errorf("Unexpected state:", gs.Globals.GlobalDoubles)
+		}
+	} else {
+		gs.Globals.GlobalDoubles = 0
+	}
+	return false
 }
