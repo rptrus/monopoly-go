@@ -22,7 +22,8 @@ func (gs *GameState) DoDeals(pc *PropertyCollection) {
 			owners, bank := ownersOfASet(pd.Set, pc)
 			if bank == false {
 				fmt.Println("Have a candidate here:", pd.Set, ":", name)
-				fmt.Println("Owners (with no bank as owner): ", owners)
+				namesOfOwners := playerNumberToName(gs, owners)
+				fmt.Println("Owners (with no bank as owner): ", owners, namesOfOwners)
 				// simply look for player who isn't our player number
 				otherOwner := OtherOwnerOfSet(gs.CurrentPlayer.PlayerNumber, owners)
 				propsAll := ShowPropertyDeedsOfPlayer(int(otherOwner), gs)

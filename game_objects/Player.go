@@ -25,6 +25,7 @@ type Player struct {
 	JailTurns       int
 	ThrownInJail    bool
 	JailCards       []byte
+	Token           string
 }
 
 // return reward if GO is passed, 0 otherwise. If return results need to be augmented will create a struct in future
@@ -32,18 +33,12 @@ type Player struct {
 // 10/10 Making steps to make it player centric and update globals afterwards, for easier porting to 'main' branch
 func (p *Player) AdvancePlayer(gs *GameState, cc *CardCollection) {
 	p.Turns++
-	// copy global to player
-	p.ThrownInJail = gs.Globals.GlobalThrownInJail
-	p.JailTurns = gs.Globals.GlobalJailTurns
-	p.PositionOnBoard = gs.Globals.CurrentGlobalPosition
-	//
 	steps := gs.CurrentPlayer.DiceRollA + gs.CurrentPlayer.DiceRollB // logic here must be ported to per player on 'main' branch
 	prePosition := p.PositionOnBoard
 	if p.ThrownInJail { // can't rely on JailTurns as a Go To Jail will throw the player into jail and next time around, THEN we get 3 turns
 		// need to skip this players turn
 		p.ThrownInJail = false
 		fmt.Println("Skipping to next player")
-		copyGlobals(gs, p)
 		return
 	}
 	if p.JailTurns == 0 {
@@ -89,16 +84,6 @@ func (p *Player) AdvancePlayer(gs *GameState, cc *CardCollection) {
 		fmt.Println("BANK PAYS PLAYER", p.Name, "$", roundTripPayment)
 		p.pay200Dollars()
 	}
-	// copy over to global
-	copyGlobals(gs, p)
-	//
-}
-
-// not needed for main branch
-func copyGlobals(gs *GameState, p *Player) {
-	gs.Globals.CurrentGlobalPosition = p.PositionOnBoard
-	gs.Globals.GlobalJailTurns = p.JailTurns
-	gs.Globals.GlobalThrownInJail = p.ThrownInJail
 }
 
 func (p *Player) BuyProperty(pd *PropertyDeed) (int, error) {
@@ -168,17 +153,17 @@ func (p *Player) PutUpHouses(gs *GameState) {
 }
 
 // if we have mortgaged properties and the requisite cash, we can umortgage them and make them productive!
-func (p *Player) CheckToUnmortgage(player *Player, pc arrayOfPropertyDeed) {
+func (p *Player) CheckToUnmortgage(pc arrayOfPropertyDeed) {
 	var onceOnly = true
 	for _, prop := range pc {
-		if player.CashAvailable > cashBufferThreshold {
+		if p.CashAvailable > cashBufferThreshold {
 			if prop.Mortgaged == true {
 				if onceOnly == true {
 					fmt.Println("1. Unmortgage check")
 					onceOnly = false
 				}
 				t := Transaction{
-					Sender:   player,
+					Sender:   p,
 					Receiver: nil,
 					Amount:   int(float64(prop.PurchaseCost) * tenPercent),
 				}
@@ -188,4 +173,15 @@ func (p *Player) CheckToUnmortgage(player *Player, pc arrayOfPropertyDeed) {
 			}
 		}
 	}
+}
+
+func playerNumberToName(gs *GameState, owners []byte) string {
+	allPlayers := ""
+	for _, j := range owners {
+		allPlayers += gs.AllPlayers[j].Name + ", "
+	}
+	if len(allPlayers) > 0 {
+		allPlayers = allPlayers[:len(allPlayers)-2]
+	}
+	return allPlayers
 }

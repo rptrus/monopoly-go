@@ -28,27 +28,24 @@ func main() {
 	propertyCardCollection := setup.InitializePropertyCards()
 	otherCardCollection := setup.InitializeNonPropertyCards()
 	drawCards := setup.InitializeDrawCards()
-	globalToken := "Canon"
-	allPlayers := setup.InitializePlayers(numberOfPlayers, globalToken)
-	firstUp, _ := game_objects.RollToSeeWhoGoesFirst(allPlayers, globalToken)
-	globState := setup.InitGlobalState(globalToken)
-	gameState := setup.InitGameState(firstUp, globState, allPlayers, propertyCardCollection, otherCardCollection)
+	allPlayers := setup.InitializePlayers(numberOfPlayers)
+	firstUp, _ := game_objects.RollToSeeWhoGoesFirst(allPlayers)
+	gameState := setup.InitGameState(firstUp, allPlayers, propertyCardCollection, otherCardCollection)
 	game_objects.BankGameState = &gameState
 	for {
 		turnBanner(gameState)
 		deedsOwned := game_objects.ShowPropertyDeedsOfPlayer(gameState.CurrentPlayer.PlayerNumber, &gameState)
-		gameState.CurrentPlayer.CheckToUnmortgage(gameState.CurrentPlayer, deedsOwned)
+		gameState.CurrentPlayer.CheckToUnmortgage(deedsOwned)
 		gameState.DoDeals(gameState.AllProperties)
 		gameState.CurrentPlayer.PutUpHouses(&gameState)
-		var notInJail = gameState.Globals.GlobalJailTurns == 0
-		//var notInJail = gameState.CurrentPlayer.JailTurns == 0
+		var notInJail = gameState.CurrentPlayer.JailTurns == 0
 		if notInJail {
 			gameState.RollDice()
 		}
 		playerRolledDoubles := gameState.CheckForDouble()
 		prePosition := gameState.CurrentPlayer.PositionOnBoard // place before we advance to our roll
 		gameState.CurrentPlayer.AdvancePlayer(&gameState, drawCards)
-		thePropertyName, theDeed := game_objects.GetTheCurrentCard(gameState.Globals.CurrentGlobalPosition, &gameState)
+		thePropertyName, theDeed := game_objects.GetTheCurrentCard(gameState.CurrentPlayer.PositionOnBoard, &gameState)
 		if theDeed != nil {
 			preName, _ := game_objects.GetTheCurrentCard(prePosition, &gameState)
 			movedToStr := "===> Moved from space " + strconv.Itoa(prePosition) + " " + preName + " and Landed on space " + strconv.Itoa(gameState.CurrentPlayer.PositionOnBoard) + " " + string(thePropertyName) + " owned by "
@@ -70,7 +67,7 @@ func main() {
 			game_objects.LogPropertiesByPlayer(&gameState)
 		} else {
 			sqType := board.MonopolySpace[gameState.CurrentPlayer.PositionOnBoard].SquareType
-			if gameState.Globals.GlobalJailTurns > 0 && sqType == game_objects.JustVisiting && gameState.Globals.GlobalThrownInJail { // special case
+			if gameState.CurrentPlayer.JailTurns > 0 && sqType == game_objects.JustVisiting && gameState.CurrentPlayer.ThrownInJail { // special case
 				sqType = game_objects.Jail
 				fmt.Println("Staying in Jail...")
 			} else {
@@ -79,9 +76,10 @@ func main() {
 			}
 		}
 		gameState.UnownedProperties(gameState.AllProperties) // needs to set AllPropsSold when applicable
-		if !playerRolledDoubles {
+		// Fix bug where Player has rolled a double, become bankrupt, next player routine _had_ skipped due to doubles, even though player is removed
+		if !playerRolledDoubles || (playerRolledDoubles && gameState.CurrentPlayer.Active == false) {
 			gameWon := gameState.NextPlayer()
-			if gameWon == true || gameState.Globals.GlobalTurnsMade == numberOfTurns {
+			if gameWon == true || gameState.GlobalTurnsMade == numberOfTurns {
 				break
 			}
 		}
@@ -90,6 +88,6 @@ func main() {
 
 func turnBanner(gameState game_objects.GameState) {
 	fmt.Println("\n================================================================================================"+
-		"\n[ COUNTER:", gameState.Globals.GlobalTurnsMade, "] Turn:", gameState.CurrentPlayer.Turns, "for Current Player", gameState.CurrentPlayer.PlayerNumber, "(", gameState.CurrentPlayer.Name, ") currently on", game_objects.GetTheCurrentCardName(gameState.CurrentPlayer.PositionOnBoard, &gameState),
+		"\n[ COUNTER:", gameState.GlobalTurnsMade, "] Turn:", gameState.CurrentPlayer.Turns, "for Current Player", gameState.CurrentPlayer.PlayerNumber, "(", gameState.CurrentPlayer.Name, ") currently on", game_objects.GetTheCurrentCardName(gameState.CurrentPlayer.PositionOnBoard, &gameState),
 		"\n================================================================================================")
 }
