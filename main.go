@@ -37,7 +37,7 @@ func main() {
 	for {
 		turnBanner(gameState)
 		deedsOwned := game_objects.ShowPropertyDeedsOfPlayer(gameState.CurrentPlayer.PlayerNumber, &gameState)
-		gameState.CurrentPlayer.CheckToUnmortgage(gameState.CurrentPlayer, deedsOwned)
+		gameState.CurrentPlayer.CheckToUnmortgage(deedsOwned)
 		gameState.DoDeals(gameState.AllProperties)
 		gameState.CurrentPlayer.PutUpHouses(&gameState)
 		var notInJail = gameState.Globals.GlobalJailTurns == 0
@@ -79,7 +79,8 @@ func main() {
 			}
 		}
 		gameState.UnownedProperties(gameState.AllProperties) // needs to set AllPropsSold when applicable
-		if !playerRolledDoubles {
+		// Fix bug where Player has rolled a double, become bankrupt, next player routine _had_ skipped due to doubles, even though player is removed
+		if !playerRolledDoubles || (playerRolledDoubles && gameState.CurrentPlayer.Active == false) {
 			gameWon := gameState.NextPlayer()
 			if gameWon == true || gameState.Globals.GlobalTurnsMade == numberOfTurns {
 				break

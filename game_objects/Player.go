@@ -168,17 +168,17 @@ func (p *Player) PutUpHouses(gs *GameState) {
 }
 
 // if we have mortgaged properties and the requisite cash, we can umortgage them and make them productive!
-func (p *Player) CheckToUnmortgage(player *Player, pc arrayOfPropertyDeed) {
+func (p *Player) CheckToUnmortgage(pc arrayOfPropertyDeed) {
 	var onceOnly = true
 	for _, prop := range pc {
-		if player.CashAvailable > cashBufferThreshold {
+		if p.CashAvailable > cashBufferThreshold {
 			if prop.Mortgaged == true {
 				if onceOnly == true {
 					fmt.Println("1. Unmortgage check")
 					onceOnly = false
 				}
 				t := Transaction{
-					Sender:   player,
+					Sender:   p,
 					Receiver: nil,
 					Amount:   int(float64(prop.PurchaseCost) * tenPercent),
 				}
@@ -188,4 +188,15 @@ func (p *Player) CheckToUnmortgage(player *Player, pc arrayOfPropertyDeed) {
 			}
 		}
 	}
+}
+
+func playerNumberToName(gs *GameState, owners []byte) string {
+	allPlayers := ""
+	for _, j := range owners {
+		allPlayers += gs.AllPlayers[j].Name + ", "
+	}
+	if len(allPlayers) > 0 {
+		allPlayers = allPlayers[:len(allPlayers)-2]
+	}
+	return allPlayers
 }

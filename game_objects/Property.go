@@ -252,7 +252,10 @@ func (gs *GameState) UnownedProperties(pc *PropertyCollection) {
 		fmt.Println("Outstanding properties to be purchased:")
 		fmt.Print(len(propsSpare), ") -> \"", strings.Join(propsSpare, "\",\""), "\" \n")
 	} else {
-		fmt.Println("* ALL PROPERTIES HAVE NOW SOLD! *")
+		if gs.allPropsSold == false {
+			fmt.Println("* ALL PROPERTIES HAVE NOW SOLD! *")
+			gs.allPropsSold = true
+		}
 	}
 }
 

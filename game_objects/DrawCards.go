@@ -137,7 +137,6 @@ func processDrawCardInternal(card *DrawCard, gs *GameState, cc *CardCollection) 
 		repairs := (card.Designator == 'O' && card.Id == 8) || (card.Designator == 'H' && card.Id == 6)
 		jailcard := (card.Designator == 'O' && card.Id == 11) || (card.Designator == 'H' && card.Id == 15)
 		if repairs {
-			fmt.Println("Street repairs")
 			deeds := ShowPropertyDeedsOfPlayer(gs.CurrentPlayer.PlayerNumber, gs)
 			switch card.Id {
 			case 8:
@@ -158,6 +157,7 @@ func processDrawCardInternal(card *DrawCard, gs *GameState, cc *CardCollection) 
 				}
 			}
 			repairCost := (countHousesOwned * costHouseRepair) + (countHotelsOwned * costHotelRepair)
+			fmt.Println("Street repairs cost $", repairCost)
 			if repairCost > 0 {
 				t := Transaction{
 					Sender: gs.CurrentPlayer,
